@@ -15,18 +15,6 @@ They are currently in development in incubators packages, are ready to use but m
 ![moleculeUITools](https://user-images.githubusercontent.com/49183340/120898493-5eb8e100-c62b-11eb-86c6-021dc25e5dd0.PNG)
 ![MoleculeIncubator_EditorTest](https://user-images.githubusercontent.com/49183340/152546159-17f15103-2ac7-4938-8d8f-9de8ff60f3a8.gif)
 
-### Installing incubators packages:
-
-To install Molecule with incubator packages on your Pharo image you just need to execute the following script:
-
-```smalltalk
-Metacello new
-   baseline: 'MoleculeIncubator';
-   repository: 'github://OpenSmock/Molecule:main/src';
-   onConflictUseIncoming;
-   load.
-```
-
 ## Getting Started
 
 ### Installation
