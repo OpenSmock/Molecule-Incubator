@@ -1,18 +1,10 @@
-[![License](https://img.shields.io/github/license/OpenSmock/ProjectName.svg)](./LICENSE)
+[![License](https://img.shields.io/github/license/OpenSmock/Molecule-Incubator.svg)](./LICENSE)
+[![Pharo 11 CI](https://github.com/OpenSmock/Molecule-Incubator/actions/workflows/Pharo11CI.yml/badge.svg)](https://github.com/OpenSmock/Molecule-Incubator/actions/workflows/Pharo11CI.yml)
+[![Pharo 12 CI](https://github.com/OpenSmock/Molecule-Incubator/actions/workflows/Pharo12CI.yml/badge.svg)](https://github.com/OpenSmock/Molecule-Incubator/actions/workflows/Pharo12CI.yml)
 
-<badges for only one tests script>
-   
-[![Tests](https://github.com/OpenSmock/ProjectName/actions/workflows/Tests.yml/badge.svg)](https://github.com/OpenSmock/ProjectName/actions/workflows/Tests.yml)
-[![Pharo 11](https://img.shields.io/badge/Pharo-11-%23aac9ff.svg)](https://pharo.org/download)
-[![Pharo 12](https://img.shields.io/badge/Pharo-12-%23aac9ff.svg)](https://pharo.org/download)
+# Molecule Incubator
 
-<badges for separated tests scripts>
-   
-[![Pharo 11 CI](https://github.com/OpenSmock/ProjectName/actions/workflows/Pharo11CI.yml/badge.svg)](https://github.com/OpenSmock/ProjectName/actions/workflows/Pharo11CI.yml)
-[![Pharo 12 CI](https://github.com/OpenSmock/ProjectName/actions/workflows/Pharo12CI.yml/badge.svg)](https://github.com/OpenSmock/ProjectName/actions/workflows/Pharo12CI.yml)
-
-# ProjectName
-Project description here.
+Molecule component framework tools and features incubation project.
 
 ## Getting Started
 
@@ -22,14 +14,16 @@ To install the project on your Pharo image you can just execute the following sc
 
 ```smalltalk
 Metacello new
-   baseline: 'ProjectName';
-   repository: 'github://OpenSmock/ProjectName:main/src';
+   baseline: 'MoleculeIncubator';
+   repository: 'github://OpenSmock/Molecule-Incubator:main/src';
    load.
 ```
 
 ## Dependencies
 
-No dependencies.
+- [Molecule](https://github.com/OpenSmock/Molecule)
+- [Pyramid](https://github.com/OpenSmock/Pyramid)
+- [Roassal](https://github.com/pharo-graphics/Roassal)
 
 ## License
 
