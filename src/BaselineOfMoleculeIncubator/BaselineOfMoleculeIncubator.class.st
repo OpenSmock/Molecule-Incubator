@@ -60,8 +60,7 @@ BaselineOfMoleculeIncubator >> loadRoassal: spec [
 	spec 
 		baseline: 'Roassal' with: [ 
 			spec 
-				repository: 'github://pharo-graphics/Roassal/src'; 
-				loads: #('Full')
+				repository: 'github://pharo-graphics/Roassal/src'
 		].
 ]
 
