@@ -62,7 +62,6 @@ BaselineOfMoleculeIncubator >> loadRoassal: spec [
 			spec 
 				repository: 'github://pharo-graphics/Roassal/src'; 
 				loads: #('Full'); 
-				package: 'Roassal-UML-Calypso' 
 		].
 ]
 
