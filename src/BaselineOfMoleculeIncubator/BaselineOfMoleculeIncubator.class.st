@@ -27,8 +27,8 @@ BaselineOfMoleculeIncubator >> baseline: spec [
 			spec postLoadDoIt: #'postload:package:'.
 			
 			"Load dependencies"
-			self loadMolecule: spec.
 			self loadRoassal: spec.
+			self loadMolecule: spec.
 			self loadPyramid: spec.
 						
 			"Packages"
@@ -60,7 +60,9 @@ BaselineOfMoleculeIncubator >> loadRoassal: spec [
 	spec 
 		baseline: 'Roassal' with: [ 
 			spec 
-				repository: 'github://pharo-graphics/Roassal/src'
+				repository: 'github://pharo-graphics/Roassal/src'; 
+				loads: #('Full'); 
+				package: 'Roassal-UML-Calypso' 
 		].
 ]
 
