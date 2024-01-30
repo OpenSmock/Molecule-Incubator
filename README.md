@@ -4,12 +4,12 @@
 
 # Molecule Incubator
 
-Molecule component framework tools and features incubation project.
+Molecule component framework tools that features incubation projects.
 
 Molecule UI tools experimentation zone.
 
-UI Tools are coming in next versions of Molecule. 
-They are currently in development in incubators packages, are ready to use but may be instable.
+UI Tools are coming in the next versions of Molecule. 
+They are currently in development in incubator packages, are ready to use but may be instable.
 
 ![image](https://user-images.githubusercontent.com/49183340/151664721-feefb39a-6a9f-44b8-a54d-ef4f2b01bc65.png)
 ![moleculeUITools](https://user-images.githubusercontent.com/49183340/120898493-5eb8e100-c62b-11eb-86c6-021dc25e5dd0.PNG)
@@ -19,7 +19,7 @@ They are currently in development in incubators packages, are ready to use but m
 
 ### Installation
 
-To install the project on your Pharo image you can just execute the following script:
+To install the project in your Pharo image you can execute the following script:
 
 ```smalltalk
 Metacello new
