@@ -19,7 +19,7 @@ MolInspectInterfacesImplementationsCmdCommand >> defaultMenuIconName [
 { #category : #accessing }
 MolInspectInterfacesImplementationsCmdCommand >> defaultMenuItemName [
 
-	^ 'See Component Type users'
+	^ 'See Component users'
 ]
 
 { #category : #accessing }

@@ -58,9 +58,22 @@ MolComponent >> addEventsServicesParameters: interface forFrame: interfaceFrame 
 ]
 
 { #category : #TOREMOVE }
+MolComponent >> checkboxParameters [
+	"shows used and provided parameter interfaces if the checkbox is checked"
+
+	"removes them when the checkbox is unchecked"
+
+	parametersCheckBox state
+		ifTrue: [
+			self setUsedParameters.
+			self setProvidedParameters ]
+		ifFalse: [ self setEmptyParameters ]
+]
+
+{ #category : #TOREMOVE }
 MolComponent >> connectPresenters [
 
-	parametersCheckBox whenChangedDo: [ self showParameters ]
+	parametersCheckBox whenChangedDo: [ self checkboxParameters ]
 	
 ]
 
@@ -69,7 +82,7 @@ MolComponent >> createComponentGraphic [
 	"shows in the upper right corner a representation of the component based on the Corba Component Model (its Type and interfaces with icons symbolizing what role they have based on the component contract)"
 
 	self flag:
-		'to do, comment faire quand plein d interfaces (encadré ?)' 
+		'to do dans autre classe Pharo' 
 		"typeName"
 		"interfaceFrame ifNotNil: [
 		interfaces do: [ :interface |
@@ -80,63 +93,48 @@ MolComponent >> createComponentGraphic [
 { #category : #TOREMOVE }
 MolComponent >> defaultLayout [
 
-	self flag: 'représentation ?'.
-	self flag: 'typeNameField resize pas assez'.
-	self flag: 'background ?'.
-	self flag: 'browse interface (liste déroulante ?)'.
 	self flag: 'couleurs displayColor: [ :aClass |
 (aClass name endsWith: ''Test'')
 ifTrue: [ Color green ]'.
-	self flag:
-		'used/provided texts restent pour ce qui n est pas lecture seule'.
-	self flag:
-		'contract definition au-dessus de toute le reste (nouveau boxlayout) pas sûr que ce soit faisable (boxlayout élément vide?)'.
 	self flag: 'editable selector'.
 	self flag:
 		'voir pour liste déroulante quand trop de trucs à afficher (LSHControllerCamera)'.
+		self flag: 'typeNameField'.
 
-	"first line, first column"
+	"first line, only column"
 	^ SpBoxLayout newTopToBottom
 		  add: (SpBoxLayout newVertical
-				   add: 'Contract definition' expand: false fill: true;
-				   "add: (SpBoxLayout newLeftToRight"add: 'Type name'
-				   expand: false;
-				   add: typeNameField expand: false;
-				   yourself)
+				   add: 'Contract definition' expand: false;
+				   add: 'Type name' expand: false;
+				   add: typeNameField expand: false)
 		  expand: false;
 		  add: SpBoxLayout newLeftToRight width: 5;
-		  "add: (SpBoxLayout newHorizontal"add: (SpBoxLayout newVertical
-				   add: 'Services' expand: false;
-				   add: 'Used' expand: false;
-				   add: usedServicesFrame expand: false;
-				   add: 'Provided' expand: false;
-				   add: providedServicesFrame expand: false;
-				   yourself)
-		  expand: false;
-		  "add: componentGraphic;"add: SpBoxLayout newLeftToRight width: 5;
-		  "second line, second column"add: (SpBoxLayout newVertical
-				   add: 'Events' expand: false;
-				   add: 'Consumed' expand: false;
-				   add: consumedEventsFrame expand: false;
-				   add: 'Produced' expand: false;
-				   add: producedEventsFrame expand: false;
-				   yourself)
-		  expand: false;
-		  add: SpBoxLayout newLeftToRight width: 5;
-		  "second line, third column, is not shown by default"add:
-			  (parametersLayout
-				   add: 'Parameters' expand: false;
-				   add: parametersCheckBox expand: false;
-				   add: usedParametersLabel expand: false;
-				   add: usedParametersFrame expand: false;
-				   add: providedParametersLabel expand: false;
-				   add: providedParametersFrame expand: false;
-				   yourself)
-		  expand: false;
-		  "used to separate lines""add: SpBoxLayout newVertical
-		  expand: true
-		  fill: true;""second line, first column""color: Color blue"
-			  yourself
+		  "second line, first column"add: (SpBoxLayout newLeftToRight
+			   add: (SpBoxLayout newVertical
+					    add: 'Services' expand: false;
+					    add: 'Used' expand: false;
+					    add: usedServicesFrame expand: false;
+					    add: 'Provided' expand: false;
+					    add: providedServicesFrame expand: false)
+			   expand: false;
+			   add: SpBoxLayout newLeftToRight width: 5;
+			   "second line, second column"add: (SpBoxLayout newVertical
+					    add: 'Events' expand: false;
+					    add: 'Consumed' expand: false;
+					    add: consumedEventsFrame expand: false;
+					    add: 'Produced' expand: false;
+					    add: producedEventsFrame expand: false)
+			   expand: false;
+			   add: SpBoxLayout newLeftToRight width: 5;
+			   "second line, third column, is not shown by default except if a parameter interface is detected"
+			   add: (parametersLayout
+					    add: 'Parameters' expand: false;
+					    add: parametersCheckBox expand: false;
+					    add: usedParametersLabel expand: false;
+					    add: usedParametersFrame expand: false;
+					    add: providedParametersLabel expand: false;
+					    add: providedParametersFrame expand: false)
+			   expand: false)
 ]
 
 { #category : #'as yet unclassified' }
@@ -163,6 +161,18 @@ MolComponent >> dropDownInterfaceAdd: interfaces forFrame: interfaceFrame roleIn
 			listTypesUsingInterface: interface
 			forFrame: interfaceFrame
 			roleInterface: roleInterface ]
+]
+
+{ #category : #TOREMOVE }
+MolComponent >> initializeParameters [
+	"shows used and provided parameter interfaces if a parameter interface is detected upon opening the window"
+
+	providedParameters := typeName asClass allProvidedParameters.
+	usedParameters := typeName asClass allUsedParameters.
+	"self halt."
+
+	(usedParameters isNotEmpty or: providedParameters isNotEmpty)
+		ifTrue: [ parametersCheckBox state: true ]
 ]
 
 { #category : #TOREMOVE }
@@ -296,6 +306,17 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 ]
 
 { #category : #TOREMOVE }
+MolComponent >> setEmptyParameters [
+	"removes the parameters when the checkbox is unchecked"
+
+			usedParametersLabel label: ''.
+			providedParametersLabel label: ''.
+
+			providedParametersFrame removeAll.
+			usedParametersFrame removeAll
+]
+
+{ #category : #TOREMOVE }
 MolComponent >> setEvents [
 	"sets the Event interfaces related to the Type"
 
@@ -309,6 +330,18 @@ MolComponent >> setEvents [
 	self
 		dropDownInterfaceAdd: producedEvents
 		forFrame: producedEventsFrame
+		roleInterface: roleRequiredInterface
+]
+
+{ #category : #TOREMOVE }
+MolComponent >> setProvidedParameters [
+	"shows provided parameter interfaces if the checkbox is checked"
+
+	providedParametersLabel label: 'Provided'.
+
+	self
+		dropDownInterfaceAdd: providedParameters
+		forFrame: providedParametersFrame
 		roleInterface: roleRequiredInterface
 ]
 
@@ -339,39 +372,22 @@ MolComponent >> setTypeName: aTypeName package: aPackage [
 
 	self setEvents.
 	self setServices.
-	self showParameters.
+	self initializeParameters.
+	self checkboxParameters.
 
 	self createComponentGraphic
 ]
 
 { #category : #TOREMOVE }
-MolComponent >> showParameters [
-	"shows used and provided parameter interfaces if the checkbox is checked"
+MolComponent >> setUsedParameters [
+	"shows used parameter interfaces if the checkbox is checked"
 
-	"removes them when the checkbox is unchecked"
+	usedParametersLabel label: 'Used'.
 
-	parametersCheckBox state
-		ifTrue: [
-			usedParametersLabel label: 'Used'.
-			providedParametersLabel label: 'Provided'.
-
-			usedParameters := typeName asClass allUsedParameters.
-			providedParameters := typeName asClass allProvidedParameters.
-
-			self
-				dropDownInterfaceAdd: usedParameters
-				forFrame: usedParametersFrame
-				roleInterface: roleOfferedInterface.
-			self
-				dropDownInterfaceAdd: providedParameters
-				forFrame: providedParametersFrame
-				roleInterface: roleRequiredInterface ]
-		ifFalse: [
-			usedParametersLabel label: ''.
-			providedParametersLabel label: ''.
-
-			providedParametersFrame removeAll.
-			usedParametersFrame removeAll ]
+	self
+		dropDownInterfaceAdd: usedParameters
+		forFrame: usedParametersFrame
+		roleInterface: roleOfferedInterface
 ]
 
 { #category : #TOREMOVE }
