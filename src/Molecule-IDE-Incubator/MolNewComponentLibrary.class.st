@@ -16,49 +16,29 @@ Class {
 MolNewComponentLibrary >> browseSelectedTag [
 	"browse the selected Tag, which is a part of a package (that contains classes)"
 
-	| selectedTag packageName taggedClassesQuery |
-	self flag: '- ne fonctionne pas'.
-	selectedTag := ClyTaggedClassGroup new.
-	"receiver of do: is nil"
-	taggedClassesQuery := ClyTaggedClassesQuery new.
-	"package has a syntax such as Molecule-Core, Core being the tag here"
-	packageName := package name , ' ' , tag name.
-	taggedClassesQuery tag: tag.
-	"packageScope := ClyPackageScope new.
-	packageScope basisObjects: package asString.
-	taggedClassesQuery scope: packageScope."
-
-	selectedTag classQuery: taggedClassesQuery.
-	selectedTag name: packageName.
-	selectedTag browse
+	| browser |
+	browser := ClyFullBrowserMorph new.
+	browser navigationEnvironment: ClyNavigationEnvironment currentImage.
+	browser selectPackage: package atClassTag: tag name.
+	browser open
 ]
 
 { #category : #tests }
 MolNewComponentLibrary >> buttonBrowseAction [
 	"a package or tag needs to be selected in order to browse it. The last selected one (for both lists) being the one browsed"
 
-	| item class |
-	self flag:
-		'browse pas encore 100 fonctionnel, tag non plus, implementationList'.
-	item := selectedList selectedItem.
-	self halt.
-	item ifNotNil: [ "self halt."
-		class := item class.
-		"package selected"
-		class = RPackage ifTrue: [ "package := item name."
-			package name browse ].
-		"tag selected"
-		class = RPackageTag ifTrue: [ self browseSelectedTag ] ]
+	selectedList = packageList ifTrue: [ package name browse ].
+	selectedList = tagList ifTrue: [ self browseSelectedTag ]
 ]
 
 { #category : #tests }
 MolNewComponentLibrary >> connectPresenters [
-	"enables the Browse and OK buttons if a package is selected, also updates the tag frame"
+	"enables the Browse and OK buttons if a package is selected and updates the tag frame"
 
-	self packageClicked.
 	self tagClicked.
+	self packageClicked.
 
-	packageList whenSelectionChangedDo: [ self fillTagList ].
+	self fillTagList.
 ]
 
 { #category : #tests }
@@ -102,13 +82,8 @@ MolNewComponentLibrary >> defaultLayout [
 MolNewComponentLibrary >> fillTagList [
 	"loads every tag of the selected package in its corresponding frame"
 
-	| tags |
-	implementationList := packageList.
-	
-	package := packageList selectedItem.
-	tags := package classTags.
-
-	tagList items: tags
+	packageList transmitTo: tagList transform: [ :p | p classTags ].
+	selectedList := packageList
 ]
 
 { #category : #tests }
@@ -125,7 +100,7 @@ MolNewComponentLibrary >> initializePresenters [
 
 	tagList := SpFilteringListDoubleClickPresenter new.
 	tagList listPresenter
-			display: [ :tag | tag name ];
+		display: [ :t | t name ];
 		displayIcon: [ self iconNamed: #tag ];
 		sortingBlock: [ :a :b | a name < b name ]
 ]
@@ -154,7 +129,7 @@ MolNewComponentLibrary >> initializePresentersMolOptions [
 		            label: 'OK';
 		            help: 'Creates the Molecule Component';
 		            action: [ self createComponent ];
-		disable;
+		            disable;
 		            yourself.
 
 	"action bar"
@@ -170,7 +145,6 @@ MolNewComponentLibrary >> packageClicked [
 	"determines what happens once a package is selected, such as activating the Browse and OK buttons"
 
 	packageList whenSelectionChangedDo: [
-		selectedList := packageList.
 		package := packageList selectedItem.
 
 		package ifNotNil: [

@@ -33,7 +33,14 @@ MolViewPortHover >> hoverColor [
 
 { #category : #hooks }
 MolViewPortHover >> onShape: aShape [
+
 	aShape
-		when: RSMouseEnter do: [ :evt | self doHoverPolicy. evt signalUpdate ];
-		when: RSMouseLeave do: [ :evt | self doUnhoverPolicy. evt signalUpdate ].
+		when: RSMouseEnter do: [ :evt |
+			self doHoverPolicy.
+			evt signalUpdate ]
+		for: self;
+		when: RSMouseLeave do: [ :evt |
+			self doUnhoverPolicy.
+			evt signalUpdate ]
+		for: self
 ]
