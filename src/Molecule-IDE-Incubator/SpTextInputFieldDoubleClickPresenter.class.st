@@ -30,6 +30,7 @@ SpTextInputFieldDoubleClickPresenter >> doubleClickActivated [
 	"double-clicking an input field browses the displayed Type"
 
 	| item |
+	self flag: 'unused class'.
 	self presenters do: [ :presenter |
 		presenter whenActivatedDo: [
 			item := text withoutPrefix: 'Interface used by '.

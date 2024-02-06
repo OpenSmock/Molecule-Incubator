@@ -32,32 +32,6 @@ Class {
 }
 
 { #category : #TOREMOVE }
-MolComponent >> addEventsServicesParameters: interface forFrame: interfaceFrame [
-	"adds under an interface drop-down list its events, services or parameters"
-
-	"clicking on one of them opens it in the System Browser"
-
-	| eventServiceParameterS compiledMethod |
-								 self flag:
-									 'n arrive pas sur méthode dans system browser (dans class side, contrat), juste classe'.
-	self flag:
-		'comment les cacher avec flèche déroulante ?, espace entre services'.
-	interfaceFrame ifNotNil: [
-		eventServiceParameterS := interface methodDict.
-		eventServiceParameterS do: [ :eventServiceParameter | "copyUpToSubstring: is used since eventServiceParameter also contains the content of the method"
-			interfaceFrame
-				add: (self newLink
-						 label: (eventServiceParameter asString copyUpToSubstring:
-									  Character cr asString);
-						 action: [
-							 compiledMethod := CompiledMethod new.
-							 compiledMethod methodClass: interface.
-							 compiledMethod selector: eventServiceParameter.
-							 compiledMethod browse ])
-				expand: false ] ]
-]
-
-{ #category : #TOREMOVE }
 MolComponent >> checkboxParameters [
 	"shows used and provided parameter interfaces if the checkbox is checked"
 
@@ -65,6 +39,7 @@ MolComponent >> checkboxParameters [
 
 	parametersCheckBox state
 		ifTrue: [
+			"self halt."
 			self setUsedParameters.
 			self setProvidedParameters ]
 		ifFalse: [ self setEmptyParameters ]
@@ -73,8 +48,8 @@ MolComponent >> checkboxParameters [
 { #category : #TOREMOVE }
 MolComponent >> connectPresenters [
 
-	parametersCheckBox whenChangedDo: [ self checkboxParameters ]
-	
+	parametersCheckBox whenChangedDo: [ self checkboxParameters ].
+	self flag: 'connecter toutes les checbox children du layout, quelque chose du genre?'
 ]
 
 { #category : #TOREMOVE }
@@ -138,29 +113,13 @@ ifTrue: [ Color green ]'.
 ]
 
 { #category : #'as yet unclassified' }
-MolComponent >> dropDownInterfaceAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
-	"dynamically adds drop-down menus for the required or offered part of an interface"
+MolComponent >> deleteEventsServicesParameters: interface forFrame: interfaceFrame [
+	"see addEventsServicesParameters: interface forFrame: interfaceFrame to know why the checked condition is fill ifFalse: "
 
-	self flag: 'pas assez espacé'.
-	self flag: 'usage'.
-	self flag: 'trait icone'.
-	self flag: 'warning à côté liste'.
-
-	"adds every drop-down interface list as well as their events, parameters or services under them"
-	"also adds a warning icon to the left of an interface if it's necessary"
-	interfaces do: [ :interface | "warningArray := "
-		interfaceFrame
-			add: (self newDropList addItemLabeled: interface name do: [  ])
-			expand: false.
-		"add: (SpBoxLayout newLeftToRight
-					 add: warningIcon;" ") 		expand: false)"
-
-		self addEventsServicesParameters: interface forFrame: interfaceFrame.
-		"self halt."
-		self
-			listTypesUsingInterface: interface
-			forFrame: interfaceFrame
-			roleInterface: roleInterface ]
+	self flag:
+		'à tester, parameters checbox bug (model property), event service au dessus interface dupliqué plus en dessous pour parameters, même si fonctionne delete tous events/services/parameters et pas juste ceux de l interface'.
+	interfaceFrame children do: [ :eventServiceParameter |
+		eventServiceParameter fill ifFalse: [ eventServiceParameter delete ] ]
 ]
 
 { #category : #TOREMOVE }
@@ -169,7 +128,6 @@ MolComponent >> initializeParameters [
 
 	providedParameters := typeName asClass allProvidedParameters.
 	usedParameters := typeName asClass allUsedParameters.
-	"self halt."
 
 	(usedParameters isNotEmpty or: providedParameters isNotEmpty)
 		ifTrue: [ parametersCheckBox state: true ]
@@ -238,6 +196,46 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 			typeUsingInterface := type ] ].
 
 	^ typeUsingInterface
+]
+
+{ #category : #'as yet unclassified' }
+MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
+	"dynamically adds trees for the required or offered part of an interface"
+
+	| interfaceTree compiledMethod |
+	self flag: 'warning à côté liste'.
+	self flag: 'tree occupe pas assez de place'.
+	self flag: 'children ont même children'.
+	self flag: 'trait ou implem icone pour service individuel'.
+
+	"adds every interface tree as well as their events, parameters or services under them"
+	"also adds a warning icon to the left of an interface if it's necessary"
+	interfaces do: [ :interface | "warningArray := "
+		interfaceTree := self newTree
+			                 children: [ :i |
+				                 interface methodDict keys ];
+			                 displayIcon: [ :aClass |
+				                 self iconNamed: aClass systemIconName ];
+			                 roots: { interface };
+			                 expandRoots;
+			                 beResizable;
+			                 activateOnDoubleClick;
+			                 whenActivatedDo: [ :eventServiceParameter |
+				                 eventServiceParameter isTrait
+					                 ifTrue: [
+						                 eventServiceParameter selectedItem browse ]
+					                 ifFalse: [
+						                 compiledMethod := CompiledMethod new.
+						                 compiledMethod methodClass: interface.
+						                 compiledMethod selector: eventServiceParameter.
+						                 compiledMethod browse ] ].
+		interfaceFrame add: interfaceTree expand: true fill: true.
+		"add: warningIcon;"
+
+		self
+			listTypesUsingInterface: interface
+			forFrame: interfaceFrame
+			roleInterface: roleInterface ]
 ]
 
 { #category : #TOREMOVE }
@@ -324,11 +322,11 @@ MolComponent >> setEvents [
 	producedEvents := typeName asClass allProducedEvents.
 
 	self
-		dropDownInterfaceAdd: consumedEvents
+		interfaceTreeAdd: consumedEvents
 		forFrame: consumedEventsFrame
 		roleInterface: roleOfferedInterface.
 	self
-		dropDownInterfaceAdd: producedEvents
+		interfaceTreeAdd: producedEvents
 		forFrame: producedEventsFrame
 		roleInterface: roleRequiredInterface
 ]
@@ -340,7 +338,7 @@ MolComponent >> setProvidedParameters [
 	providedParametersLabel label: 'Provided'.
 
 	self
-		dropDownInterfaceAdd: providedParameters
+		interfaceTreeAdd: providedParameters
 		forFrame: providedParametersFrame
 		roleInterface: roleRequiredInterface
 ]
@@ -353,11 +351,11 @@ MolComponent >> setServices [
 	providedServices := typeName asClass allProvidedServices.
 
 	self
-		dropDownInterfaceAdd: usedServices
+		interfaceTreeAdd: usedServices
 		forFrame: usedServicesFrame
 		roleInterface: roleOfferedInterface.
 	self
-		dropDownInterfaceAdd: providedServices
+		interfaceTreeAdd: providedServices
 		forFrame: providedServicesFrame
 		roleInterface: roleRequiredInterface
 ]
@@ -373,7 +371,6 @@ MolComponent >> setTypeName: aTypeName package: aPackage [
 	self setEvents.
 	self setServices.
 	self initializeParameters.
-	self checkboxParameters.
 
 	self createComponentGraphic
 ]
@@ -385,7 +382,7 @@ MolComponent >> setUsedParameters [
 	usedParametersLabel label: 'Used'.
 
 	self
-		dropDownInterfaceAdd: usedParameters
+		interfaceTreeAdd: usedParameters
 		forFrame: usedParametersFrame
 		roleInterface: roleOfferedInterface
 ]
