@@ -25,8 +25,7 @@ Class {
 		'eventText',
 		'addOneTimeWarningIcon',
 		'roleRequiredInterface',
-		'roleOfferedInterface',
-		'typeUsingInterface'
+		'roleOfferedInterface'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -169,12 +168,12 @@ MolComponent >> initializePresenters [
 MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleInterface: roleInterface [
 	"checks if an interface is used by another Type located in the same package than the Type given"
 
+	| typeUsingInterface |
 	self flag:
 		'doesn t work (molgeoposequipmentservices, molmylocaltimeevents) car boucle listTypesUsing... ne focntionne pas car lonelyInterface dans cette méthode'.
-	"self halt."
 
 	"if an interface is offered, checks if it's required through another Type"
-	roleInterface = roleRequiredInterface ifTrue: [ "self halt."
+	roleInterface = roleRequiredInterface ifTrue: [
 		(type allConsumedEvents includes: interface) ifTrue: [
 			typeUsingInterface := type ].
 
@@ -257,16 +256,22 @@ MolComponent >> listTypesInPackage [
 
 { #category : #'as yet unclassified' }
 MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame roleInterface: roleInterface [
-	"lists other traits that use the given interface by checking the contract of their Type (for the moment being)"
+	"lists other traits that use the given interface in the same package by checking the contract of their Type (for the moment being)"
 
-	| typesInPackage browsableType typeString |
-	self flag: 'évolution Molecule implem a interfaces'.
+	| typesInPackage browsableType typeString typesUsingInterface implementationTable typeUsingInterface |
+	self flag: 'évolution Molecule implem a interfaces (changer texte)'.
 	self flag: 'cherche uniquement dans même package'.
-	self flag: 'typeUsingInterface peut être dans insterface offered by'.
+	self flag: 'typeUsingInterface peut être dans interface offered by'.
+	self flag:
+		'voir issue Molecule pour changer comment récupérer services'.
 	self flag:
 		'n affiche pas plusieurs interface offertes (molmylocaltime)?'.
+	self flag: 'tri pour table ?'.
+	self flag: 'implem affichées'.
+	self flag: 'browse fonctionne mal double-click'.
 
 	typesInPackage := self listTypesInPackage.
+	typesUsingInterface := OrderedCollection new.
 
 	"addOneTimeWarningIcon is an instance variable used in order to only add one warning icon per interface that needs it"
 	addOneTimeWarningIcon := false.
@@ -277,30 +282,49 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 			                      interface: interface
 			                      isUsedBy: type
 			                      frame: interfaceFrame
-			                      roleInterface: roleInterface ].
+			                      roleInterface: roleInterface.
+		typeUsingInterface class = UndefinedObject ifFalse: [
+			typesUsingInterface add: typeUsingInterface ] ].
 
 	"if the interface isn't declared in the contract of any other type, warns the user"
-	typeUsingInterface ifNil: [
-		addOneTimeWarningIcon ifFalse: [ "roleInterface describes if the interface isn't required of offered""self halt."
-			self flag: 'a des problèmes (molmyclock)'.
-			self
-				warningIconAndTooltip: interface
-				forFrame: interfaceFrame
-				roleInterface: roleInterface.
-			addOneTimeWarningIcon := true ] ].
-
-	"shows the other Types on screen using an interface, which can be browsed by clicking on them"
-	typeUsingInterface ifNotNil: [
-		typeUsingInterface = interface ifFalse: [ "self halt."
-			typeString := typeUsingInterface asString.
-			browsableType := self newLink
-				                 label:
-					                 'Interface ' , roleInterface , 'ed by '
+	typesUsingInterface = OrderedCollection new
+		ifTrue: [
+			addOneTimeWarningIcon ifFalse: [ "roleInterface describes if the interface isn't required of offered""self halt."
+				self flag: 'a des problèmes (molmyclock)'.
+				self
+					warningIconAndTooltip: interface
+					forFrame: interfaceFrame
+					roleInterface: roleInterface.
+				addOneTimeWarningIcon := true ] ]
+		ifFalse: [ "shows the other Types on screen using an interface, which can be browsed by clicking on them""shows their number if there is more than one implementation""typeUsingInterface = interface"
+			browsableType := self newLink label:
+				                 'Interface ' , roleInterface , 'ed by '.
+			typesUsingInterface size > 1 ifTrue: [
+				browsableType := browsableType , typesUsingInterface size asString
+				                 , ' Traits'.
+				implementationTable := self newTable
+					                       addColumn:
+						                       ((SpImageTableColumn evaluated: [ :aClass |
+								                         self iconNamed: aClass systemIconName ])
+							                        width: 30);
+					                       addColumn:
+						                       (SpStringTableColumn evaluated: [ :each |
+								                        each ]);
+					                       items: typesUsingInterface;
+					                       hideColumnHeaders;
+					                       activateOnDoubleClick;
+					                       whenActivatedDo: [ :eventServiceParameter |
+						                       eventServiceParameter selectedItem browse ].
+				interfaceFrame add: browsableType expand: false.
+				interfaceFrame add: implementationTable expand: false ].
+			typesUsingInterface size = 1 ifTrue: [
+				[ typeString := typesUsingInterface at: 1 asString.
+				browsableType := browsableType
 					                 , typeString;
-				                 action: [ typeString asClass browse ];
-				                 color: Color blue;
-				                 yourself.
-			interfaceFrame add: browsableType expand: false ] ]
+					                 action: [ typeString asClass browse ];
+					                 color: Color blue;
+					                 yourself.
+				interfaceFrame add: browsableType expand: false ] ] ]
 ]
 
 { #category : #TOREMOVE }
