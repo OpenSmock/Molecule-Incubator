@@ -44,6 +44,7 @@ MolNewComponentLibrary >> buttonBrowseAction [
 		ifTrue: [ package browse ]
 		ifFalse: [ "needs to be redirected to a package when only one Tag exists"
 			size := package classTags size.
+			self halt.
 			size = 1
 				ifTrue: [ package browse ]
 				ifFalse: [ self browseSelectedTag ] ]
