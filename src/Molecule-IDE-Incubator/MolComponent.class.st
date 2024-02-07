@@ -72,6 +72,7 @@ ifTrue: [ Color green ]'.
 	self flag: 'editable selector'.
 	self flag: 'typeNameField a champ trop grand'.
 	self flag: 'taille encadrés'.
+	self flag: 'browse double-click ne fonctionne pas sur listes où services affichés ne correspondent pas à taille'.
 
 	"first line, only column"
 	^ SpBoxLayout newTopToBottom
@@ -83,7 +84,9 @@ ifTrue: [ Color green ]'.
 		  add: SpBoxLayout newLeftToRight width: 5;
 		  "second line, first column"add: (SpBoxLayout newLeftToRight
 			   add: (SpBoxLayout newVertical
-					    add: 'Services                        ' expand: false;
+					    add:
+						    'Services                                                                        '
+					    expand: false;
 					    add: 'Used' expand: false;
 					    add: usedServicesFrame expand: false;
 					    add: 'Provided' expand: false;
@@ -91,7 +94,9 @@ ifTrue: [ Color green ]'.
 			   expand: false;
 			   add: SpBoxLayout newLeftToRight width: 5;
 			   "second line, second column"add: (SpBoxLayout newVertical
-					    add: 'Events                         ' expand: false;
+					    add:
+						    'Events                                                                         '
+					    expand: false;
 					    add: 'Consumed' expand: false;
 					    add: consumedEventsFrame expand: false;
 					    add: 'Produced' expand: false;
@@ -194,17 +199,19 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
 	"dynamically adds trees for the required or offered part of an interface"
 
-	| interfaceTree compiledMethod |
+	| interfaceTree compiledMethod eventServiceParameters |
 	self flag: 'warning à côté liste'.
 	self flag: 'children ont même children'.
 	self flag: 'trait ou implem icone pour service individuel'.
+	self flag: 'chaque interface est son arbre'.
 
 	"adds every interface tree as well as their events, parameters or services under them"
 	"also adds a warning icon to the left of an interface if it's necessary"
 	"sorts the interfaces first"
-	interfaces sort: [ :a :b | a name <= b name ] .
-	
+	interfaces sort: [ :a :b | a name <= b name ].
+
 	interfaces do: [ :interface | "warningArray := "
+		"self halt."
 		interfaceTree := self newTree
 			                 children: [ :i | interface methodDict keys ];
 			                 displayIcon: [ :aClass |
@@ -222,7 +229,9 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 						                 compiledMethod methodClass: interface.
 						                 compiledMethod selector: eventServiceParameter.
 						                 compiledMethod browse ] ].
-		interfaceFrame add: interfaceTree expand: true fill: true.
+		interfaceFrame
+			add: interfaceTree
+			height: interface methodDict keys size + 1 * 20.
 		"add: warningIcon;"
 
 		self
@@ -309,7 +318,11 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 					                       whenActivatedDo: [ :eventServiceParameter |
 						                       eventServiceParameter selectedItem browse ].
 				interfaceFrame add: browsableType expand: false.
-				interfaceFrame add: implementationTable expand: false ].
+				interfaceFrame
+					add: implementationTable
+					height: typesUsingInterface size * 20.
+				"adds space for when an interface is used by other components and other interfaces are shown next in its respective interfaceFrame"
+				interfaceFrame add: SpBoxLayout newVertical width: 50 ].
 			typesUsingInterface size = 1 ifTrue: [
 				[
 				typeString := typesUsingInterface at: 1 asString.
