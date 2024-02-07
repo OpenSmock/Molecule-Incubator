@@ -16,19 +16,34 @@ Class {
 MolNewComponentLibrary >> browseSelectedTag [
 	"browse the selected Tag, which is a part of a package (that contains classes)"
 
-	| browser |
+	| browser class |
+	self flag:
+		'pas d icones, bug quand browse tag avec un seul tag, trouver où Browwse menu contextuel sur package exécuté'.
 	browser := ClyFullBrowserMorph new.
 	browser navigationEnvironment: ClyNavigationEnvironment currentImage.
-	browser selectPackage: package atClassTag: tag name.
-	browser open
+	"class := ClassTagAnnouncement new.
+	class package: package.
+	class tag: tag name."
+	browser
+		spawnBrowser: ClyFullBrowserMorph
+		withState: [ :b | b selectPackage: package atClassTag: tag name ]
+	"browser
+		spawnBrowser: ClyFullBrowserMorph
+		withState: [ :b | b selectClass: class ]"
 ]
 
 { #category : #tests }
 MolNewComponentLibrary >> buttonBrowseAction [
 	"a package or tag needs to be selected in order to browse it. The last selected one (for both lists) being the one browsed"
 
-	selectedList = packageList ifTrue: [ package name browse ].
-	selectedList = tagList ifTrue: [ self browseSelectedTag ]
+	| size |
+	selectedList = packageList
+		ifTrue: [ package browse ]
+		ifFalse: [ "needs to be redirected to a package when only one Tag exists"
+			size := package classTags size.
+			size = 1
+				ifTrue: [ package browse ]
+				ifFalse: [ self browseSelectedTag ] ]
 ]
 
 { #category : #tests }
@@ -36,9 +51,10 @@ MolNewComponentLibrary >> connectPresenters [
 	"enables the Browse and OK buttons if a package is selected and updates the tag frame"
 
 	self tagClicked.
-	self packageClicked.
 
 	self fillTagList.
+	
+	self packageClicked.
 ]
 
 { #category : #tests }
@@ -80,10 +96,9 @@ MolNewComponentLibrary >> defaultLayout [
 
 { #category : #tests }
 MolNewComponentLibrary >> fillTagList [
-	"loads every tag of the selected package in its corresponding frame"
+	"loads every tag of the selected package in tagList"
 
-	packageList transmitTo: tagList transform: [ :p | p classTags ].
-	selectedList := packageList
+	packageList transmitTo: tagList transform: [ :p | p classTags ]
 ]
 
 { #category : #tests }
@@ -146,6 +161,7 @@ MolNewComponentLibrary >> packageClicked [
 
 	packageList whenSelectionChangedDo: [
 		package := packageList selectedItem.
+		selectedList := packageList.
 
 		package ifNotNil: [
 			buttonBrowse enable.
