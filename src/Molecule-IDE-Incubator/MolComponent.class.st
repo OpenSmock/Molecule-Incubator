@@ -48,7 +48,6 @@ MolComponent >> checkboxParameters [
 MolComponent >> connectPresenters [
 
 	parametersCheckBox whenChangedDo: [ self checkboxParameters ].
-	self flag: 'connecter toutes les checbox children du layout, quelque chose du genre?'
 ]
 
 { #category : #TOREMOVE }
@@ -71,9 +70,8 @@ MolComponent >> defaultLayout [
 (aClass name endsWith: ''Test'')
 ifTrue: [ Color green ]'.
 	self flag: 'editable selector'.
-	self flag:
-		'voir pour liste déroulante quand trop de trucs à afficher (LSHControllerCamera)'.
-		self flag: 'typeNameField'.
+	self flag: 'typeNameField a champ trop grand'.
+	self flag: 'taille encadrés'.
 
 	"first line, only column"
 	^ SpBoxLayout newTopToBottom
@@ -85,7 +83,7 @@ ifTrue: [ Color green ]'.
 		  add: SpBoxLayout newLeftToRight width: 5;
 		  "second line, first column"add: (SpBoxLayout newLeftToRight
 			   add: (SpBoxLayout newVertical
-					    add: 'Services' expand: false;
+					    add: 'Services                        ' expand: false;
 					    add: 'Used' expand: false;
 					    add: usedServicesFrame expand: false;
 					    add: 'Provided' expand: false;
@@ -93,7 +91,7 @@ ifTrue: [ Color green ]'.
 			   expand: false;
 			   add: SpBoxLayout newLeftToRight width: 5;
 			   "second line, second column"add: (SpBoxLayout newVertical
-					    add: 'Events' expand: false;
+					    add: 'Events                         ' expand: false;
 					    add: 'Consumed' expand: false;
 					    add: consumedEventsFrame expand: false;
 					    add: 'Produced' expand: false;
@@ -115,8 +113,6 @@ ifTrue: [ Color green ]'.
 MolComponent >> deleteEventsServicesParameters: interface forFrame: interfaceFrame [
 	"see addEventsServicesParameters: interface forFrame: interfaceFrame to know why the checked condition is fill ifFalse: "
 
-	self flag:
-		'à tester, parameters checbox bug (model property), event service au dessus interface dupliqué plus en dessous pour parameters, même si fonctionne delete tous events/services/parameters et pas juste ceux de l interface'.
 	interfaceFrame children do: [ :eventServiceParameter |
 		eventServiceParameter fill ifFalse: [ eventServiceParameter delete ] ]
 ]
@@ -135,7 +131,6 @@ MolComponent >> initializeParameters [
 { #category : #TOREMOVE }
 MolComponent >> initializePresenters [
 
-	self flag: 'extent taille encadrés ?'.
 	typeNameField := self newTextInput
 		                 editable: false;
 		                 yourself.
@@ -169,8 +164,6 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 	"checks if an interface is used by another Type located in the same package than the Type given"
 
 	| typeUsingInterface |
-	self flag:
-		'doesn t work (molgeoposequipmentservices, molmylocaltimeevents) car boucle listTypesUsing... ne focntionne pas car lonelyInterface dans cette méthode'.
 
 	"if an interface is offered, checks if it's required through another Type"
 	roleInterface = roleRequiredInterface ifTrue: [
@@ -203,16 +196,17 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 
 	| interfaceTree compiledMethod |
 	self flag: 'warning à côté liste'.
-	self flag: 'tree occupe pas assez de place'.
 	self flag: 'children ont même children'.
 	self flag: 'trait ou implem icone pour service individuel'.
 
 	"adds every interface tree as well as their events, parameters or services under them"
 	"also adds a warning icon to the left of an interface if it's necessary"
+	"sorts the interfaces first"
+	interfaces sort: [ :a :b | a name <= b name ] .
+	
 	interfaces do: [ :interface | "warningArray := "
 		interfaceTree := self newTree
-			                 children: [ :i |
-				                 interface methodDict keys ];
+			                 children: [ :i | interface methodDict keys ];
 			                 displayIcon: [ :aClass |
 				                 self iconNamed: aClass systemIconName ];
 			                 roots: { interface };
@@ -264,11 +258,7 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 	self flag: 'typeUsingInterface peut être dans interface offered by'.
 	self flag:
 		'voir issue Molecule pour changer comment récupérer services'.
-	self flag:
-		'n affiche pas plusieurs interface offertes (molmylocaltime)?'.
-	self flag: 'tri pour table ?'.
-	self flag: 'implem affichées'.
-	self flag: 'browse fonctionne mal double-click'.
+	self flag: 'tri pour table'.
 
 	typesInPackage := self listTypesInPackage.
 	typesUsingInterface := OrderedCollection new.
@@ -285,6 +275,9 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 			                      roleInterface: roleInterface.
 		typeUsingInterface class = UndefinedObject ifFalse: [
 			typesUsingInterface add: typeUsingInterface ] ].
+
+	"sort in order to have a display with the Traits in order"
+	typesUsingInterface sort: [ :a :b | a name <= b name ].
 
 	"if the interface isn't declared in the contract of any other type, warns the user"
 	typesUsingInterface = OrderedCollection new
@@ -318,7 +311,8 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 				interfaceFrame add: browsableType expand: false.
 				interfaceFrame add: implementationTable expand: false ].
 			typesUsingInterface size = 1 ifTrue: [
-				[ typeString := typesUsingInterface at: 1 asString.
+				[
+				typeString := typesUsingInterface at: 1 asString.
 				browsableType := browsableType
 					                 , typeString;
 					                 action: [ typeString asClass browse ];
