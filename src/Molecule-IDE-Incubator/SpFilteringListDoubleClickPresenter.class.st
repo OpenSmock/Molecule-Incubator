@@ -7,6 +7,9 @@ Class {
 		'implementationList',
 		'filter'
 	],
+	#classVars : [
+		'package'
+	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
 
@@ -21,10 +24,14 @@ SpFilteringListDoubleClickPresenter >> connectPresenters [
 SpFilteringListDoubleClickPresenter >> doubleClickActivated [
 	"activates the Browse functionality by double-clicking an element"
 
-	| item |
+	| item molComponent |
 	listPresenter whenActivatedDo: [
 		item := listPresenter selectedItem.
-		item browse ]
+		item class = RPackageTag
+			ifTrue: [
+				molComponent := MolNewComponentLibrary new.
+				molComponent browseSelectedPackage: package tag: item ]
+			ifFalse: [ item browse ] ]
 ]
 
 { #category : #simulation }
@@ -33,4 +40,11 @@ SpFilteringListDoubleClickPresenter >> initializePresenters [
 
 	super initializePresenters.
 	filterInputPresenter placeholder: 'Hit return to accept'
+]
+
+{ #category : #'as yet unclassified' }
+SpFilteringListDoubleClickPresenter >> package: p [
+	"stocks the package in order to double-click a Tag"
+
+package := p
 ]

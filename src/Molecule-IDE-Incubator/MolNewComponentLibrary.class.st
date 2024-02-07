@@ -13,23 +13,26 @@ Class {
 }
 
 { #category : #tests }
+MolNewComponentLibrary >> browseSelectedPackage: p tag: t [
+	"browse the selected Tag, which is a part of a package (that contains classes)"
+
+	| browser |
+	self flag:
+		'pas d icones pour tag sélectionné quand plusieurs existent'.
+	browser := ClyFullBrowserMorph new.
+	browser navigationEnvironment: ClyNavigationEnvironment currentImage.
+	browser
+		spawnBrowser: ClyFullBrowserMorph
+		withState: [ :b | "b setUpScopedModeWith: b allNavigationScopes.
+		b switchToFullClassHierarchy."
+			b selectPackage: p atClassTag: t name ]
+]
+
+{ #category : #tests }
 MolNewComponentLibrary >> browseSelectedTag [
 	"browse the selected Tag, which is a part of a package (that contains classes)"
 
-	| browser class |
-	self flag:
-		'pas d icones, bug quand browse tag avec un seul tag, trouver où Browwse menu contextuel sur package exécuté'.
-	browser := ClyFullBrowserMorph new.
-	browser navigationEnvironment: ClyNavigationEnvironment currentImage.
-	"class := ClassTagAnnouncement new.
-	class package: package.
-	class tag: tag name."
-	browser
-		spawnBrowser: ClyFullBrowserMorph
-		withState: [ :b | b selectPackage: package atClassTag: tag name ]
-	"browser
-		spawnBrowser: ClyFullBrowserMorph
-		withState: [ :b | b selectClass: class ]"
+	self browseSelectedPackage: package tag: tag
 ]
 
 { #category : #tests }
@@ -161,6 +164,8 @@ MolNewComponentLibrary >> packageClicked [
 
 	packageList whenSelectionChangedDo: [
 		package := packageList selectedItem.
+		"used to double-click on a Tag"
+		packageList package: package.
 		selectedList := packageList.
 
 		package ifNotNil: [
