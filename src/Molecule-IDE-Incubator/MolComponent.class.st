@@ -102,7 +102,7 @@ ifTrue: [ Color green ]'.
 					    add: providedServicesFrame expand: false;
 					    yourself)
 			   expand: true;
-			   add: SpBoxLayout newLeftToRight width: 5;
+			   add: SpBoxLayout newLeftToRight expand: false;
 			   "second line, second column"add: (SpBoxLayout newVertical
 					    add: 'Events' expand: false;
 					    add: 'Consumed' expand: false;
@@ -225,8 +225,7 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
 	"dynamically adds trees for the required or offered part of an interface"
 
-	| interfaceTree compiledMethod interfacesTree spacingNumber warningIcon |
-	self flag: 'warning à côté liste'.
+	| interfaceTree compiledMethod interfacesTree spacingNumber warningIcon interfaceUsedBoolean interfaceLayout |
 	self flag: 'children ont même children'.
 	self flag: 'trait ou implem icone pour service individuel'.
 	self flag:
@@ -238,12 +237,17 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 	interfaces sort: [ :a :b | a name <= b name ].
 	interfacesTree := SpBoxLayout newVertical.
 
-	interfaces do: [ :interface |
-		warningIcon := self
-			               warningNoOtherUsage: interface
-			               forFrame: interfaceFrame
-			               roleInterface:
-			               (self determineRoleInterface: interface).
+	interfaces do: [ :interface | "if a required interface is not offered by another type (the contrary also applies), warns the user"
+		interfaceUsedBoolean := self
+			                        isInterfaceUsed: interface
+			                        forFrame: interfaceFrame
+			                        roleInterface: roleInterface.
+		interfaceUsedBoolean ifTrue: [
+			warningIcon := self
+				               warningNoOtherUsage: interface
+				               forFrame: interfaceFrame
+				               roleInterface:
+				               (self determineRoleInterface: interface) ].
 
 		interfaceTree := self newTree
 			                 children: [ :i | interface methodDict keys ];
@@ -268,10 +272,15 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 			ifTrue: [ spacingNumber := 2 ]
 			ifFalse: [ spacingNumber := 1 ].
 
-		interfaceFrame "add: (SpBoxLayout newLeftToRight"
+		interfaceLayout := SpBoxLayout newLeftToRight.
+		interfaceUsedBoolean ifTrue: [
+			interfaceLayout add: warningIcon width: 30 ].
+		"height property is only applied for vertical layouts, so nesting this one is needed"
+		interfaceLayout add: (SpBoxLayout newTopToBottom
 				 add: interfaceTree
-				 height: interface methodDict keys size + spacingNumber * 20")".
-		"add: warningIcon expand: false;"
+				 height: interface methodDict keys size + spacingNumber * 20).
+
+		interfaceFrame add: interfaceLayout expand: false.
 
 		self
 			listTypesUsingInterface: interface
@@ -279,6 +288,26 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 			roleInterface: roleInterface ].
 
 	^ interfacesTree
+]
+
+{ #category : #'as yet unclassified' }
+MolComponent >> isInterfaceUsed: interface forFrame: interfaceFrame roleInterface: roleInterface [
+	"this method is used to determine if a required interface is offered in another Type and vice-versa"
+
+	| typesInPackage typesUsingInterface typeUsingInterface |
+	typesInPackage := self listTypesInPackage.
+	typesUsingInterface := OrderedCollection new.
+
+	typesInPackage do: [ :type |
+		typeUsingInterface := self
+			                      interface: interface
+			                      isUsedBy: type
+			                      frame: interfaceFrame
+			                      roleInterface: roleInterface.
+		typeUsingInterface class = UndefinedObject ifFalse: [
+			typesUsingInterface add: typeUsingInterface ] ].
+
+	^ typesUsingInterface = OrderedCollection new
 ]
 
 { #category : #TOREMOVE }
@@ -478,6 +507,7 @@ MolComponent >> setUsedParameters [
 { #category : #'as yet unclassified' }
 MolComponent >> showWarningIcons [
 	"if an interface isn't used as it should, warns the user"
+	self flag: 'unused'.
 
 	consumedEvents = OrderedCollection new ifFalse: [
 		self
@@ -547,21 +577,7 @@ MolComponent >> warningNoOtherUsage: interface forFrame: interfaceFrame roleInte
 
 	"if an interface is required by a Type but not offered by another and vice-versa, warns the user"
 
-	| warningTooltip typesUsingInterface typesInPackage typeUsingInterface warningButton |
-	self flag: 'boutons mal affichés'.
-	typesInPackage := self listTypesInPackage.
-	typesUsingInterface := OrderedCollection new.
-
-	typesInPackage do: [ :type |
-		typeUsingInterface := self
-			                      interface: interface
-			                      isUsedBy: type
-			                      frame: interfaceFrame
-			                      roleInterface: roleInterface.
-		typeUsingInterface class = UndefinedObject ifFalse: [
-			typesUsingInterface add: typeUsingInterface ] ].
-
-	typesUsingInterface = OrderedCollection new ifFalse: [ ^ self ].
+	| warningTooltip warningButton |
 	warningTooltip := 'No Component is declared as ' , roleInterface
 	                  , 'ing this interface !' , (self
 		                   warningNoEventServiceParameter: interface

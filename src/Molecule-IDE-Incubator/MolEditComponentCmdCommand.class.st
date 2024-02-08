@@ -43,7 +43,6 @@ MolEditComponentCmdCommand >> execute [
 	| newComponent |
 	newComponent := MolComponent new.
 	newComponent setTypeName: class package: package.
-	"self halt."
 	newComponent open
 ]
 
