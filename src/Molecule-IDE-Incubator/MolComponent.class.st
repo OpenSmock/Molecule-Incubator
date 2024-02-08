@@ -25,7 +25,8 @@ Class {
 		'eventText',
 		'addOneTimeWarningIcon',
 		'roleRequiredInterface',
-		'roleOfferedInterface'
+		'roleOfferedInterface',
+		'scrollableUsedServicesPresenter'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -73,37 +74,43 @@ ifTrue: [ Color green ]'.
 	self flag: 'typeNameField a champ trop grand'.
 	self flag: 'taille encadrés'.
 	self flag:
-		'browse double-click ne fonctionne pas sur listes où services affichés ne correspondent pas à taille'.
-		self flag: 'voir molexamplecomponent'.
+		'browse double-click ne fonctionne pas sur listes où services affichés ne correspondent pas à taille?'.
+	self flag: 'voir molexamplecomponent'.
+	self flag:
+		'possible de rendre tables non scrollables? withoutScrollBars ne fonctionne pas'.
+	self flag: 'parametersLayout pas utile'.
 
 	"first line, only column"
 	^ SpBoxLayout newTopToBottom
 		  add: (SpBoxLayout newVertical
 				   add: 'Contract definition' expand: false;
-				   add: 'Type name' expand: false;
-				   add: typeNameField expand: false)
+				   add: (SpBoxLayout newLeftToRight
+						    add: 'Type name' expand: false;
+						    add: typeNameField expand: true;
+						    yourself)
+				   expand: false;
+				   yourself)
 		  expand: false;
 		  add: SpBoxLayout newLeftToRight width: 5;
 		  "second line, first column"add: (SpBoxLayout newLeftToRight
 			   add: (SpBoxLayout newVertical
-					    add:
-						    'Services                                                                        '
-					    expand: false;
+					    add: 'Services' expand: false;
 					    add: 'Used' expand: false;
-					    add: usedServicesFrame expand: false;
-					    add: 'Provided' expand: false;
-					    add: providedServicesFrame expand: false)
-			   expand: false;
+					   "add: scrollableUsedServicesPresenter expand: false;"
+					    add: usedServicesFrame expand: false;add: 'Provided'
+					    expand: false;
+					    add: providedServicesFrame expand: false;
+					    yourself)
+			   expand: true;
 			   add: SpBoxLayout newLeftToRight width: 5;
 			   "second line, second column"add: (SpBoxLayout newVertical
-					    add:
-						    'Events                                                                                                           '
-					    expand: false;
+					    add: 'Events' expand: false;
 					    add: 'Consumed' expand: false;
 					    add: consumedEventsFrame expand: false;
 					    add: 'Produced' expand: false;
-					    add: producedEventsFrame expand: false)
-			   expand: false;
+					    add: producedEventsFrame expand: false;
+					    yourself)
+			   expand: true;
 			   add: SpBoxLayout newLeftToRight width: 5;
 			   "second line, third column, is not shown by default except if a parameter interface is detected"
 			   add: (parametersLayout
@@ -112,8 +119,10 @@ ifTrue: [ Color green ]'.
 					    add: usedParametersLabel expand: false;
 					    add: usedParametersFrame expand: false;
 					    add: providedParametersLabel expand: false;
-					    add: providedParametersFrame expand: false)
-			   expand: false)
+					    add: providedParametersFrame expand: false;
+					    yourself)
+			   expand: false;
+			   yourself) yourself
 ]
 
 { #category : #'as yet unclassified' }
@@ -132,7 +141,7 @@ MolComponent >> initializeParameters [
 	usedParameters := typeName asClass allUsedParameters.
 
 	(usedParameters isNotEmpty or: providedParameters isNotEmpty)
-		ifTrue: [ parametersCheckBox state: true ]
+		ifTrue: [ parametersCheckBox state: true ].
 ]
 
 { #category : #TOREMOVE }
@@ -162,6 +171,8 @@ MolComponent >> initializePresenters [
 	providedServicesFrame := SpBoxLayout newVertical.
 	usedParametersFrame := SpBoxLayout newVertical.
 	providedParametersFrame := SpBoxLayout newVertical.
+	
+		scrollableUsedServicesPresenter := SpPresenter new.
 
 	parametersLayout := SpBoxLayout newVertical
 ]
@@ -201,20 +212,20 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
 	"dynamically adds trees for the required or offered part of an interface"
 
-	| interfaceTree compiledMethod |
-	self flag: 'warning plus affiché'.
+	| interfaceTree compiledMethod interfacesTree |
 	self flag: 'warning à côté liste'.
 	self flag: 'children ont même children'.
 	self flag: 'trait ou implem icone pour service individuel'.
 	self flag:
-		'chaque interface est son arbre (impossible de scroller quand beaucoup d interfaces'.
-	self flag:
-		'double-click interface events molmyalarmcomponent'.
+		'chaque interface est son arbre (impossible de scroller quand beaucoup d interfaces pour une partie required ou offered), voir scrollable layout spec2 demo, remettre code github sinon, ajouter une super-classe temporaire par le code?'.
+	self flag: 'double-click interface events molmyalarmcomponent'.
+	self flag: 'ordre avec interface offered by, répétition?'.
 
 	"adds every interface tree as well as their events, parameters or services under them"
 	"also adds a warning icon to the left of an interface if it's necessary"
 	"sorts the interfaces first"
 	interfaces sort: [ :a :b | a name <= b name ].
+	interfacesTree := SpBoxLayout newVertical.
 
 	interfaces do: [ :interface | "warningArray := ""self halt."
 		interfaceTree := self newTree
@@ -223,7 +234,7 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 				                 self iconNamed: aClass systemIconName ];
 			                 roots: { interface };
 			                 expandRoots;
-			                 beResizable;
+			                 withoutScrollBars;
 			                 activateOnDoubleClick;
 			                 whenActivatedDo: [ :eventServiceParameter |
 				                 eventServiceParameter isTrait
@@ -234,6 +245,7 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 						                 compiledMethod methodClass: interface.
 						                 compiledMethod selector: eventServiceParameter.
 						                 compiledMethod browse ] ].
+		"interfacesTree add: interfaceTree expand: false." 
 		interfaceFrame
 			add: interfaceTree
 			height: interface methodDict keys size + 1 * 20.
@@ -242,7 +254,9 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 		self
 			listTypesUsingInterface: interface
 			forFrame: interfaceFrame
-			roleInterface: roleInterface ]
+			roleInterface: roleInterface ].
+
+	^ interfacesTree
 ]
 
 { #category : #TOREMOVE }
@@ -267,7 +281,6 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 	"lists other traits that use the given interface in the same package by checking the contract of their Type (for the moment being)"
 
 	| typesInPackage browsableType typeString typesUsingInterface implementationTable typeUsingInterface |
-	self flag: 'warning plus affiché'.
 	self flag: 'évolution Molecule implem a interfaces (changer texte)'.
 	self flag: 'cherche uniquement dans même package'.
 	self flag:
@@ -299,16 +312,16 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 			                       addColumn:
 				                       ((SpImageTableColumn evaluated: [ :aClass |
 						                         self iconNamed: aClass systemIconName ])
-					                        width: 30);
+					                        width: 20);
 			                       addColumn:
-				                       (SpStringTableColumn evaluated: [ :each |
-						                        each ]);
+				                       (SpStringTableColumn evaluated: #name);
 			                       items: typesUsingInterface;
 			                       hideColumnHeaders;
 			                       activateOnDoubleClick;
+			                       withoutScrollBars;
 			                       whenActivatedDo: [ :eventServiceParameter |
 				                       eventServiceParameter selectedItem browse ].
-		interfaceFrame add: browsableType expand: false.
+		interfaceFrame add: browsableType "expand: false".
 		interfaceFrame
 			add: implementationTable
 			height: typesUsingInterface size * 20.
@@ -340,46 +353,54 @@ MolComponent >> setEmptyParameters [
 MolComponent >> setEvents [
 	"sets the Event interfaces related to the Type"
 
+	| consumedEventsTree producedEventsTree |
 	consumedEvents := typeName asClass allConsumedEvents.
 	producedEvents := typeName asClass allProducedEvents.
 
-	self
-		interfaceTreeAdd: consumedEvents
-		forFrame: consumedEventsFrame
-		roleInterface: roleOfferedInterface.
-	self
-		interfaceTreeAdd: producedEvents
-		forFrame: producedEventsFrame
-		roleInterface: roleRequiredInterface
+	consumedEventsTree := self
+		                      interfaceTreeAdd: consumedEvents
+		                      forFrame: consumedEventsFrame
+		                      roleInterface: roleOfferedInterface.
+	"consumedEventsFrame add: consumedEventsTree."
+	producedEventsTree := self
+		                      interfaceTreeAdd: producedEvents
+		                      forFrame: producedEventsFrame
+		                      roleInterface: roleRequiredInterface.
+	"producedEventsFrame add: producedEventsTree"
 ]
 
 { #category : #TOREMOVE }
 MolComponent >> setProvidedParameters [
 	"shows provided parameter interfaces if the checkbox is checked"
 
+	| providedParametersTree |
 	providedParametersLabel label: 'Provided'.
 
-	self
-		interfaceTreeAdd: providedParameters
-		forFrame: providedParametersFrame
-		roleInterface: roleRequiredInterface
+	providedParametersTree := self
+		                          interfaceTreeAdd: providedParameters
+		                          forFrame: providedParametersFrame
+		                          roleInterface: roleRequiredInterface.
+	"providedParametersFrame add: providedParametersTree"
 ]
 
 { #category : #TOREMOVE }
 MolComponent >> setServices [
 	"sets the Service interfaces related to the Type"
 
+	| usedServicesTree providedServicesTree |
 	usedServices := typeName asClass allUsedServices.
 	providedServices := typeName asClass allProvidedServices.
 
-	self
-		interfaceTreeAdd: usedServices
-		forFrame: usedServicesFrame
-		roleInterface: roleOfferedInterface.
-	self
-		interfaceTreeAdd: providedServices
-		forFrame: providedServicesFrame
-		roleInterface: roleRequiredInterface
+	usedServicesTree := self
+		                    interfaceTreeAdd: usedServices
+		                    forFrame: usedServicesFrame
+		                    roleInterface: roleOfferedInterface.
+	"scrollableUsedServicesPresenter layout: usedServicesTree."
+	providedServicesTree := self
+		                        interfaceTreeAdd: providedServices
+		                        forFrame: providedServicesFrame
+		                        roleInterface: roleRequiredInterface.
+	"providedServicesFrame add: providedServicesTree"
 ]
 
 { #category : #TOREMOVE }
@@ -404,21 +425,20 @@ MolComponent >> setTypeName: aTypeName package: aPackage [
 MolComponent >> setUsedParameters [
 	"shows used parameter interfaces if the checkbox is checked"
 
+	| usedParametersTree |
 	usedParametersLabel label: 'Used'.
 
-	self
-		interfaceTreeAdd: usedParameters
-		forFrame: usedParametersFrame
-		roleInterface: roleOfferedInterface
+	usedParametersTree := self
+		                      interfaceTreeAdd: usedParameters
+		                      forFrame: usedParametersFrame
+		                      roleInterface: roleOfferedInterface.
+	"self halt"
+	"usedParametersFrame add: usedParametersTree"
 ]
 
 { #category : #'as yet unclassified' }
 MolComponent >> showWarningIcons [
 	"if an interface isn't used as it should, warns the user"
-
-	self flag: 'to do'.
-	self flag: 'utile pour paramètres ?'.
-	"self halt."
 
 	consumedEvents = OrderedCollection new ifFalse: [
 		self
@@ -469,8 +489,6 @@ MolComponent >> warningNoEventServiceParameter: anInterface warningTooltip: warn
 	"in this method is known if an interface has no event/parameter/service"
 
 	| typeInterface |
-	"self halt."
-	self flag: 'to do'.
 	anInterface methodDict size = 0 ifFalse: [ ^ self ].
 
 	anInterface isComponentEvents ifTrue: [ typeInterface := 'Event' ].
@@ -486,7 +504,7 @@ MolComponent >> warningNoEventServiceParameter: anInterface warningTooltip: warn
 MolComponent >> warningNoOtherUsage: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
 
 	| warningTooltip typesUsingInterface typesInPackage typeUsingInterface |
-	self flag: 'boutons prennent place sur listes?'.
+	self flag: 'boutons mal affichés'.
 	typesInPackage := self listTypesInPackage.
 	typesUsingInterface := OrderedCollection new.
 
@@ -506,10 +524,10 @@ MolComponent >> warningNoOtherUsage: interfaces forFrame: interfaceFrame roleInt
 
 	interfaces do: [ :interface |
 		warningTooltip := self
-			warningNoEventServiceParameter: interface
-			warningTooltip: warningTooltip
-			forFrame: interfaceFrame
-			roleInterface: roleInterface ].
+			                  warningNoEventServiceParameter: interface
+			                  warningTooltip: warningTooltip
+			                  forFrame: interfaceFrame
+			                  roleInterface: roleInterface ].
 
 	interfaceFrame
 		add: (SpButtonPresenter new
