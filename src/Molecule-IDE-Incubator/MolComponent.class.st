@@ -134,14 +134,27 @@ MolComponent >> deleteEventsServicesParameters: interface forFrame: interfaceFra
 ]
 
 { #category : #TOREMOVE }
+MolComponent >> determineRoleInterface: interface [
+	"used in order to search in the relevant parts of the contracts of the Types using an interface (for a required interface, it will search in the offered parts of a component's contract)"
+
+	| consumedEventsBoolean usedParametersBoolean usedServicesBoolean |
+	consumedEventsBoolean := consumedEvents includes: interface.
+	usedParametersBoolean := usedParameters includes: interface.
+	usedServicesBoolean := usedServices includes: interface.
+
+	"self halt."
+	(consumedEventsBoolean or:
+		 (usedParametersBoolean or: usedServicesBoolean))
+		ifTrue: [ ^ roleOfferedInterface ]
+		ifFalse: [ ^ roleRequiredInterface ]
+]
+
+{ #category : #TOREMOVE }
 MolComponent >> initializeParameters [
 	"shows used and provided parameter interfaces if a parameter interface is detected upon opening the window"
 
-	providedParameters := typeName asClass allProvidedParameters.
-	usedParameters := typeName asClass allUsedParameters.
-
 	(usedParameters isNotEmpty or: providedParameters isNotEmpty)
-		ifTrue: [ parametersCheckBox state: true ].
+		ifTrue: [ parametersCheckBox state: true ]
 ]
 
 { #category : #TOREMOVE }
@@ -212,7 +225,7 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
 	"dynamically adds trees for the required or offered part of an interface"
 
-	| interfaceTree compiledMethod interfacesTree spacingNumber |
+	| interfaceTree compiledMethod interfacesTree spacingNumber warningIcon |
 	self flag: 'warning à côté liste'.
 	self flag: 'children ont même children'.
 	self flag: 'trait ou implem icone pour service individuel'.
@@ -225,7 +238,13 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 	interfaces sort: [ :a :b | a name <= b name ].
 	interfacesTree := SpBoxLayout newVertical.
 
-	interfaces do: [ :interface | "warningArray := ""self halt."
+	interfaces do: [ :interface |
+		warningIcon := self
+			               warningNoOtherUsage: interface
+			               forFrame: interfaceFrame
+			               roleInterface:
+			               (self determineRoleInterface: interface).
+
 		interfaceTree := self newTree
 			                 children: [ :i | interface methodDict keys ];
 			                 displayIcon: [ :aClass |
@@ -249,10 +268,10 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 			ifTrue: [ spacingNumber := 2 ]
 			ifFalse: [ spacingNumber := 1 ].
 
-		interfaceFrame
-			add: interfaceTree
-			height: interface methodDict keys size + spacingNumber * 20.
-		"add: warningIcon;"
+		interfaceFrame "add: (SpBoxLayout newLeftToRight"
+				 add: interfaceTree
+				 height: interface methodDict keys size + spacingNumber * 20")".
+		"add: warningIcon expand: false;"
 
 		self
 			listTypesUsingInterface: interface
@@ -281,19 +300,17 @@ MolComponent >> listTypesInPackage [
 
 { #category : #'as yet unclassified' }
 MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame roleInterface: roleInterface [
-	"lists other traits that use the given interface in the same package by checking the contract of their Type (for the moment being)"
 
-	| typesInPackage browsableType typeString typesUsingInterface implementationTable typeUsingInterface |
+	| typesInPackage browsableType typesUsingInterface implementationTable typeUsingInterface spacingNumber |
 	self flag: 'évolution Molecule implem a interfaces (changer texte)'.
 	self flag: 'cherche uniquement dans même package'.
 	self flag:
 		'voir issue Molecule pour changer comment récupérer services'.
-	self flag: 'Pas de texte interface consumed by lshmemory lshhomemanagercomponent'.
-
+	self flag:
+		'Pas de texte interface consumed by lshmemory lshhomemanagercomponent'.
 	typesInPackage := self listTypesInPackage.
 	typesUsingInterface := OrderedCollection new.
 
-	"if a Type uses an interface, keep track of it"
 	typesInPackage do: [ :type |
 		typeUsingInterface := self
 			                      interface: interface
@@ -303,43 +320,45 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 		typeUsingInterface class = UndefinedObject ifFalse: [
 			typesUsingInterface add: typeUsingInterface ] ].
 
-	"sort in order to have a display with the Traits in order"
 	typesUsingInterface sort: [ :a :b | a name <= b name ].
 
-	"shows the other Types on screen using an interface, which can be browsed by clicking on them""shows their number if there is more than one implementation""typeUsingInterface = interface"
 	browsableType := self newLink label:
 		                 'Interface ' , roleInterface , 'ed by '.
-	typesUsingInterface size > 1 ifTrue: [
-		browsableType := browsableType , typesUsingInterface size asString
-		                 , ' Traits'.
-		implementationTable := self newTable
-			                       addColumn:
-				                       ((SpImageTableColumn evaluated: [ :aClass |
-						                         self iconNamed: aClass systemIconName ])
-					                        width: 20);
-			                       addColumn:
-				                       (SpStringTableColumn evaluated: #name);
-			                       items: typesUsingInterface;
-			                       hideColumnHeaders;
-			                       activateOnDoubleClick;
-			                       withoutScrollBars;
-			                       whenActivatedDo: [ :eventServiceParameter |
-				                       eventServiceParameter selectedItem browse ].
-		interfaceFrame add: browsableType expand: false.
-		interfaceFrame
-			add: implementationTable
-			height: typesUsingInterface size * 20.
-		"adds space for when an interface is used by other components and other interfaces are shown next in its respective interfaceFrame"
-		interfaceFrame add: SpBoxLayout newVertical width: 50 ].
-	typesUsingInterface size = 1 ifTrue: [
-		[
-		typeString := typesUsingInterface at: 1 asString.
-		browsableType := browsableType
-			                 , typeString;
-			                 action: [ typeString asClass browse ];
-			                 color: Color blue;
-			                 yourself.
-		interfaceFrame add: browsableType expand: false ] ]
+	"used in order so that it doesn't show a text like Interface offered by 0 Trait"
+	typesUsingInterface isEmpty ifTrue: [ ^ self ].
+
+	browsableType := browsableType , typesUsingInterface size asString
+	                 , ' Trait'.
+
+	typesUsingInterface size = 1 ifFalse: [
+		browsableType := browsableType , 's' ].
+	"self halt."
+
+	implementationTable := self newTable
+		                       addColumn:
+			                       ((SpImageTableColumn evaluated: [ :aClass |
+					                         self iconNamed: aClass systemIconName ])
+				                        width: 20);
+		                       addColumn:
+			                       (SpStringTableColumn evaluated: #name);
+		                       items: typesUsingInterface;
+		                       hideColumnHeaders;
+		                       activateOnDoubleClick;
+		                       withoutScrollBars;
+		                       whenActivatedDo: [ :eventServiceParameter |
+			                       eventServiceParameter selectedItem browse ].
+
+	interfaceFrame add: browsableType expand: false.
+
+	typesUsingInterface size < 3
+		ifTrue: [ spacingNumber := 1 ]
+		ifFalse: [ spacingNumber := 0 ].
+
+	interfaceFrame
+		add: implementationTable
+		height: typesUsingInterface size + spacingNumber * 20.
+
+	interfaceFrame add: SpBoxLayout newVertical width: 50
 ]
 
 { #category : #TOREMOVE }
@@ -358,8 +377,8 @@ MolComponent >> setEvents [
 	"sets the Event interfaces related to the Type"
 
 	| consumedEventsTree producedEventsTree |
-	consumedEvents := typeName asClass allConsumedEvents.
-	producedEvents := typeName asClass allProducedEvents.
+	"consumedEvents := typeName asClass allConsumedEvents.
+	producedEvents := typeName asClass allProducedEvents."
 
 	consumedEventsTree := self
 		                      interfaceTreeAdd: consumedEvents
@@ -369,8 +388,22 @@ MolComponent >> setEvents [
 	producedEventsTree := self
 		                      interfaceTreeAdd: producedEvents
 		                      forFrame: producedEventsFrame
-		                      roleInterface: roleRequiredInterface.
+		                      roleInterface: roleRequiredInterface
 	"producedEventsFrame add: producedEventsTree"
+]
+
+{ #category : #TOREMOVE }
+MolComponent >> setInterfaces [
+	"sets the interfaces of the current Type"
+
+	consumedEvents := typeName asClass allConsumedEvents.
+	producedEvents := typeName asClass allProducedEvents.
+	
+		providedParameters := typeName asClass allProvidedParameters.
+	usedParameters := typeName asClass allUsedParameters.
+
+	usedServices := typeName asClass allUsedServices.
+	providedServices := typeName asClass allProvidedServices
 ]
 
 { #category : #TOREMOVE }
@@ -392,8 +425,8 @@ MolComponent >> setServices [
 	"sets the Service interfaces related to the Type"
 
 	| usedServicesTree providedServicesTree |
-	usedServices := typeName asClass allUsedServices.
-	providedServices := typeName asClass allProvidedServices.
+	"usedServices := typeName asClass allUsedServices.
+	providedServices := typeName asClass allProvidedServices."
 
 	usedServicesTree := self
 		                    interfaceTreeAdd: usedServices
@@ -403,7 +436,7 @@ MolComponent >> setServices [
 	providedServicesTree := self
 		                        interfaceTreeAdd: providedServices
 		                        forFrame: providedServicesFrame
-		                        roleInterface: roleRequiredInterface.
+		                        roleInterface: roleRequiredInterface
 	"providedServicesFrame add: providedServicesTree"
 ]
 
@@ -414,13 +447,15 @@ MolComponent >> setTypeName: aTypeName package: aPackage [
 	typeName := aTypeName.
 	typeNameField text: typeName.
 	package := aPackage.
+	
+	self setInterfaces.
 
 	self setEvents.
 	self setServices.
 	self initializeParameters.
 
 	"self halt."
-	self showWarningIcons.
+	"self showWarningIcons."
 
 	self createComponentGraphic
 ]
@@ -485,7 +520,7 @@ MolComponent >> title [
 ]
 
 { #category : #'as yet unclassified' }
-MolComponent >> warningNoEventServiceParameter: anInterface warningTooltip: warningTooltip forFrame: interfaceFrame roleInterface: roleInterface [
+MolComponent >> warningNoEventServiceParameter: interface forFrame: interfaceFrame roleInterface: roleInterface [
 	"shows a warning icon and a tooltip (when the mouse cursor is on top of the icon)"
 
 	"this tooltip details current problems with the interface (see warningNoOtherUsage for the first one)"
@@ -493,49 +528,49 @@ MolComponent >> warningNoEventServiceParameter: anInterface warningTooltip: warn
 	"in this method is known if an interface has no event/parameter/service"
 
 	| typeInterface |
-	anInterface methodDict size = 0 ifFalse: [ ^ self ].
+	interface methodDict size = 0 ifFalse: [ ^ self ].
 
-	anInterface isComponentEvents ifTrue: [ typeInterface := 'Event' ].
-	anInterface isComponentParameters ifTrue: [
+	interface isComponentEvents ifTrue: [ typeInterface := 'Event' ].
+	interface isComponentParameters ifTrue: [
 		typeInterface := 'Parameter' ].
-	anInterface isComponentServices ifTrue: [ typeInterface := 'Service' ].
+	interface isComponentServices ifTrue: [ typeInterface := 'Service' ].
 
-	^ warningTooltip , '
+	^ '
 		This ' , typeInterface , ' Trait has no ' , typeInterface , ' !'
 ]
 
 { #category : #'as yet unclassified' }
-MolComponent >> warningNoOtherUsage: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
+MolComponent >> warningNoOtherUsage: interface forFrame: interfaceFrame roleInterface: roleInterface [
+	"shows a warning icon and a tooltip (when the mouse cursor is on top of the icon)"
 
-	| warningTooltip typesUsingInterface typesInPackage typeUsingInterface |
+	"this tooltip details current problems with the interface (see warningNoOtherUsage for the first one)"
+
+	"if an interface is required by a Type but not offered by another and vice-versa, warns the user"
+
+	| warningTooltip typesUsingInterface typesInPackage typeUsingInterface warningButton |
 	self flag: 'boutons mal affichés'.
 	typesInPackage := self listTypesInPackage.
 	typesUsingInterface := OrderedCollection new.
 
 	typesInPackage do: [ :type |
-		interfaces do: [ :interface |
-			typeUsingInterface := self
-				                      interface: interface
-				                      isUsedBy: type
-				                      frame: interfaceFrame
-				                      roleInterface: roleInterface.
-			typeUsingInterface class = UndefinedObject ifFalse: [
-				typesUsingInterface add: typeUsingInterface ] ] ].
+		typeUsingInterface := self
+			                      interface: interface
+			                      isUsedBy: type
+			                      frame: interfaceFrame
+			                      roleInterface: roleInterface.
+		typeUsingInterface class = UndefinedObject ifFalse: [
+			typesUsingInterface add: typeUsingInterface ] ].
 
 	typesUsingInterface = OrderedCollection new ifFalse: [ ^ self ].
 	warningTooltip := 'No Component is declared as ' , roleInterface
-	                  , 'ing this interface !'.
+	                  , 'ing this interface !' , (self
+		                   warningNoEventServiceParameter: interface
+		                   forFrame: interfaceFrame
+		                   roleInterface: roleInterface).
 
-	interfaces do: [ :interface |
-		warningTooltip := self
-			                  warningNoEventServiceParameter: interface
-			                  warningTooltip: warningTooltip
-			                  forFrame: interfaceFrame
-			                  roleInterface: roleInterface ].
+	warningButton := SpButtonPresenter new
+		                 icon: (self iconNamed: #warning);
+		                 help: warningTooltip.
 
-	interfaceFrame
-		add: (SpButtonPresenter new
-				 icon: (self iconNamed: #warning);
-				 help: warningTooltip)
-		expand: true
+	^ warningButton
 ]
