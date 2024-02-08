@@ -75,10 +75,11 @@ ifTrue: [ Color green ]'.
 	self flag: 'taille encadrés'.
 	self flag:
 		'browse double-click ne fonctionne pas sur listes où services affichés ne correspondent pas à taille?'.
-	self flag: 'voir molexamplecomponent'.
+	self flag: 'voir molexamplecomponent moleculegui-tests'.
 	self flag:
 		'possible de rendre tables non scrollables? withoutScrollBars ne fonctionne pas'.
 	self flag: 'parametersLayout pas utile'.
+	self flag: 'yourself ne changent rien'.
 
 	"first line, only column"
 	^ SpBoxLayout newTopToBottom
@@ -96,9 +97,10 @@ ifTrue: [ Color green ]'.
 			   add: (SpBoxLayout newVertical
 					    add: 'Services' expand: false;
 					    add: 'Used' expand: false;
-					   "add: scrollableUsedServicesPresenter expand: false;"
-					    add: usedServicesFrame expand: false;add: 'Provided'
+					    "add: scrollableUsedServicesPresenter expand: false;"add:
+						    usedServicesFrame
 					    expand: false;
+					    add: 'Provided' expand: false;
 					    add: providedServicesFrame expand: false;
 					    yourself)
 			   expand: true;
@@ -212,14 +214,13 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
 	"dynamically adds trees for the required or offered part of an interface"
 
-	| interfaceTree compiledMethod interfacesTree |
+	| interfaceTree compiledMethod interfacesTree methods collection spacingNumber |
 	self flag: 'warning à côté liste'.
 	self flag: 'children ont même children'.
 	self flag: 'trait ou implem icone pour service individuel'.
 	self flag:
-		'chaque interface est son arbre (impossible de scroller quand beaucoup d interfaces pour une partie required ou offered), voir scrollable layout spec2 demo, remettre code github sinon, ajouter une super-classe temporaire par le code?'.
-	self flag: 'double-click interface events molmyalarmcomponent'.
-	self flag: 'ordre avec interface offered by, répétition?'.
+		'chaque interface est son arbre (impossible de scroller quand beaucoup d interfaces pour une partie required ou offered), voir scrollable layout spec2 demo, ajouter une super-classe temporaire par le code?'.
+	self flag: 'trees non double-clickables quand un seul child'.
 
 	"adds every interface tree as well as their events, parameters or services under them"
 	"also adds a warning icon to the left of an interface if it's necessary"
@@ -245,10 +246,15 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 						                 compiledMethod methodClass: interface.
 						                 compiledMethod selector: eventServiceParameter.
 						                 compiledMethod browse ] ].
-		"interfacesTree add: interfaceTree expand: false." 
+		"interfacesTree add: interfaceTree expand: false."
+		"a tree table needs a certains amount of space (enough to show 3 elements) in order to be correctly browsable"
+		interface methodDict keys size = 1
+			ifTrue: [ spacingNumber := 2 ]
+			ifFalse: [ spacingNumber := 1 ].
+
 		interfaceFrame
 			add: interfaceTree
-			height: interface methodDict keys size + 1 * 20.
+			height: interface methodDict keys size + spacingNumber * 20.
 		"add: warningIcon;"
 
 		self
@@ -285,6 +291,7 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 	self flag: 'cherche uniquement dans même package'.
 	self flag:
 		'voir issue Molecule pour changer comment récupérer services'.
+	self flag: 'Pas de texte interface consumed by lshmemory lshhomemanagercomponent'.
 
 	typesInPackage := self listTypesInPackage.
 	typesUsingInterface := OrderedCollection new.
@@ -321,7 +328,7 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 			                       withoutScrollBars;
 			                       whenActivatedDo: [ :eventServiceParameter |
 				                       eventServiceParameter selectedItem browse ].
-		interfaceFrame add: browsableType "expand: false".
+		interfaceFrame add: browsableType expand: false.
 		interfaceFrame
 			add: implementationTable
 			height: typesUsingInterface size * 20.
