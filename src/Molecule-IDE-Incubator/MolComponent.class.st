@@ -73,8 +73,6 @@ ifTrue: [ Color green ]'.
 	self flag: 'editable selector'.
 	self flag: 'typeNameField a champ trop grand'.
 	self flag: 'taille encadrés'.
-	self flag:
-		'browse double-click ne fonctionne pas sur listes où services affichés ne correspondent pas à taille?'.
 	self flag: 'voir molexamplecomponent moleculegui-tests'.
 	self flag:
 		'possible de rendre tables non scrollables? withoutScrollBars ne fonctionne pas'.
@@ -214,13 +212,12 @@ MolComponent >> interface: interface isUsedBy: type frame: interfaceFrame roleIn
 MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterface: roleInterface [
 	"dynamically adds trees for the required or offered part of an interface"
 
-	| interfaceTree compiledMethod interfacesTree methods collection spacingNumber |
+	| interfaceTree compiledMethod interfacesTree spacingNumber |
 	self flag: 'warning à côté liste'.
 	self flag: 'children ont même children'.
 	self flag: 'trait ou implem icone pour service individuel'.
 	self flag:
 		'chaque interface est son arbre (impossible de scroller quand beaucoup d interfaces pour une partie required ou offered), voir scrollable layout spec2 demo, ajouter une super-classe temporaire par le code?'.
-	self flag: 'trees non double-clickables quand un seul child'.
 
 	"adds every interface tree as well as their events, parameters or services under them"
 	"also adds a warning icon to the left of an interface if it's necessary"
