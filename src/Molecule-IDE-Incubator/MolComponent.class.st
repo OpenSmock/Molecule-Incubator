@@ -46,11 +46,10 @@ MolComponent >> checkboxParameters [
 ]
 
 { #category : #TOREMOVE }
-MolComponent >> componentTab [
+MolComponent >> componentRepresentationTab [
 	"used to define the second tab of the window, which shows a graphical representation of the component based on the Corba Component Model (its Type and interfaces with icons symbolizing what role they have based on its component contract)"
 
-	<inspectorPresentationOrder: 1 title: 'Component'>
-	self flag: 'to do, changer pragma'.
+	"MolDiagram new"
 	^ SpTextPresenter new
 		  text: 'to do';
 		  beNotEditable;
@@ -58,36 +57,11 @@ MolComponent >> componentTab [
 ]
 
 { #category : #TOREMOVE }
-MolComponent >> connectPresenters [
-
-	parametersCheckBox whenChangedDo: [ self checkboxParameters ].
-]
-
-{ #category : #TOREMOVE }
-MolComponent >> defaultLayout [
-
-	self flag: 'couleurs displayColor: [ :aClass |
-(aClass name endsWith: ''Test'')
-ifTrue: [ Color green ]'.
-	self flag: 'editable selector'.
-	self flag: 'typeNameField a champ trop grand'.
-	self flag: 'taille encadrés'.
-	self flag: 'voir molexamplecomponent moleculegui-tests'.
-	self flag:
-		'possible de rendre tables non scrollables? withoutScrollBars ne fonctionne pas'.
-	self flag: 'parametersLayout pas utile'.
-	self flag: 'yourself ne changent rien'.
-	self flag: 'plus possible d enlever et remettre paramètres'.
-	self flag:
-		'regarder comment spec examples est codé pour liste à gauche sppresenter collect'.
-	self flag: 'tabs'.
+MolComponent >> componentTypeTab [
+	"used to define the first tab of the window, which shows the interfaces of the component (events, parameters and services)"
 
 	"first line, only column"
 	^ SpBoxLayout newTopToBottom
-		  "add: (SpTabLayout new
-				   add: componentTypeText label: 'Component Type';
-				   add: componentRepresentation label: 'Component Representation';
-				   yourself);"
 		  add: (SpBoxLayout newVertical
 				   add: 'Contract definition' expand: false;
 				   add: (SpBoxLayout newLeftToRight
@@ -129,7 +103,39 @@ ifTrue: [ Color green ]'.
 					    add: providedParametersFrame expand: false;
 					    yourself)
 			   expand: true;
-			   yourself) yourself
+			   yourself) yourself;
+		  yourself
+]
+
+{ #category : #TOREMOVE }
+MolComponent >> connectPresenters [
+
+	parametersCheckBox whenChangedDo: [ self checkboxParameters ].
+]
+
+{ #category : #TOREMOVE }
+MolComponent >> defaultLayout [
+	"only defines the tabs, with each of them executing their code"
+
+	self flag: 'couleurs displayColor: [ :aClass |
+(aClass name endsWith: ''Test'')
+ifTrue: [ Color green ]'.
+	self flag: 'editable selector'.
+	self flag: 'typeNameField a champ trop grand'.
+	self flag: 'taille encadrés'.
+	self flag: 'voir molexamplecomponent moleculegui-tests'.
+	self flag:
+		'possible de rendre tables non scrollables? withoutScrollBars ne fonctionne pas'.
+	self flag: 'parametersLayout pas utile'.
+	self flag: 'yourself ne changent rien'.
+	self flag: 'plus possible d enlever et remettre paramètres'.
+	self flag:
+		'regarder comment spec examples est codé pour liste à gauche sppresenter collect'.
+
+	^ SpBoxLayout newTopToBottom add: (SpTabLayout new
+			   add: componentTypeText label: 'Component Type';
+			   add: componentRepresentation label: 'Component Representation';
+			   yourself)
 ]
 
 { #category : #'as yet unclassified' }
@@ -165,14 +171,7 @@ MolComponent >> initializeParameters [
 
 { #category : #TOREMOVE }
 MolComponent >> initializePresenters [
-
-	self flag: '2 premiers'.
-
-	"componentTypeText := self newText."
-	"componentTypeText beNotEditable."
-
-	"componentRepresentation := self newText.
-	componentRepresentation beNotEditable."
+	self flag: 'to clean'.
 
 	typeNameField := self newTextInput
 		                 editable: false;
@@ -240,10 +239,10 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 	"dynamically adds trees for the required or offered part of an interface"
 
 	| interfaceTree compiledMethod interfacesTree spacingNumber warningIcon interfaceUsedBoolean interfaceLayout |
-	self flag: 'children ont même children methdoDict'.
+	self flag: 'children ont même children methodDict'.
 	self flag: 'trait ou implem icone pour service individuel'.
 	self flag:
-		'chaque interface est son arbre (impossible de scroller quand beaucoup d interfaces pour une partie required ou offered), voir scrollable layout spec2 demo, ajouter une super-classe temporaire par le code?'.
+		'chaque interface est son arbre (impossible de scroller quand beaucoup d interfaces pour une partie required ou offered), voir scrollable layout spec2 demo, ajouter une super-classe temporaire par le code? à rajouter dans sppresenter, pas de add: layout, pas un problème car Interface required by en dessous de chaque, section entière (usedServices...)?'.
 	"adds every interface tree as well as their events, parameters or services under them"
 	"also adds a warning icon to the left of an interface if it's necessary"
 	"sorts the interfaces first"
@@ -374,9 +373,8 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 
 	typesUsingInterface size = 1 ifFalse: [
 		browsableTypeLabel := browsableTypeLabel , 's' ].
-	browsableType := SpBoxLayout newVertical
-		                 add: (self newLink
-		                 label: browsableTypeLabel).
+	browsableType := SpBoxLayout newVertical add:
+		                 (self newLink label: browsableTypeLabel).
 
 	implementationTable := self newTable
 		                       addColumn:
@@ -400,9 +398,10 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 
 	interfaceFrame
 		add: implementationTable
-		height: typesUsingInterface size + spacingNumber * 20
+		height: typesUsingInterface size + spacingNumber * 20.
 
-	"interfaceFrame add: SpBoxLayout newVertical width: 50"
+	"marks a separation between the implemntationTable and the next interface"
+	interfaceFrame add: SpBoxLayout newVertical height: 10
 ]
 
 { #category : #TOREMOVE }
@@ -480,6 +479,15 @@ MolComponent >> setServices [
 ]
 
 { #category : #TOREMOVE }
+MolComponent >> setTabs [
+
+	componentTypeText := self componentTypeTab.
+
+	componentRepresentation := self componentRepresentationTab.
+	componentRepresentation beNotEditable
+]
+
+{ #category : #TOREMOVE }
 MolComponent >> setTypeName: aTypeName package: aPackage [
 	"sets the Type name to its associated field, which triggers the showing of its interfaces"
 
@@ -492,6 +500,8 @@ MolComponent >> setTypeName: aTypeName package: aPackage [
 	self setEvents.
 	self setServices.
 	self initializeParameters.
+	
+self setTabs
 ]
 
 { #category : #TOREMOVE }
