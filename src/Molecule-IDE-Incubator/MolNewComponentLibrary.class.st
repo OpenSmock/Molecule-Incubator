@@ -55,9 +55,9 @@ MolNewComponentLibrary >> connectPresenters [
 
 	self tagClicked.
 
-	self fillTagList.
-	
-	self packageClicked.
+	packageList whenSelectionChangedDo: [ self fillTagList ].
+
+	self packageClicked
 ]
 
 { #category : #tests }
@@ -101,7 +101,12 @@ MolNewComponentLibrary >> defaultLayout [
 MolNewComponentLibrary >> fillTagList [
 	"loads every tag of the selected package in tagList"
 
-	packageList transmitTo: tagList transform: [ :p | p classTags ]
+	| tags |
+	"can't use packageList transmitTo: tagList transform: [ :p | p classTags ], provokes a bug when a character is entered into the filter part of packageList"
+	package := packageList selectedItem.
+	package ifNotNil: [
+		tags := package classTags.
+		tagList items: tags ]
 ]
 
 { #category : #tests }
@@ -174,12 +179,26 @@ MolNewComponentLibrary >> packageClicked [
 ]
 
 { #category : #tests }
+MolNewComponentLibrary >> packageList [
+	"used for test purposes"
+
+	^ packageList
+]
+
+{ #category : #tests }
 MolNewComponentLibrary >> tagClicked [
 	"determines what happens once a tag is selected"
 
 	tagList whenSelectionChangedDo: [
 		selectedList := tagList.
 		tag := tagList selectedItem ]
+]
+
+{ #category : #tests }
+MolNewComponentLibrary >> tagList [
+	"used for test purposes"
+
+	^ tagList
 ]
 
 { #category : #tests }

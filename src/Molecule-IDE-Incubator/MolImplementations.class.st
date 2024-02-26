@@ -13,7 +13,7 @@ MolImplementations >> buttonBrowseAction [
 
 	| item |
 	item := implementationList selectedItem.
-	
+
 	item ifNotNil: [
 		buttonBrowse enable.
 		item browse ]
@@ -40,9 +40,9 @@ MolImplementations >> defaultLayout [
 MolImplementations >> initializePresenters [
 
 	super initializePresenters.
-	
+
 	implementationList := SpFilteringListDoubleClickPresenter new.
-	implementationList displayIcon: [ :elem | 
+	implementationList displayIcon: [ :elem |
 		self iconNamed: elem systemIconName ]
 ]
 

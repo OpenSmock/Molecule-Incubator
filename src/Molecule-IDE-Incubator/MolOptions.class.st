@@ -11,7 +11,21 @@ Class {
 }
 
 { #category : #tests }
+MolOptions >> buttonBrowse [
+	"used for test purposes"
+
+	^ buttonBrowse
+]
+
+{ #category : #tests }
 MolOptions >> buttonBrowseAction [ 
+]
+
+{ #category : #tests }
+MolOptions >> implementationList [
+	"used for test purposes"
+
+	^ implementationList
 ]
 
 { #category : #tests }

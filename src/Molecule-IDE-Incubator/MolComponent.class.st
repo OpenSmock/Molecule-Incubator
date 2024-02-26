@@ -27,7 +27,9 @@ Class {
 		'roleOfferedInterface',
 		'scrollableUsedServicesPresenter',
 		'componentTypeText',
-		'componentRepresentation'
+		'componentRepresentation',
+		'usedParametersTreeCopy',
+		'providedParametersTreeCopy'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -141,6 +143,7 @@ ifTrue: [ Color green ]'.
 { #category : #'as yet unclassified' }
 MolComponent >> deleteEventsServicesParameters: interface forFrame: interfaceFrame [
 	"see addEventsServicesParameters: interface forFrame: interfaceFrame to know why the checked condition is fill ifFalse: "
+	self flag: 'unused ?'.
 
 	interfaceFrame children do: [ :eventServiceParameter |
 		eventServiceParameter fill ifFalse: [ eventServiceParameter delete ] ]
@@ -159,6 +162,14 @@ MolComponent >> determineRoleInterface: interface [
 		 (usedParametersBoolean or: usedServicesBoolean))
 		ifTrue: [ ^ roleOfferedInterface ]
 		ifFalse: [ ^ roleRequiredInterface ]
+]
+
+{ #category : #TOREMOVE }
+MolComponent >> initialExtent [
+
+	self flag: 'dynamique ?'.
+
+	^ 600 @ 450
 ]
 
 { #category : #TOREMOVE }
@@ -339,6 +350,7 @@ MolComponent >> listTypesInPackage [
 			                     = false and:
 				                     c superclass = PackageManifest = false) ].
 	typesInPackage := classesInPackage select: [ :c | c isComponentType ].
+	
 	^ typesInPackage
 ]
 
@@ -408,8 +420,8 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 MolComponent >> setEmptyParameters [
 	"removes the parameters shown on screen when the checkbox is unchecked"
 
-	usedParametersLabel label: ''.
 	providedParametersLabel label: ''.
+	usedParametersLabel label: ''.
 
 	providedParametersFrame removeAll.
 	usedParametersFrame removeAll
@@ -451,14 +463,19 @@ MolComponent >> setProvidedParameters [
 	"shows provided parameter interfaces if the checkbox is checked"
 
 	| providedParametersTree |
+	self flag: 'commentaire, to do'.
 	providedParametersLabel label: 'Provided'.
 
-	"self halt."
-	providedParametersTree := self
-		                          interfaceTreeAdd: providedParameters
-		                          forFrame: providedParametersFrame
-		                          roleInterface: roleRequiredInterface
-	"providedParametersFrame add: providedParametersTree"
+	providedParametersTreeCopy
+		ifNotNil: [
+			providedParametersTree := providedParametersTreeCopy.
+			providedParametersFrame add: providedParametersTree ]
+		ifNil: [ "providedParametersFrame add: providedParametersTree"
+			providedParametersTree := self
+				                          interfaceTreeAdd: providedParameters
+				                          forFrame: providedParametersFrame
+				                          roleInterface: roleRequiredInterface.
+			providedParametersTreeCopy := providedParametersTree ]
 ]
 
 { #category : #TOREMOVE }
@@ -509,13 +526,17 @@ MolComponent >> setUsedParameters [
 	"shows used parameter interfaces if the checkbox is checked"
 
 	| usedParametersTree |
+	self flag: 'commentaire, to do'.
 	usedParametersLabel label: 'Used'.
 
-	usedParametersTree := self
-		                      interfaceTreeAdd: usedParameters
-		                      forFrame: usedParametersFrame
-		                      roleInterface: roleOfferedInterface
-	"usedParametersFrame add: usedParametersTree"
+	usedParametersTreeCopy
+		ifNotNil: [ usedParametersTree := usedParametersTreeCopy ]
+		ifNil: [ "usedParametersFrame add: usedParametersTree"
+			usedParametersTree := self
+				                      interfaceTreeAdd: usedParameters
+				                      forFrame: usedParametersFrame
+				                      roleInterface: roleOfferedInterface.
+			usedParametersTreeCopy := usedParametersTree ]
 ]
 
 { #category : #TOREMOVE }

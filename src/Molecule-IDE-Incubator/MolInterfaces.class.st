@@ -43,10 +43,10 @@ MolInterfaces >> addTypesInInterfaceLists [
 	| trait |
 	selectedInterface = '' ifFalse: [ "if the Trait is using the selected interface, adds it to the corresponding column"
 		implemList do: [ :implem | "only way to get the Types are by getting their implementations"
+						self flag:
+				'code à changer avec nouvelle méthode Molecule Interface -> Trait, implem ne finissent pas par Impl'.
 			trait := (implem asString withoutSuffix: 'Impl') asClass.
 			"self halt."
-			self flag:
-				'code à changer avec nouvelle méthode Molecule Interface -> Trait, implem ne finissent pas par Impl'.
 
 			typeInterface = 'Events' ifTrue: [
 				eventsConsumed := trait allConsumedEvents.
@@ -178,6 +178,13 @@ MolInterfaces >> determineTypeInterface [
 ]
 
 { #category : #initialization }
+MolInterfaces >> dropList [
+	"used for test purposes"
+
+	^ dropList
+]
+
+{ #category : #initialization }
 MolInterfaces >> emptyLists [
 	"since the implementations change when switching from one boolean operator to another, the lists of implementations need to be reset"
 
@@ -282,6 +289,13 @@ MolInterfaces >> listMenu [
 			  action: [ self seeComponentImplementations ] ]
 ]
 
+{ #category : #initialization }
+MolInterfaces >> offeredList [
+	"used for test purposes"
+
+	^ offeredList
+]
+
 { #category : #'as yet unclassified' }
 MolInterfaces >> orMode [
 	"if an implementation requires or provides the selected interface, make it appear in the correct column"
@@ -329,6 +343,13 @@ MolInterfaces >> requireOrOffer [
 	self interfaceListAssignment: eventsProducedList for: offeredList.
 	self interfaceListAssignment: parametersProvidedList for: offeredList.
 	self interfaceListAssignment: servicesProvidedList for: offeredList
+]
+
+{ #category : #initialization }
+MolInterfaces >> requiredList [
+	"used for test purposes"
+
+	^ requiredList
 ]
 
 { #category : #initialization }
