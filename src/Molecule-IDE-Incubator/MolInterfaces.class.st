@@ -43,8 +43,8 @@ MolInterfaces >> addTypesInInterfaceLists [
 	| trait |
 	selectedInterface = '' ifFalse: [ "if the Trait is using the selected interface, adds it to the corresponding column"
 		implemList do: [ :implem | "only way to get the Types are by getting their implementations"
-						self flag:
-				'code à changer avec nouvelle méthode Molecule Interface -> Trait, implem ne finissent pas par Impl'.
+			self flag:
+				'code à changer avec nouvelle méthode Molecule Interface -> Trait, implem ne finissent pas par Impl, required/offeredTypes'.
 			trait := (implem asString withoutSuffix: 'Impl') asClass.
 			"self halt."
 
