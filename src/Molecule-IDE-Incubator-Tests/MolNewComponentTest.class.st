@@ -2,7 +2,6 @@ Class {
 	#name : #MolNewComponentTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'geoPosImplementations',
 		'newComponent'
 	],
 	#category : #'Molecule-IDE-Incubator-Tests-ComponentIDE'

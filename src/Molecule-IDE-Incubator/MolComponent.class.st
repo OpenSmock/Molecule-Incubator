@@ -7,32 +7,56 @@ Class {
 		'typeName',
 		'consumedEvents',
 		'producedEvents',
-		'consumedEventsFrame',
-		'producedEventsFrame',
-		'usedServicesFrame',
-		'providedServicesFrame',
-		'usedParametersFrame',
-		'providedParametersFrame',
+		'consumedEventFrame',
+		'providedServiceFrame',
+		'providedParameterFrame',
 		'usedParameters',
 		'providedParameters',
 		'usedServices',
 		'providedServices',
 		'package',
-		'parametersLayout',
-		'usedParametersLabel',
-		'providedParametersLabel',
-		'eventText',
-		'addOneTimeWarningIcon',
 		'roleRequiredInterface',
 		'roleOfferedInterface',
 		'scrollableUsedServicesPresenter',
 		'componentTypeText',
 		'componentRepresentation',
-		'usedParametersTreeCopy',
-		'providedParametersTreeCopy'
+		'usedParameterFrame',
+		'usedParameterLabel',
+		'usedServiceFrame',
+		'providedParameterLabel',
+		'producedEventFrame',
+		'providedParameterPresenter',
+		'parameterLayout',
+		'providedParameterFrameCopy',
+		'providedParameterChildren',
+		'usedParameterChildren',
+		'usedParameterPresenter',
+		'parameterCheckboxRechecked'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
+
+{ #category : #TOREMOVE }
+MolComponent >> addBackLayouts: parameterChildren forPresenter: parameterPresenter [
+	"used to add the parameter layouts after they've been deleted from unchecking the checkbox"
+
+	| parameterChildrenLayout |
+	parameterChildrenLayout := SpBoxLayout newVertical.
+	self flag: 'déplier liste déroulante ifTrue, espace entre éléments'.
+
+	parameterChildren ifNotNil: [ "self halt."
+		parameterChildren do: [ :child | "providedParameterPresenter layout: providedParameterFrameCopy""layout, presenter, presenter""parameterLayout
+				replace: providedParameterFrame
+				with: providedParameterFrameCopy""parameterPresenter layout add: layout"
+			child class = SpBoxLayout ifTrue: [ "self halt."
+				child children do: [ :grandchild | "key value, ici n'accède qu'à key"
+					grandchild class = SpBoxConstraints ifTrue: [
+						self halt.
+						grandchild expandRoots ] ] ].
+			parameterChildrenLayout add: child ].
+
+		parameterPresenter layout: parameterChildrenLayout ]
+]
 
 { #category : #TOREMOVE }
 MolComponent >> checkboxParameters [
@@ -63,6 +87,7 @@ MolComponent >> componentTypeTab [
 	"used to define the first tab of the window, which shows the interfaces of the component (events, parameters and services)"
 
 	"first line, only column"
+
 	^ SpBoxLayout newTopToBottom
 		  add: (SpBoxLayout newVertical
 				   add: 'Contract definition' expand: false;
@@ -79,33 +104,34 @@ MolComponent >> componentTypeTab [
 					    add: 'Services' expand: false;
 					    add: 'Used' expand: false;
 					    "add: scrollableUsedServicesPresenter expand: false;"add:
-						    usedServicesFrame
+						    usedServiceFrame
 					    expand: false;
 					    add: 'Provided' expand: false;
-					    add: providedServicesFrame expand: false;
+					    add: providedServiceFrame expand: false;
 					    yourself)
 			   expand: true;
 			   add: SpBoxLayout newLeftToRight expand: false;
 			   "second line, second column"add: (SpBoxLayout newVertical
 					    add: 'Events' expand: false;
 					    add: 'Consumed' expand: false;
-					    add: consumedEventsFrame expand: false;
+					    add: consumedEventFrame expand: false;
 					    add: 'Produced' expand: false;
-					    add: producedEventsFrame expand: false;
+					    add: producedEventFrame expand: false;
 					    yourself)
 			   expand: true;
 			   add: SpBoxLayout newLeftToRight width: 5;
 			   "second line, third column, is not shown by default except if a parameter interface is detected"
-			   add: (parametersLayout
+			   add: (parameterLayout
 					    add: 'Parameters' expand: false;
 					    add: parametersCheckBox expand: false;
-					    add: usedParametersLabel expand: false;
-					    add: usedParametersFrame expand: false;
-					    add: providedParametersLabel expand: false;
-					    add: providedParametersFrame expand: false;
+					    add: usedParameterLabel expand: false;
+					    add: usedParameterFrame expand: false;
+					    add: providedParameterLabel expand: false;
+					"providedParameterFrame"
+					    add: providedParameterPresenter expand: false;
 					    yourself)
 			   expand: true;
-			   yourself) yourself;
+			   yourself);
 		  yourself
 ]
 
@@ -182,6 +208,7 @@ MolComponent >> initializeParameters [
 
 { #category : #TOREMOVE }
 MolComponent >> initializePresenters [
+
 	self flag: 'to clean'.
 
 	typeNameField := self newTextInput
@@ -199,19 +226,25 @@ MolComponent >> initializePresenters [
 	roleOfferedInterface := 'offer'.
 
 	parametersCheckBox := self newCheckBox.
-	usedParametersLabel := self newLabel label: ''.
-	providedParametersLabel := self newLabel label: ''.
+	usedParameterLabel := self newLabel label: ''.
+	providedParameterLabel := self newLabel label: ''.
 
-	consumedEventsFrame := SpBoxLayout newVertical.
-	producedEventsFrame := SpBoxLayout newVertical.
-	usedServicesFrame := SpBoxLayout newVertical.
-	providedServicesFrame := SpBoxLayout newVertical.
-	usedParametersFrame := SpBoxLayout newVertical.
-	providedParametersFrame := SpBoxLayout newVertical.
+	consumedEventFrame := SpBoxLayout newVertical.
+	producedEventFrame := SpBoxLayout newVertical.
+	usedServiceFrame := SpBoxLayout newVertical.
+	providedServiceFrame := SpBoxLayout newVertical.
+	usedParameterFrame := SpBoxLayout newVertical.
+	providedParameterFrame := SpBoxLayout newVertical.
 
 	scrollableUsedServicesPresenter := SpPresenter new.
 
-	parametersLayout := SpBoxLayout newVertical
+	parameterLayout := SpBoxLayout newVertical.
+	providedParameterPresenter := self newPresenter.
+	providedParameterPresenter layout: providedParameterFrame.
+	usedParameterPresenter := self newPresenter.
+	usedParameterPresenter layout: usedParameterFrame.
+
+	parameterCheckboxRechecked := false
 ]
 
 { #category : #'as yet unclassified' }
@@ -306,14 +339,17 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 				 add: interfaceTree
 				 height: interface methodDict keys size + spacingNumber * 20).
 
-		interfaceFrame add: interfaceLayout expand: false.
+		"(interface asString includesSubstring: 'Parameter')
+			ifTrue: ["
+		"attributes the layout to the presenter if it's a Parameter interface (done this way in order since layouts can't be added dynamically and it needs to be removed when the checkbox is unchecked""interfaceFrame layout: interfaceLayout ]""ifFalse: [""adds the interface to the designated frame if it's an Event or Service interface"
+		interfaceFrame add: interfaceLayout expand: false. "]"
 
 		self
 			listTypesUsingInterface: interface
 			forFrame: interfaceFrame
 			roleInterface: roleInterface ].
 
-	^ interfacesTree
+		^ interfacesTree
 ]
 
 { #category : #'as yet unclassified' }
@@ -402,17 +438,17 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 		                       whenActivatedDo: [ :eventServiceParameter |
 			                       eventServiceParameter selectedItem browse ].
 
-	interfaceFrame add: browsableType expand: false.
-
 	typesUsingInterface size < 3
 		ifTrue: [ spacingNumber := 1 ]
 		ifFalse: [ spacingNumber := 0 ].
+
+	interfaceFrame add: browsableType expand: false.
 
 	interfaceFrame
 		add: implementationTable
 		height: typesUsingInterface size + spacingNumber * 20.
 
-	"marks a separation between the implemntationTable and the next interface"
+	"marks a separation between implementationTable and the next interface"
 	interfaceFrame add: SpBoxLayout newVertical height: 10
 ]
 
@@ -420,11 +456,22 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 MolComponent >> setEmptyParameters [
 	"removes the parameters shown on screen when the checkbox is unchecked"
 
-	providedParametersLabel label: ''.
-	usedParametersLabel label: ''.
+	| children |
+	self flag: 'clean'.
+	providedParameterLabel label: ''.
+	usedParameterLabel label: ''.
 
-	providedParametersFrame removeAll.
-	usedParametersFrame removeAll
+	parameterCheckboxRechecked := true.
+
+	providedParameterChildren ifNil: [
+		providedParameterChildren := providedParameterFrame children ].
+	"self halt."
+	"deleting the child elements of providedParameterFrame also delete the ones of providedParameterFrameCopy. As such, it's necessary to copy them and add them after the deletion'"
+	"childLayouts"
+	"providedParameterFrame removeAll."
+	providedParameterPresenter layout removeAll.
+	"self halt."
+	usedParameterFrame removeAll
 ]
 
 { #category : #TOREMOVE }
@@ -434,12 +481,12 @@ MolComponent >> setEvents [
 	| consumedEventsTree producedEventsTree |
 	consumedEventsTree := self
 		                      interfaceTreeAdd: consumedEvents
-		                      forFrame: consumedEventsFrame
+		                      forFrame: consumedEventFrame
 		                      roleInterface: roleOfferedInterface.
 	"consumedEventsFrame add: consumedEventsTree."
 	producedEventsTree := self
 		                      interfaceTreeAdd: producedEvents
-		                      forFrame: producedEventsFrame
+		                      forFrame: producedEventFrame
 		                      roleInterface: roleRequiredInterface
 	"producedEventsFrame add: producedEventsTree"
 ]
@@ -462,36 +509,41 @@ MolComponent >> setInterfaces [
 MolComponent >> setProvidedParameters [
 	"shows provided parameter interfaces if the checkbox is checked"
 
-	| providedParametersTree |
-	self flag: 'commentaire, to do'.
-	providedParametersLabel label: 'Provided'.
+	"parameters use presenters that contain layouts since it isn't possible in Spec to add dynamically layouts"
 
-	providedParametersTreeCopy
-		ifNotNil: [
-			providedParametersTree := providedParametersTreeCopy.
-			providedParametersFrame add: providedParametersTree ]
-		ifNil: [ "providedParametersFrame add: providedParametersTree"
-			providedParametersTree := self
-				                          interfaceTreeAdd: providedParameters
-				                          forFrame: providedParametersFrame
-				                          roleInterface: roleRequiredInterface.
-			providedParametersTreeCopy := providedParametersTree ]
+	| providedParameterTree |
+	self flag:
+		'tree variables pas nécessaires'.
+	providedParameterLabel label: 'Provided'.
+
+	parameterCheckboxRechecked
+		ifTrue: [
+			self
+				addBackLayouts: providedParameterChildren
+				forPresenter: providedParameterPresenter ]
+		ifFalse: [ "providedParametersFrame add: providedParametersTree"
+			providedParameterTree := self
+				                         interfaceTreeAdd: providedParameters
+				                         forFrame: providedParameterFrame
+				                         roleInterface: roleRequiredInterface
+			"providedParameterFrameCopy := providedParameterFrame"
+			"providedParameterPresenterCopy := providedParameterPresenter" ]
 ]
 
 { #category : #TOREMOVE }
 MolComponent >> setServices [
 	"sets the Service interfaces related to the Type"
 
-	| usedServicesTree providedServicesTree |
-	usedServicesTree := self
-		                    interfaceTreeAdd: usedServices
-		                    forFrame: usedServicesFrame
-		                    roleInterface: roleOfferedInterface.
+	| usedServiceTree providedServiceTree |
+	usedServiceTree := self
+		                   interfaceTreeAdd: usedServices
+		                   forFrame: usedServiceFrame
+		                   roleInterface: roleOfferedInterface.
 	"scrollableUsedServicesPresenter layout: usedServicesTree."
-	providedServicesTree := self
-		                        interfaceTreeAdd: providedServices
-		                        forFrame: providedServicesFrame
-		                        roleInterface: roleRequiredInterface
+	providedServiceTree := self
+		                       interfaceTreeAdd: providedServices
+		                       forFrame: providedServiceFrame
+		                       roleInterface: roleRequiredInterface
 	"providedServicesFrame add: providedServicesTree"
 ]
 
@@ -525,18 +577,21 @@ self setTabs
 MolComponent >> setUsedParameters [
 	"shows used parameter interfaces if the checkbox is checked"
 
-	| usedParametersTree |
+	| usedParameterTree |
 	self flag: 'commentaire, to do'.
-	usedParametersLabel label: 'Used'.
+	usedParameterLabel label: 'Used'.
 
-	usedParametersTreeCopy
-		ifNotNil: [ usedParametersTree := usedParametersTreeCopy ]
-		ifNil: [ "usedParametersFrame add: usedParametersTree"
-			usedParametersTree := self
-				                      interfaceTreeAdd: usedParameters
-				                      forFrame: usedParametersFrame
-				                      roleInterface: roleOfferedInterface.
-			usedParametersTreeCopy := usedParametersTree ]
+	parameterCheckboxRechecked
+		ifTrue: [
+			self
+				addBackLayouts: usedParameterChildren
+				forPresenter: usedParameterPresenter ]
+		ifFalse: [ "usedParametersFrame add: usedParametersTree"
+			usedParameterTree := self
+				                     interfaceTreeAdd: usedParameters
+				                     forFrame: usedParameterFrame
+				                     roleInterface: roleOfferedInterface
+			"usedParametersTreeCopy := usedParameterTree" ]
 ]
 
 { #category : #TOREMOVE }
