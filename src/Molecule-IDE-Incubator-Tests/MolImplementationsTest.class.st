@@ -22,14 +22,14 @@ MolImplementationsTest >> setUp [
 ]
 
 { #category : #running }
-MolImplementationsTest >> testBrowseActivated [
+MolImplementationsTest >> testBrowseButtonActivated [
 
-	self flag: 'fails'.
+	| enabled |
 	clockImplementations implementationList selectItem:
 		MolMyClockComponentImpl.
-	"componentType buttonBrowseAction."
+	enabled := clockImplementations buttonBrowse isEnabled.
 
-	self assert: [ clockImplementations buttonBrowse state ]
+	self assert: [ enabled ]
 ]
 
 { #category : #running }

@@ -297,7 +297,7 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 			ifTrue: [ spacingNumber := 2 ]
 			ifFalse: [ spacingNumber := 1 ].
 
-		self flag: 'bug paramètres check'.
+		self flag: 'bug paramètres check, voir discord'.
 		interfaceLayout := SpBoxLayout newLeftToRight.
 		interfaceUsedBoolean ifTrue: [
 			interfaceLayout add: warningIcon width: 30 ].

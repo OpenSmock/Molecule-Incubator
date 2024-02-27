@@ -1,12 +1,6 @@
 Class {
 	#name : #SpFilteringListDoubleClickPresenter,
 	#superclass : #SpFilteringListPresenter,
-	#instVars : [
-		'activateOnSingleClick',
-		'activationBlock',
-		'implementationList',
-		'filter'
-	],
 	#classVars : [
 		'package'
 	],

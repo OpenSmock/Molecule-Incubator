@@ -188,6 +188,7 @@ MolNewComponentLibrary >> packageList [
 { #category : #tests }
 MolNewComponentLibrary >> tagClicked [
 	"determines what happens once a tag is selected"
+	self flag: 'double-clicker tag bug'.
 
 	tagList whenSelectionChangedDo: [
 		selectedList := tagList.

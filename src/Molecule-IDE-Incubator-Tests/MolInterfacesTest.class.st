@@ -18,11 +18,12 @@ MolInterfacesTest >> setUp [
 ]
 
 { #category : #running }
-MolInterfacesTest >> testBrowse [
+MolInterfacesTest >> testBrowseButtonActivated [
 
-	self flag: 'fails'.
+	| enabled |
 	localTimeEvents requiredList selectItem: MolMyAlarmComponent.
-	self assert: [ localTimeEvents buttonBrowse state ]
+	enabled := localTimeEvents buttonBrowse isEnabled.
+	self assert: [ enabled ]
 ]
 
 { #category : #running }
