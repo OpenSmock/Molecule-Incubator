@@ -37,55 +37,59 @@ MolInterfaces >> addTrait: trait IfInterfaceCorrespondsIn: interfaceList forList
 ]
 
 { #category : #adding }
+MolInterfaces >> addTypesInInterfaceList: trait [
+	"add a Trait to the lists if it corresponds to a part of their component contract"
+
+	typeInterface = 'Events' ifTrue: [
+		eventsConsumed := trait allConsumedEvents.
+		self
+			addTrait: trait
+			IfInterfaceCorrespondsIn: eventsConsumed
+			forList: eventsConsumedList.
+
+		eventsProduced := trait allProducedEvents.
+		self
+			addTrait: trait
+			IfInterfaceCorrespondsIn: eventsProduced
+			forList: eventsProducedList ].
+
+	typeInterface = 'Parameters' ifTrue: [
+		parametersUsed := trait allUsedParameters.
+		self
+			addTrait: trait
+			IfInterfaceCorrespondsIn: parametersUsed
+			forList: parametersUsedList.
+
+		parametersProvided := trait allProvidedParameters.
+		self
+			addTrait: trait
+			IfInterfaceCorrespondsIn: parametersProvided
+			forList: parametersProvidedList ].
+
+	typeInterface = 'Services' ifTrue: [
+		servicesUsed := trait allUsedServices.
+		self
+			addTrait: trait
+			IfInterfaceCorrespondsIn: servicesUsed
+			forList: servicesUsedList.
+
+		servicesProvided := trait allProvidedServices.
+		self
+			addTrait: trait
+			IfInterfaceCorrespondsIn: servicesProvided
+			forList: servicesProvidedList ]
+]
+
+{ #category : #adding }
 MolInterfaces >> addTypesInInterfaceLists [
-	"Add the implementations in the lists corresponding to the different parts of their component contract"
 
-	| trait |
-	selectedInterface = '' ifFalse: [ "if the Trait is using the selected interface, adds it to the corresponding column"
-		implemList do: [ :implem | "only way to get the Types are by getting their implementations"
-			self flag:
-				'code à changer avec nouvelle méthode Molecule Interface -> Trait, implem ne finissent pas par Impl, required/offeredTypes'.
-			trait := (implem asString withoutSuffix: 'Impl') asClass.
-			"self halt."
+	selectedInterface = '' ifTrue: [ ^ self ].
+	
+	(MolUtils requiredTypes: selectedInterface) do: [ :trait |
+		self addTypesInInterfaceList: trait ].
 
-			typeInterface = 'Events' ifTrue: [
-				eventsConsumed := trait allConsumedEvents.
-				self
-					addTrait: trait
-					IfInterfaceCorrespondsIn: eventsConsumed
-					forList: eventsConsumedList.
-
-				eventsProduced := trait allProducedEvents.
-				self
-					addTrait: trait
-					IfInterfaceCorrespondsIn: eventsProduced
-					forList: eventsProducedList ].
-
-			typeInterface = 'Parameters' ifTrue: [
-				parametersUsed := trait allUsedParameters.
-				self
-					addTrait: trait
-					IfInterfaceCorrespondsIn: parametersUsed
-					forList: parametersUsedList.
-
-				parametersProvided := trait allProvidedParameters.
-				self
-					addTrait: trait
-					IfInterfaceCorrespondsIn: parametersProvided
-					forList: parametersProvidedList ].
-
-			typeInterface = 'Services' ifTrue: [
-				servicesUsed := trait allUsedServices.
-				self
-					addTrait: trait
-					IfInterfaceCorrespondsIn: servicesUsed
-					forList: servicesUsedList.
-
-				servicesProvided := trait allProvidedServices.
-				self
-					addTrait: trait
-					IfInterfaceCorrespondsIn: servicesProvided
-					forList: servicesProvidedList ] ] ]
+	(MolUtils offeredTypes: selectedInterface) do: [ :trait |
+		self addTypesInInterfaceList: trait ]
 ]
 
 { #category : #'as yet unclassified' }
@@ -212,6 +216,7 @@ MolInterfaces >> enableBrowseButton: listOnScreen [
 
 { #category : #'as yet unclassified' }
 MolInterfaces >> fillRequiredAndOfferedLists [
+	"used for the and mode"
 
 	requiredList items: listImplementationBoth.
 	offeredList items: listImplementationBoth
@@ -373,7 +378,7 @@ MolInterfaces >> title [
 
 { #category : #'as yet unclassified' }
 MolInterfaces >> xorMode [
-	"OR minus AND, show a Type only if it exists and doesn't appear in both columns (requires or offers the interface, but not both)"
+	"boolean operator equivalent to OR minus AND, show a Type only if it exists and doesn't appear in both columns (requires or offers the interface, but not both)"
 
 	self emptyLists.
 
