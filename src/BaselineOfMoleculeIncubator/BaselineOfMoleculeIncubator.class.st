@@ -28,7 +28,6 @@ BaselineOfMoleculeIncubator >> baseline: spec [
 			
 			"Load dependencies"
 			self loadMolecule: spec.
-			self loadRoassal: spec.
 			self loadPyramid: spec.
 						
 			"Packages"
@@ -52,14 +51,6 @@ BaselineOfMoleculeIncubator >> loadPyramid: spec [
 	spec
 		baseline: #Pyramid
 		with: [ spec repository: 'github://OpenSmock/Pyramid:main/src' ]
-]
-
-{ #category : #'load scripts' }
-BaselineOfMoleculeIncubator >> loadRoassal: spec [
-
-	spec 
-		baseline: 'Roassal' 
-		with: [ spec repository: 'github://ObjectProfile/Roassal3:master/src' ].
 ]
 
 { #category : #'load scripts' }
