@@ -50,10 +50,20 @@ MolViewPortDrag >> createGhost: evt [
 
 { #category : #hooks }
 MolViewPortDrag >> onShape: aShape [
+
 	aShape
-		when: RSMouseDragStart do: [ :evt | self createGhost: evt. evt signalUpdate ];
-		when: RSMouseDragging do: [ :evt | self updateGhost: evt. evt signalUpdate ];
-		when: RSMouseDragEnd do: [ :evt | self removeGhost: evt. evt signalUpdate ].
+		when: RSMouseDragStart do: [ :evt |
+			self createGhost: evt.
+			evt signalUpdate ]
+		for: self;
+		when: RSMouseDragging do: [ :evt |
+			self updateGhost: evt.
+			evt signalUpdate ]
+		for: self;
+		when: RSMouseDragEnd do: [ :evt |
+			self removeGhost: evt.
+			evt signalUpdate ]
+		for: self
 ]
 
 { #category : #drawing }
