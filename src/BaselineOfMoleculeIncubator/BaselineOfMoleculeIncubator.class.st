@@ -60,7 +60,7 @@ BaselineOfMoleculeIncubator >> loadRoassal: spec [
 	spec 
 		baseline: 'Roassal' with: [ 
 			spec 
-				repository: 'github://ObjectProfile/Roassal3/src'; 
+				repository: 'github://ObjectProfile/Roassal3:main/src'; 
 				loads: #('Full')
 		].
 ]
