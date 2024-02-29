@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'canvas',
 		'box',
-		'extent'
+		'extent',
+		'type'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -197,7 +198,7 @@ ComponentBuilder >> generateProvidedServices [
 ComponentBuilder >> generateType [
 	"generates the black dot above the component as well as showing the Type of the component"
 
-	| dot type line |
+	| dot line |
 	self flag: 'texte dynamique'.
 	dot := RSCircle new
 		       extent: 30 @ 30;
@@ -206,7 +207,7 @@ ComponentBuilder >> generateType [
 	dot translateTo: 0 @ -150.
 
 	type := RSLabel new
-		        text: 'Type';
+		        text: type asString;
 		        yourself.
 	type translateTo: 30 @ -150.
 
@@ -295,7 +296,7 @@ ComponentBuilder >> generateUsedServices [
 ComponentBuilder >> open [
 
 	self flag:
-		'faire méthodes pour x et y value, textes dynamiques'.
+		'faire méthodes pour x et y value, textes dynamiques, composant plus petit pour fenêtre?, zoom'.
 
 	canvas := RSCanvas new.
 
@@ -313,4 +314,10 @@ ComponentBuilder >> open [
 	self generateProvidedServices.
 
 	^ canvas
+]
+
+{ #category : #rendering }
+ComponentBuilder >> type: aMoleculeType [
+
+	type := aMoleculeType
 ]

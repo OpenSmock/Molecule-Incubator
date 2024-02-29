@@ -33,16 +33,11 @@ ClyComponentBuilder class >> tabOrder [
 	^ ClyClassDefinitionEditorToolMorph tabOrder + 1
 ]
 
-{ #category : #accessing }
-ClyComponentBuilder >> activationPriority [
-	^-100
-]
-
 { #category : #testing }
 ClyComponentBuilder >> belongsToCurrentBrowserContext [
 
 	self flag: 'fait que pour test case check Type Molecule voir classes cmd'.
-	^ browser isClassSelected: type
+	^ (browser isClassSelected: type) "and: [ type isComponentType ]" or: [ browser isClassSelected: type instanceSide ]
 ]
 
 { #category : #testing }
@@ -50,9 +45,11 @@ ClyComponentBuilder >> build [
 
 	| componentBuilder |
 	self flag:
-		'pourquoi texte roassal affiché, sauvegarde type sélectionné'.
+		'pourquoi texte roassal affiché, sauvegarde type sélectionné, méthode et mécanisme d update?'.
+	componentBuilder := ComponentBuilder new.
+	componentBuilder type: type.
 	"open returns a RSCanvas"
-	componentBuilder := ComponentBuilder new open.
+	componentBuilder := componentBuilder open.
 	self addMorph: componentBuilder open fullFrame: LayoutFrame identity
 ]
 
@@ -64,9 +61,13 @@ ClyComponentBuilder >> defaultTitle [
 
 { #category : #testing }
 ClyComponentBuilder >> isSimilarTo: anotherBrowserTool [
+	"^ self class = anotherBrowserTool class"
 
-	^ self class = anotherBrowserTool class "and: [
+	"and: [
 		  testClass == anotherBrowserTool testClass ]"
+
+	(super isSimilarTo: anotherBrowserTool) ifFalse: [ ^ false ].
+	^ type = anotherBrowserTool type
 ]
 
 { #category : #testing }
@@ -74,21 +75,18 @@ ClyComponentBuilder >> isValidInContext: aClyFullBrowserContext [
 
 	self context class = aClyFullBrowserContext class ifFalse: [ ^ false ].
 
-	^ aClyFullBrowserContext selectedClasses includes: self type
+	self context metaLevelScope = aClyFullBrowserContext metaLevelScope
+		ifFalse: [ ^ false ].
+
+	^ aClyFullBrowserContext = aClyFullBrowserContext lastSelectedClass
+		  or: [ type = aClyFullBrowserContext lastSelectedClass instanceSide ]
 ]
 
 { #category : #initialization }
 ClyComponentBuilder >> setUpModelFromContext [
 
+	super setUpModelFromContext.
 	type := context lastSelectedClass
-]
-
-{ #category : #controlling }
-ClyComponentBuilder >> switchToMethod: aMethod [
-	self flag: 'unused'.
-
-	browser selectMethod: aMethod.
-	self removeFromBrowser
 ]
 
 { #category : #testing }
