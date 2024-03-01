@@ -49,6 +49,12 @@ ClyComponentBuilder >> build [
 ]
 
 { #category : #initialization }
+ClyComponentBuilder >> defaultIconName [
+
+	^ #smallItalic
+]
+
+{ #category : #initialization }
 ClyComponentBuilder >> defaultTitle [
 
 	^ 'ComponentBuilder'
