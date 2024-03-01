@@ -5,7 +5,8 @@ Class {
 		'canvas',
 		'box',
 		'extent',
-		'type'
+		'type',
+		'typeClass'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -54,7 +55,7 @@ ComponentBuilder >> generateConsumedEvents [
 	| consumedEventText consumedEventShape line |
 	self flag: 'coordonnées relatives, texte dynamique'.
 	consumedEventText := RSLabel new
-		                     text: 'Consumed Events';
+		                     text: type allConsumedEvents;
 		                     yourself.
 	consumedEventText translateTo: -200 @ 80.
 
@@ -108,7 +109,7 @@ ComponentBuilder >> generateProducedEvents [
 	| producedEventText producedEventShape line |
 	self flag: 'coordonnées relatives, texte dynamique'.
 	producedEventText := RSLabel new
-		                     text: 'Produced Events';
+		                     text: type allProducedEvents;
 		                     yourself.
 	producedEventText translateTo: 200 @ 80.
 
@@ -139,7 +140,7 @@ ComponentBuilder >> generateProvidedParameters [
 	| providedParameterText providedParameterShape line |
 	self flag: 'coordonnées relatives, texte dynamique'.
 	providedParameterText := RSLabel new
-		                         text: 'Provided Parameters';
+		                         text: type allProvidedParameters;
 		                         yourself.
 	providedParameterText translateTo: 100 @ 160.
 
@@ -170,7 +171,7 @@ ComponentBuilder >> generateProvidedServices [
 	| providedServicesText providedServicesShape line |
 	self flag: 'coordonnées relatives, texte dynamique'.
 	providedServicesText := RSLabel new
-		                        text: 'Provided Services';
+		                        text: type allProvidedServices;
 		                        yourself.
 	providedServicesText translateTo: 200 @ -50.
 
@@ -198,18 +199,17 @@ ComponentBuilder >> generateProvidedServices [
 ComponentBuilder >> generateType [
 	"generates the black dot above the component as well as showing the Type of the component"
 
-	| dot line |
-	self flag: 'texte dynamique'.
+	| dot line typeLabel |
 	dot := RSCircle new
 		       extent: 30 @ 30;
 		       color: Color black;
 		       yourself.
 	dot translateTo: 0 @ -150.
 
-	type := RSLabel new
-		        text: type asString;
-		        yourself.
-	type translateTo: 30 @ -150.
+	typeLabel := RSLabel new
+		             text: type asString;
+		             yourself.
+	typeLabel translateTo: 30 @ -150.
 
 	line := RSLine new
 		        from: box;
@@ -220,7 +220,7 @@ ComponentBuilder >> generateType [
 	line update.
 
 	canvas addShape: dot.
-	canvas addShape: type.
+	canvas addShape: typeLabel.
 	canvas addShape: line
 ]
 
@@ -231,7 +231,7 @@ ComponentBuilder >> generateUsedParameters [
 	| usedParameterText line usedServiceUpperLine usedParameterY usedParameterX |
 	self flag: 'coordonnées relatives, texte dynamique'.
 	usedParameterText := RSLabel new
-		                     text: 'Used Parameters';
+		                     text: type allUsedParameters;
 		                     yourself.
 	usedParameterText translateTo: -60 @ 160.
 
@@ -268,7 +268,7 @@ ComponentBuilder >> generateUsedServices [
 	| usedServicesText usedServicesShape line |
 	self flag: 'coordonnées relatives, texte dynamique, shape'.
 	usedServicesText := RSLabel new
-		                    text: 'Used Services';
+		                    text: type allUsedServices;
 		                    yourself.
 	usedServicesText translateTo: -200 @ -50.
 
@@ -293,7 +293,7 @@ ComponentBuilder >> generateUsedServices [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> open [
+ComponentBuilder >> showComponent [
 
 	self flag:
 		'faire méthodes pour x et y value, textes dynamiques, composant plus petit pour fenêtre?, zoom'.
@@ -319,5 +319,5 @@ ComponentBuilder >> open [
 { #category : #rendering }
 ComponentBuilder >> type: aMoleculeType [
 
-	type := aMoleculeType
+	type := aMoleculeType.
 ]
