@@ -2,7 +2,7 @@ Class {
 	#name : #ClyComponentBuilder,
 	#superclass : #ClyBrowserToolMorph,
 	#instVars : [
-		'type'
+		'implementation'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -18,9 +18,10 @@ ClyComponentBuilder class >> browserTabActivation [
 
 { #category : #testing }
 ClyComponentBuilder class >> shouldBeActivatedInContext: aBrowserContext [
+	"is only shown for Molecule components, not their Types"
 
 	^ aBrowserContext isClassSelected and: [
-		  aBrowserContext lastSelectedClass allTraits includes: MolComponentType ]
+		  aBrowserContext lastSelectedClass inheritsFrom: MolAbstractComponentImpl ]
 ]
 
 { #category : #accessing }
@@ -35,22 +36,13 @@ ClyComponentBuilder >> activationPriority [
 ]
 
 { #category : #testing }
-ClyComponentBuilder >> belongsToCurrentBrowserContext [
-
-	self flag:
-		'fait que pour test case check Type Molecule voir classes cmd'.
-	^ "type isComponentType" (browser isClassSelected: type) or: [
-		  browser isClassSelected: type instanceSide ] "and: [ type isComponentType ]"
-]
-
-{ #category : #testing }
 ClyComponentBuilder >> build [
 
 	| componentBuilder |
-	"see class side for shouldBeActivatedInContext"
-	self flag: 'pourquoi texte roassal affiché'.
+	"see class side for shouldBeActivatedInContext: "
+	self flag: 'entête roassal'.
 	componentBuilder := ComponentBuilder new.
-	componentBuilder type: type.
+	componentBuilder implementation: implementation.
 	"showComponent returns a RSCanvas"
 	componentBuilder := componentBuilder showComponent.
 	self addMorph: componentBuilder open fullFrame: LayoutFrame identity
@@ -65,14 +57,8 @@ ClyComponentBuilder >> defaultTitle [
 { #category : #testing }
 ClyComponentBuilder >> isSimilarTo: anotherBrowserTool [
 
-	self flag: ''.
-	"^ self class = anotherBrowserTool class"
-
-	"and: [
-		  testClass == anotherBrowserTool testClass ]"
-
 	(super isSimilarTo: anotherBrowserTool) ifFalse: [ ^ false ].
-	^ self type = anotherBrowserTool type
+	^ implementation = anotherBrowserTool type
 ]
 
 { #category : #testing }
@@ -83,34 +69,12 @@ ClyComponentBuilder >> isValidInContext: aClyFullBrowserContext [
 	self context metaLevelScope = aClyFullBrowserContext metaLevelScope
 		ifFalse: [ ^ false ].
 
-	^ type = aClyFullBrowserContext lastSelectedClass or: [
-		  type = aClyFullBrowserContext lastSelectedClass instanceSide ]
-]
-
-{ #category : #testing }
-ClyComponentBuilder >> selectedClassOrMetaClass [
-
-	^ type
+	^ implementation = aClyFullBrowserContext lastSelectedClass or: [
+		  implementation = aClyFullBrowserContext lastSelectedClass instanceSide ]
 ]
 
 { #category : #initialization }
 ClyComponentBuilder >> setUpModelFromContext [
-	"super setUpModelFromContext."
 
-	self type: context lastSelectedClass
-
-	"self type: context lastSelectedClassGroup"
-
-	"self type: context selectedClassGroups"
-]
-
-{ #category : #testing }
-ClyComponentBuilder >> type [
-	^ type
-]
-
-{ #category : #initialization }
-ClyComponentBuilder >> type: aType [
-
-	type := aType
+	implementation := context lastSelectedClass
 ]

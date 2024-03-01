@@ -6,6 +6,7 @@ Class {
 		'box',
 		'extent',
 		'type',
+		'implementation',
 		'typeClass'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
@@ -53,9 +54,9 @@ ComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
 	| consumedEventText consumedEventShape line |
-	self flag: 'coordonnées relatives, texte dynamique'.
+	self flag: 'coordonnées relatives'.
 	consumedEventText := RSLabel new
-		                     text: type allConsumedEvents;
+		                     text: (self showInterface: 'consumedEvent');
 		                     yourself.
 	consumedEventText translateTo: -200 @ 80.
 
@@ -84,8 +85,7 @@ ComponentBuilder >> generateMoleculeComponent [
 	"generates the central box which represents the component as well as showing the name of the component"
 
 	| component |
-	self flag:
-		'texte dynamique, texte à intérieur box'.
+	self flag: 'texte dynamique, texte à intérieur box'.
 	box := RSBox new
 		       extent: 200 @ 200;
 		       borderColor: Color black;
@@ -94,7 +94,7 @@ ComponentBuilder >> generateMoleculeComponent [
 	box cornerRadius: 10.
 
 	component := RSLabel new
-		             text: 'Molecule Component';
+		             text: implementation;
 		             yourself.
 	"component translateTo: 0 @ 0."
 
@@ -107,9 +107,9 @@ ComponentBuilder >> generateProducedEvents [
 	"generates the produced Events part, which is composed of the produced event interfaces, the diamond shape and the line that links the box and the shape"
 
 	| producedEventText producedEventShape line |
-	self flag: 'coordonnées relatives, texte dynamique'.
+	self flag: 'coordonnées relatives'.
 	producedEventText := RSLabel new
-		                     text: type allProducedEvents;
+		                     text: (self showInterface: 'producedEvent');
 		                     yourself.
 	producedEventText translateTo: 200 @ 80.
 
@@ -138,9 +138,10 @@ ComponentBuilder >> generateProvidedParameters [
 	"generates the provided parameters part, which is composed of the provided parameter interfaces, the square shape and the line that links the box and the shape"
 
 	| providedParameterText providedParameterShape line |
-	self flag: 'coordonnées relatives, texte dynamique'.
+	self flag: 'coordonnées relatives'.
 	providedParameterText := RSLabel new
-		                         text: type allProvidedParameters;
+		                         text:
+			                         (self showInterface: 'providedParameter');
 		                         yourself.
 	providedParameterText translateTo: 100 @ 160.
 
@@ -169,9 +170,9 @@ ComponentBuilder >> generateProvidedServices [
 	"generates the provided services part, which is composed of the provided service interfaces, the circle shape and the line that links the box and the shape"
 
 	| providedServicesText providedServicesShape line |
-	self flag: 'coordonnées relatives, texte dynamique'.
+	self flag: 'coordonnées relatives'.
 	providedServicesText := RSLabel new
-		                        text: type allProvidedServices;
+		                        text: (self showInterface: 'providedService');
 		                        yourself.
 	providedServicesText translateTo: 200 @ -50.
 
@@ -229,9 +230,9 @@ ComponentBuilder >> generateUsedParameters [
 	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape and the line that links the box and the shape"
 
 	| usedParameterText line usedServiceUpperLine usedParameterY usedParameterX |
-	self flag: 'coordonnées relatives, texte dynamique'.
+	self flag: 'coordonnées relatives'.
 	usedParameterText := RSLabel new
-		                     text: type allUsedParameters;
+		                     text: (self showInterface: 'usedParameter');
 		                     yourself.
 	usedParameterText translateTo: -60 @ 160.
 
@@ -266,9 +267,9 @@ ComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
 	| usedServicesText usedServicesShape line |
-	self flag: 'coordonnées relatives, texte dynamique, shape'.
+	self flag: 'coordonnées relatives, shape'.
 	usedServicesText := RSLabel new
-		                    text: type allUsedServices;
+		                    text: (self showInterface: 'usedService');
 		                    yourself.
 	usedServicesText translateTo: -200 @ -50.
 
@@ -293,6 +294,13 @@ ComponentBuilder >> generateUsedServices [
 ]
 
 { #category : #rendering }
+ComponentBuilder >> implementation: aMoleculeImplementation [
+
+	implementation := aMoleculeImplementation.
+	type :=  implementation allTraits at: 1.
+]
+
+{ #category : #rendering }
 ComponentBuilder >> showComponent [
 
 	self flag:
@@ -314,6 +322,30 @@ ComponentBuilder >> showComponent [
 	self generateProvidedServices.
 
 	^ canvas
+]
+
+{ #category : #rendering }
+ComponentBuilder >> showInterface: anInterfaceString [
+	"shows and formats the interfaces required and offered by a Component"
+
+	| interfaces |
+	anInterfaceString = 'producedEvent' ifTrue: [
+		interfaces := type allProducedEvents ].
+	anInterfaceString = 'providedParameter' ifTrue: [
+		interfaces := type allProvidedParameters ].
+	anInterfaceString = 'providedService' ifTrue: [
+		interfaces := type allProvidedServices ].
+
+	anInterfaceString = 'consumedEvent' ifTrue: [
+		interfaces := type allConsumedEvents ].
+	anInterfaceString = 'usedParameter' ifTrue: [
+		interfaces := type allUsedParameters ].
+	anInterfaceString = 'usedService' ifTrue: [
+		interfaces := type allUsedServices ].
+
+	interfaces = OrderedCollection new ifTrue: [ ^ '' ].
+	interfaces size = 1 ifTrue: [ interfaces := interfaces at: 1 ].
+	^ interfaces
 ]
 
 { #category : #rendering }
