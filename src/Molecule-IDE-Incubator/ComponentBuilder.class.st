@@ -14,7 +14,8 @@ Class {
 		'shapeExtent',
 		'yService',
 		'yEvent',
-		'xValue'
+		'xValue',
+		'yValue'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -98,7 +99,7 @@ ComponentBuilder >> generateMoleculeComponent [
 	"generates the central box which represents the Molecule component as well as showing the name of the component"
 
 	| component |
-	self flag: 'texte à intérieur box'.
+	self flag: 'texte à intérieur box, yValue'.
 	box := RSBox new
 		       extent: 200 @ 200;
 		       borderColor: Color black;
@@ -285,7 +286,7 @@ ComponentBuilder >> generateUsedServices [
 		                     extent: shapeExtent;
 		                     yourself.
 	usedServicesShape cornerRadii: 10.
-	usedServicesShape translateTo: -130 + xValue @ yService. 
+	usedServicesShape translateTo: -130 + xValue @ yService.
 
 	line := RSLine new
 		        from: box;
@@ -309,9 +310,10 @@ ComponentBuilder >> implementation: aMoleculeImplementation [
 
 { #category : #rendering }
 ComponentBuilder >> initializeRelativeCoordinates [
-	"xValue is used for MolComponentVisualize so that components don't overlap, set to 0 if only one is shown"
+	"xValue and yValue are used for MolComponentVisualize so that components don't overlap, set to 0 if only one is shown"
 
 	xValue ifNil: [ xValue := 0 ].
+	yValue ifNil: [ yValue = 0 ].
 
 	"y values used to position interface texts"
 	yService := -50.
@@ -397,4 +399,10 @@ ComponentBuilder >> showInterface: anInterfaceString [
 ComponentBuilder >> xValue: x [
 
 	xValue := x
+]
+
+{ #category : #rendering }
+ComponentBuilder >> yValue: y [
+
+	yValue := y
 ]
