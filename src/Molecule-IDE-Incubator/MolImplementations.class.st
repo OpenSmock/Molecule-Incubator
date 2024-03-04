@@ -2,7 +2,9 @@ Class {
 	#name : #MolImplementations,
 	#superclass : #MolOptions,
 	#instVars : [
-		'selectedType'
+		'selectedType',
+		'componentBuilder',
+		'canvas'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -21,10 +23,17 @@ MolImplementations >> buttonBrowseAction [
 
 { #category : #initialization }
 MolImplementations >> connectPresenters [
-	"enables the Browse button if an implementation is selected"
+	"enables the Browse button if an implementation is selected, also shows a diagram of the selected component"
 
 	implementationList whenSelectionChangedDo: [
-		implementationList selectedItem ifNotNil: [ buttonBrowse enable ] ]
+		implementationList selectedItem ifNotNil: [ buttonBrowse enable.
+			
+			canvas := RSCanvas new.
+
+		componentBuilder := ComponentBuilder new.
+		componentBuilder implementation: implementationList selectedItem.
+		componentBuilder canvas: canvas.
+		componentBuilder showComponent open ] ]
 ]
 
 { #category : #initialization }

@@ -4,12 +4,8 @@ Class {
 	#instVars : [
 		'canvas',
 		'box',
-		'extent',
 		'type',
 		'implementation',
-		'typeClass',
-		'xRight',
-		'xParameter',
 		'yParameter',
 		'shapeExtent',
 		'yService',
@@ -19,6 +15,14 @@ Class {
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
+
+{ #category : #rendering }
+ComponentBuilder >> asForm [
+	"used to return a form, a static image and not a canvas which is drawn upon"
+	self flag: 'à tester'.
+
+	^ canvas asForm
+]
 
 { #category : #rendering }
 ComponentBuilder >> canvas: aCanvas [
@@ -99,19 +103,19 @@ ComponentBuilder >> generateMoleculeComponent [
 	"generates the central box which represents the Molecule component as well as showing the name of the component"
 
 	| component |
-	self flag: 'texte à intérieur box, yValue'.
+	self flag: 'yValue'.
 	box := RSBox new
 		       extent: 200 @ 200;
 		       borderColor: Color black;
 		       color: Color white;
 		       yourself.
 	box cornerRadius: 10.
-	box translateTo: xValue @ 0.
+	box translateTo: xValue @ yValue.
 
 	component := RSLabel new
 		             text: implementation;
 		             yourself.
-	component translateTo: xValue @ 0.
+	component translateTo: xValue @ yValue.
 
 	canvas addShape: box.
 	canvas addShape: component
@@ -214,7 +218,7 @@ ComponentBuilder >> generateType [
 	"generates the black dot above the component as well as showing the Type of the component"
 
 	| dot line typeLabel yType |
-	yType := -150.
+	yType := -150 + yValue.
 
 	dot := RSCircle new
 		       extent: shapeExtent;
@@ -248,10 +252,10 @@ ComponentBuilder >> generateUsedParameters [
 	usedParameterText := RSLabel new
 		                     text: (self showInterface: 'usedParameter');
 		                     yourself.
-	usedParameterText translateTo: -60 + xValue @ yParameter.
+	usedParameterText translateTo: -60 + xValue @ yParameter + yValue.
 
 	usedParameterX := -40 + xValue.
-	usedParameterY := 115.
+	usedParameterY := 115 + yValue.
 	usedServiceUpperLine := self
 		                        createForkShape: usedParameterX
 		                        and: usedParameterY.
@@ -313,7 +317,7 @@ ComponentBuilder >> initializeRelativeCoordinates [
 	"xValue and yValue are used for MolComponentVisualize so that components don't overlap, set to 0 if only one is shown"
 
 	xValue ifNil: [ xValue := 0 ].
-	yValue ifNil: [ yValue = 0 ].
+	yValue ifNil: [ yValue := 0 ].
 
 	"y values used to position interface texts"
 	yService := -50.
@@ -324,10 +328,8 @@ ComponentBuilder >> initializeRelativeCoordinates [
 { #category : #rendering }
 ComponentBuilder >> showComponent [
 
-	self flag:
-		'composant à faire plus petit pour fenêtre?, zoom'.
-
 	shapeExtent := 30 @ 30.
+	canvas @ RSCanvasController.
 
 	self initializeRelativeCoordinates.
 
