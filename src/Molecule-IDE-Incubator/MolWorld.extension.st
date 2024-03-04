@@ -1,6 +1,20 @@
 Extension { #name : #MolWorld }
 
 { #category : #'*Molecule-IDE-Incubator' }
+MolWorld class >> menu15VisualizeRunningComponents: aBuilder [
+
+	<worldMenu>
+	(aBuilder item: #VisualizeRunningComponents)
+		parent: #MoleculeStatus;
+		order: 1.0;
+		action: [ MolComponentVisualizer new open ];
+		icon: MolIcon moleculeIcon;
+		help:
+			'Visualize through diagrams running components and their links';
+		label: 'Visualize running Components'
+]
+
+{ #category : #'*Molecule-IDE-Incubator' }
 MolWorld class >> menu211InspectOn: aBuilder [
 
 	<worldMenu>
