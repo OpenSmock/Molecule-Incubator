@@ -4,10 +4,19 @@ Extension { #name : #MolWorld }
 MolWorld class >> menu15VisualizeRunningComponents: aBuilder [
 
 	<worldMenu>
+	| componentVisualizer canvas |
 	(aBuilder item: #VisualizeRunningComponents)
 		parent: #MoleculeStatus;
 		order: 1.0;
-		action: [ MolComponentVisualizer new open ];
+		action: [
+			MolComponentManager isRunningComponents
+				ifTrue: [ "Visualize running components"
+					componentVisualizer := MolComponentVisualizer new.
+					canvas := componentVisualizer canvas.
+					"self halt."
+					canvas open ]
+				ifFalse: [ "No components are running"
+					self inform: 'No components are running' ] ];
 		icon: MolIcon moleculeIcon;
 		help:
 			'Visualize through diagrams running components and their links';

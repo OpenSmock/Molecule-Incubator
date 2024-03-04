@@ -38,13 +38,17 @@ ClyComponentBuilder >> activationPriority [
 { #category : #testing }
 ClyComponentBuilder >> build [
 
-	| componentBuilder |
+	| componentBuilder canvas |
 	"see class side for shouldBeActivatedInContext: "
 	self flag: 'entête roassal'.
+	canvas := RSCanvas new.
+	
 	componentBuilder := ComponentBuilder new.
 	componentBuilder implementation: implementation.
+	componentBuilder canvas: canvas.
 	"showComponent returns a RSCanvas"
 	componentBuilder := componentBuilder showComponent.
+
 	self addMorph: componentBuilder open fullFrame: LayoutFrame identity
 ]
 

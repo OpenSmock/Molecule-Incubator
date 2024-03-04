@@ -13,10 +13,18 @@ Class {
 		'yParameter',
 		'shapeExtent',
 		'yService',
-		'yEvent'
+		'yEvent',
+		'xValue'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
+
+{ #category : #rendering }
+ComponentBuilder >> canvas: aCanvas [
+	"used so that one or more component(s) can be displayed in the same window, the canvas being independent from ComponentBuilder"
+
+	canvas := aCanvas
+]
 
 { #category : #rendering }
 ComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
@@ -63,14 +71,14 @@ ComponentBuilder >> generateConsumedEvents [
 	consumedEventText := RSLabel new
 		                     text: (self showInterface: 'consumedEvent');
 		                     yourself.
-	consumedEventText translateTo: -220 @ yEvent.
+	consumedEventText translateTo: -220 + xValue @ yEvent.
 
 	consumedEventShape := RSShapeFactory rightArrow
 		                      borderColor: Color black;
 		                      color: Color white;
 		                      extent: shapeExtent;
 		                      yourself.
-	consumedEventShape translateTo: -110 @ yEvent - 20.
+	consumedEventShape translateTo: -110 + xValue @ yEvent - 20.
 
 	line := RSLine new
 		        from: box;
@@ -97,11 +105,12 @@ ComponentBuilder >> generateMoleculeComponent [
 		       color: Color white;
 		       yourself.
 	box cornerRadius: 10.
+	box translateTo: xValue @ 0.
 
 	component := RSLabel new
 		             text: implementation;
 		             yourself.
-	"component translateTo: 0 @ 0."
+	component translateTo: xValue @ 0.
 
 	canvas addShape: box.
 	canvas addShape: component
@@ -115,14 +124,14 @@ ComponentBuilder >> generateProducedEvents [
 	producedEventText := RSLabel new
 		                     text: (self showInterface: 'producedEvent');
 		                     yourself.
-	producedEventText translateTo: 220 @ yEvent.
+	producedEventText translateTo: 220 + xValue @ yEvent.
 
 	producedEventShape := RSShapeFactory diamond
 		                      borderColor: Color black;
 		                      color: Color white;
 		                      extent: shapeExtent;
 		                      yourself.
-	producedEventShape translateTo: 130 @ yEvent.
+	producedEventShape translateTo: 130 + xValue @ yEvent.
 
 	line := RSLine new
 		        from: box;
@@ -146,14 +155,14 @@ ComponentBuilder >> generateProvidedParameters [
 		                         text:
 			                         (self showInterface: 'providedParameter');
 		                         yourself.
-	providedParameterText translateTo: 100 @ yParameter.
+	providedParameterText translateTo: 100 + xValue @ yParameter.
 
 	providedParameterShape := RSBox new
 		                          borderColor: Color black;
 		                          color: Color white;
 		                          extent: shapeExtent;
 		                          yourself.
-	providedParameterShape translateTo: 60 @ 130.
+	providedParameterShape translateTo: 60 + xValue @ 130.
 
 	line := RSLine new
 		        from: box;
@@ -177,14 +186,14 @@ ComponentBuilder >> generateProvidedServices [
 		                        text:
 			                        (self showInterface: 'providedService');
 		                        yourself.
-	providedServicesText translateTo: 220 @ yService.
+	providedServicesText translateTo: 220 + xValue @ yService.
 
 	providedServicesShape := RSCircle new
 		                         borderColor: Color black;
 		                         color: Color white;
 		                         extent: shapeExtent;
 		                         yourself.
-	providedServicesShape translateTo: 130 @ yService.
+	providedServicesShape translateTo: 130 + xValue @ yService.
 
 	line := RSLine new
 		        from: box;
@@ -210,12 +219,12 @@ ComponentBuilder >> generateType [
 		       extent: shapeExtent;
 		       color: Color black;
 		       yourself.
-	dot translateTo: 0 @ yType.
+	dot translateTo: xValue @ yType.
 
 	typeLabel := RSLabel new
 		             text: type asString;
 		             yourself.
-	typeLabel translateTo: 100 @ yType.
+	typeLabel translateTo: 100 + xValue @ yType.
 
 	line := RSLine new
 		        from: box;
@@ -238,9 +247,9 @@ ComponentBuilder >> generateUsedParameters [
 	usedParameterText := RSLabel new
 		                     text: (self showInterface: 'usedParameter');
 		                     yourself.
-	usedParameterText translateTo: -60 @ yParameter.
+	usedParameterText translateTo: -60 + xValue @ yParameter.
 
-	usedParameterX := -40.
+	usedParameterX := -40 + xValue.
 	usedParameterY := 115.
 	usedServiceUpperLine := self
 		                        createForkShape: usedParameterX
@@ -268,7 +277,7 @@ ComponentBuilder >> generateUsedServices [
 	usedServicesText := RSLabel new
 		                    text: (self showInterface: 'usedService');
 		                    yourself.
-	usedServicesText translateTo: -200 @ yService.
+	usedServicesText translateTo: -200 + xValue @ yService.
 
 	usedServicesShape := RSShapeFactory halfEmptyRightCircle
 		                     borderColor: Color black;
@@ -276,7 +285,7 @@ ComponentBuilder >> generateUsedServices [
 		                     extent: shapeExtent;
 		                     yourself.
 	usedServicesShape cornerRadii: 10.
-	usedServicesShape translateTo: -130 @ yService.
+	usedServicesShape translateTo: -130 + xValue @ yService. 
 
 	line := RSLine new
 		        from: box;
@@ -300,8 +309,11 @@ ComponentBuilder >> implementation: aMoleculeImplementation [
 
 { #category : #rendering }
 ComponentBuilder >> initializeRelativeCoordinates [
-	"y values used to position interface texts"
+	"xValue is used for MolComponentVisualize so that components don't overlap, set to 0 if only one is shown"
 
+	xValue ifNil: [ xValue := 0 ].
+
+	"y values used to position interface texts"
 	yService := -50.
 	yEvent := 80.
 	yParameter := 160
@@ -311,9 +323,8 @@ ComponentBuilder >> initializeRelativeCoordinates [
 ComponentBuilder >> showComponent [
 
 	self flag:
-		'composant à faire plus petit pour fenêtre?, zoom, option running components library tab, voir new component classes dans img molecule-incubator github'.
+		'composant à faire plus petit pour fenêtre?, zoom'.
 
-	canvas := RSCanvas new.
 	shapeExtent := 30 @ 30.
 
 	self initializeRelativeCoordinates.
@@ -380,4 +391,10 @@ ComponentBuilder >> showInterface: anInterfaceString [
 	"interfaces withCRs."
 
 	^ interfaces
+]
+
+{ #category : #rendering }
+ComponentBuilder >> xValue: x [
+
+	xValue := x
 ]
