@@ -9,20 +9,6 @@ Class {
 }
 
 { #category : #initialization }
-MolComponentVisualizer >> buildComponent: aComponent xValue: xValue [
-	"builds a component visualization, similar to how the build method of ClyComponentBuilder works but for multiple components to be shown on the same canvas"
-
-	| componentBuilder |
-	componentBuilder := ComponentBuilder new.
-	componentBuilder implementation: aComponent.
-	componentBuilder canvas: canvas.
-	componentBuilder xValue: xValue.
-
-	"showComponent returns a RSCanvas, adds every part of a component to the canvas"
-	componentBuilder showComponent
-]
-
-{ #category : #initialization }
 MolComponentVisualizer >> buildComponent: aComponent xValue: xValue yValue: yValue [
 	"builds a component visualization, similar to how the build method of ClyComponentBuilder works but for multiple components to be shown on the same canvas"
 

@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'selectedType',
 		'componentBuilder',
-		'canvas'
+		'canvas',
+		'componentBuilderPresenter'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -25,15 +26,20 @@ MolImplementations >> buttonBrowseAction [
 MolImplementations >> connectPresenters [
 	"enables the Browse button if an implementation is selected, also shows a diagram of the selected component"
 
-	implementationList whenSelectionChangedDo: [
-		implementationList selectedItem ifNotNil: [ buttonBrowse enable.
-			
-			canvas := RSCanvas new.
+	self flag: 'componentBuilder'.
 
-		componentBuilder := ComponentBuilder new.
-		componentBuilder implementation: implementationList selectedItem.
-		componentBuilder canvas: canvas.
-		componentBuilder showComponent open ] ]
+	implementationList whenSelectionChangedDo: [
+		implementationList selectedItem ifNotNil: [
+			buttonBrowse enable.
+
+			canvas := RSCanvas new.
+			"canvas := componentBuilderPresenter canvas."
+			canvas @ RSCanvasController.
+			componentBuilder := ComponentBuilder new.
+			componentBuilder implementation: implementationList selectedItem.
+			componentBuilder canvas: canvas.
+			componentBuilderPresenter canvas: componentBuilder showComponent.
+			componentBuilderPresenter refresh ] ]
 ]
 
 { #category : #initialization }
@@ -41,6 +47,7 @@ MolImplementations >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 		  add: implementationList;
+		  add: componentBuilderPresenter;
 		  addLast: actionBar;
 		  yourself
 ]
@@ -52,7 +59,9 @@ MolImplementations >> initializePresenters [
 
 	implementationList := SpFilteringListDoubleClickPresenter new.
 	implementationList displayIcon: [ :elem |
-		self iconNamed: elem systemIconName ]
+		self iconNamed: elem systemIconName ].
+
+	componentBuilderPresenter := SpRoassalPresenter new
 ]
 
 { #category : #initialization }

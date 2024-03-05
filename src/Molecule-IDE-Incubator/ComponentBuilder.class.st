@@ -330,6 +330,7 @@ ComponentBuilder >> showComponent [
 
 	shapeExtent := 30 @ 30.
 	canvas @ RSCanvasController.
+		canvas zoomToFit.
 
 	self initializeRelativeCoordinates.
 
