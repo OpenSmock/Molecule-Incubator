@@ -9,9 +9,7 @@ Class {
 		'yParameter',
 		'shapeExtent',
 		'yService',
-		'yEvent',
-		'xValue',
-		'yValue'
+		'yEvent'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -76,14 +74,14 @@ MolComponentBuilder >> generateConsumedEvents [
 	consumedEventText := RSLabel new
 		                     text: (self showInterface: 'consumedEvent');
 		                     yourself.
-	consumedEventText translateTo: -220 + xValue @ yEvent.
+	consumedEventText translateTo: -220 @ yEvent.
 
 	consumedEventShape := RSShapeFactory rightArrow
 		                      borderColor: Color black;
 		                      color: Color white;
 		                      extent: shapeExtent;
 		                      yourself.
-	consumedEventShape translateTo: -110 + xValue @ yEvent - 20.
+	consumedEventShape translateTo: -110 @ yEvent - 20.
 
 	line := RSLine new
 		        from: box;
@@ -110,12 +108,12 @@ MolComponentBuilder >> generateMoleculeComponent [
 		       color: Color white;
 		       yourself.
 	box cornerRadius: 10.
-	box translateTo: xValue @ yValue.
+	box translateTo: 0 @ 0.
 
 	component := RSLabel new
 		             text: implementation;
 		             yourself.
-	component translateTo: xValue @ yValue.
+	component translateTo: 0 @ 0.
 
 	canvas addShape: box.
 	canvas addShape: component
@@ -129,14 +127,14 @@ MolComponentBuilder >> generateProducedEvents [
 	producedEventText := RSLabel new
 		                     text: (self showInterface: 'producedEvent');
 		                     yourself.
-	producedEventText translateTo: 220 + xValue @ yEvent.
+	producedEventText translateTo: 220 @ yEvent.
 
 	producedEventShape := RSShapeFactory diamond
 		                      borderColor: Color black;
 		                      color: Color white;
 		                      extent: shapeExtent;
 		                      yourself.
-	producedEventShape translateTo: 130 + xValue @ yEvent.
+	producedEventShape translateTo: 130 @ yEvent.
 
 	line := RSLine new
 		        from: box;
@@ -160,14 +158,14 @@ MolComponentBuilder >> generateProvidedParameters [
 		                         text:
 			                         (self showInterface: 'providedParameter');
 		                         yourself.
-	providedParameterText translateTo: 100 + xValue @ yParameter.
+	providedParameterText translateTo: 100 @ yParameter.
 
 	providedParameterShape := RSBox new
 		                          borderColor: Color black;
 		                          color: Color white;
 		                          extent: shapeExtent;
 		                          yourself.
-	providedParameterShape translateTo: 60 + xValue @ 130.
+	providedParameterShape translateTo: 60 @ 130.
 
 	line := RSLine new
 		        from: box;
@@ -191,14 +189,14 @@ MolComponentBuilder >> generateProvidedServices [
 		                        text:
 			                        (self showInterface: 'providedService');
 		                        yourself.
-	providedServicesText translateTo: 220 + xValue @ yService.
+	providedServicesText translateTo: 220 @ yService.
 
 	providedServicesShape := RSCircle new
 		                         borderColor: Color black;
 		                         color: Color white;
 		                         extent: shapeExtent;
 		                         yourself.
-	providedServicesShape translateTo: 130 + xValue @ yService.
+	providedServicesShape translateTo: 130 @ yService.
 
 	line := RSLine new
 		        from: box;
@@ -218,18 +216,18 @@ MolComponentBuilder >> generateType [
 	"generates the black dot above the component as well as showing the Type of the component"
 
 	| dot line typeLabel yType |
-	yType := -150 + yValue.
+	yType := -150.
 
 	dot := RSCircle new
 		       extent: shapeExtent;
 		       color: Color black;
 		       yourself.
-	dot translateTo: xValue @ yType.
+	dot translateTo: 0 @ yType.
 
 	typeLabel := RSLabel new
 		             text: type asString;
 		             yourself.
-	typeLabel translateTo: 100 + xValue @ yType.
+	typeLabel translateTo: 100 @ yType.
 
 	line := RSLine new
 		        from: box;
@@ -252,10 +250,10 @@ MolComponentBuilder >> generateUsedParameters [
 	usedParameterText := RSLabel new
 		                     text: (self showInterface: 'usedParameter');
 		                     yourself.
-	usedParameterText translateTo: -60 + xValue @ yParameter + yValue.
+	usedParameterText translateTo: -60 @ yParameter.
 
-	usedParameterX := -40 + xValue.
-	usedParameterY := 115 + yValue.
+	usedParameterX := -40.
+	usedParameterY := 115.
 	usedServiceUpperLine := self
 		                        createForkShape: usedParameterX
 		                        and: usedParameterY.
@@ -282,7 +280,7 @@ MolComponentBuilder >> generateUsedServices [
 	usedServicesText := RSLabel new
 		                    text: (self showInterface: 'usedService');
 		                    yourself.
-	usedServicesText translateTo: -200 + xValue @ yService.
+	usedServicesText translateTo: -200 @ yService.
 
 	usedServicesShape := RSShapeFactory halfEmptyRightCircle
 		                     borderColor: Color black;
@@ -290,7 +288,7 @@ MolComponentBuilder >> generateUsedServices [
 		                     extent: shapeExtent;
 		                     yourself.
 	usedServicesShape cornerRadii: 10.
-	usedServicesShape translateTo: -130 + xValue @ yService.
+	usedServicesShape translateTo: -130 @ yService.
 
 	line := RSLine new
 		        from: box;
@@ -314,10 +312,6 @@ MolComponentBuilder >> implementation: aMoleculeImplementation [
 
 { #category : #rendering }
 MolComponentBuilder >> initializeRelativeCoordinates [
-	"xValue and yValue are used for MolComponentVisualize so that components don't overlap, set to 0 if only one is shown"
-
-	xValue ifNil: [ xValue := 0 ].
-	yValue ifNil: [ yValue := 0 ].
 
 	"y values used to position interface texts"
 	yService := -50.
@@ -397,16 +391,4 @@ MolComponentBuilder >> showInterface: anInterfaceString [
 	"interfaces withCRs."
 
 	^ interfaces
-]
-
-{ #category : #rendering }
-MolComponentBuilder >> xValue: x [
-
-	xValue := x
-]
-
-{ #category : #rendering }
-MolComponentBuilder >> yValue: y [
-
-	yValue := y
 ]

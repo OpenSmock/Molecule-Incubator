@@ -9,14 +9,12 @@ Class {
 }
 
 { #category : #initialization }
-MolComponentVisualizer >> buildComponent: aComponent xValue: xValue yValue: yValue [
+MolComponentVisualizer >> buildComponent: aComponent [
 	"builds a component visualization, similar to how the build method of ClyComponentBuilder works but for multiple components to be shown on the same canvas"
 
 	| componentBuilder |
 	componentBuilder := MolComponentBuilder new.
 	componentBuilder implementation: aComponent.
-	componentBuilder xValue: xValue.
-	componentBuilder yValue: yValue.
 
 	"showComponent returns a RSCanvas, adds every part of a component to the canvas"
 	^ componentBuilder showComponent
@@ -31,11 +29,12 @@ MolComponentVisualizer >> buildComponents [
 	yValue := -200.
 
 	runningComponents keysDo: [ :component | "each component is its own shape of type RSComposite"
-		canvasShape := (self
-			                buildComponent: component
-			                xValue: xValue
-			                yValue: yValue) canvas asShape.
+		canvasShape := (self buildComponent: component) canvas asShape.
+
+		"having RSComposite shapes makes it possible to move every element of a component at the same time"
+		canvasShape translateTo: xValue @ yValue.
 		canvas add: canvasShape.
+
 		xValue := xValue + 600.
 		yValue := yValue + 200 ]
 ]
@@ -108,7 +107,8 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 	| shape component |
 	"the shape is added after the label for each part of a component's contract in ComponentBuilder"
 	component := canvas shapes at: componentIndex.
-	shape := component children at: canvasIndex + 1.
+	"the corresponding RSShape is placed two items after the RSLabel"
+	shape := component children at: canvasIndex + 2.
 
 	^ shape
 ]
