@@ -21,9 +21,9 @@ SpFilteringListDoubleClickPresenter >> doubleClickActivated [
 	| item molComponent size |
 	listPresenter whenActivatedDo: [
 		item := listPresenter selectedItem.
-		size := package classTags size.
 		item class = RPackageTag
 			ifTrue: [ "needs to be redirected to a package when only one Tag exists"
+		size := package classTags size.
 				size = 1
 					ifTrue: [ package browse ]
 					ifFalse: [
