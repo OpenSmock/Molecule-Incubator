@@ -43,11 +43,12 @@ ClyComponentBuilder >> build [
 	self flag: 'entête roassal'.
 	canvas := RSCanvas new.
 
-	componentBuilder := ComponentBuilder new.
+	componentBuilder := MolComponentBuilder new.
 	componentBuilder implementation: implementation.
-	componentBuilder canvas: canvas.
 	"showComponent returns a RSCanvas"
-	self addMorph: componentBuilder showComponent open fullFrame: LayoutFrame identity
+	self
+		addMorph: componentBuilder showComponent open
+		fullFrame: LayoutFrame identity
 ]
 
 { #category : #initialization }

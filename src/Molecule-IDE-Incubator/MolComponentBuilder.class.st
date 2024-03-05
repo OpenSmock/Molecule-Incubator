@@ -1,5 +1,5 @@
 Class {
-	#name : #ComponentBuilder,
+	#name : #MolComponentBuilder,
 	#superclass : #Object,
 	#instVars : [
 		'canvas',
@@ -17,7 +17,7 @@ Class {
 }
 
 { #category : #rendering }
-ComponentBuilder >> asForm [
+MolComponentBuilder >> asForm [
 	"used to return a form, a static image and not a canvas which is drawn upon"
 	self flag: 'à tester'.
 
@@ -25,14 +25,14 @@ ComponentBuilder >> asForm [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> canvas: aCanvas [
-	"used so that one or more component(s) can be displayed in the same window, the canvas being independent from ComponentBuilder"
+MolComponentBuilder >> canvas [
+	"used to get the canvas in order to add it to the global canvas of MolComponentVisualizer"
 
-	canvas := aCanvas
+	^ canvas
 ]
 
 { #category : #rendering }
-ComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
+MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 	"creates the fork shape used to represent the used parameter interfaces as defined by Molecule, made of a long upper line and two short ends"
 
 	| lineThickness usedServiceUpperLine usedServiceLowerLeftLine usedServiceLowerRightLine lineLength |
@@ -69,7 +69,7 @@ ComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateConsumedEvents [
+MolComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
 	| consumedEventText consumedEventShape line |
@@ -99,7 +99,7 @@ ComponentBuilder >> generateConsumedEvents [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateMoleculeComponent [
+MolComponentBuilder >> generateMoleculeComponent [
 	"generates the central box which represents the Molecule component as well as showing the name of the component"
 
 	| component |
@@ -122,7 +122,7 @@ ComponentBuilder >> generateMoleculeComponent [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateProducedEvents [
+MolComponentBuilder >> generateProducedEvents [
 	"generates the produced Events part, which is composed of the produced event interfaces, the diamond shape and the line that links the box and the shape"
 
 	| producedEventText producedEventShape line |
@@ -152,7 +152,7 @@ ComponentBuilder >> generateProducedEvents [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateProvidedParameters [
+MolComponentBuilder >> generateProvidedParameters [
 	"generates the provided parameters part, which is composed of the provided parameter interfaces, the square shape and the line that links the box and the shape"
 
 	| providedParameterText providedParameterShape line |
@@ -183,7 +183,7 @@ ComponentBuilder >> generateProvidedParameters [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateProvidedServices [
+MolComponentBuilder >> generateProvidedServices [
 	"generates the provided services part, which is composed of the provided service interfaces, the circle shape and the line that links the box and the shape"
 
 	| providedServicesText providedServicesShape line |
@@ -214,7 +214,7 @@ ComponentBuilder >> generateProvidedServices [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateType [
+MolComponentBuilder >> generateType [
 	"generates the black dot above the component as well as showing the Type of the component"
 
 	| dot line typeLabel yType |
@@ -245,7 +245,7 @@ ComponentBuilder >> generateType [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateUsedParameters [
+MolComponentBuilder >> generateUsedParameters [
 	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape and the line that links the box and the shape"
 
 	| usedParameterText line usedServiceUpperLine usedParameterY usedParameterX |
@@ -274,7 +274,7 @@ ComponentBuilder >> generateUsedParameters [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> generateUsedServices [
+MolComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
 	| usedServicesText usedServicesShape line |
@@ -305,7 +305,7 @@ ComponentBuilder >> generateUsedServices [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> implementation: aMoleculeImplementation [
+MolComponentBuilder >> implementation: aMoleculeImplementation [
 	"attributes the implementation as well as getting their Molecule Type Trait"
 
 	implementation := aMoleculeImplementation.
@@ -313,7 +313,7 @@ ComponentBuilder >> implementation: aMoleculeImplementation [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> initializeRelativeCoordinates [
+MolComponentBuilder >> initializeRelativeCoordinates [
 	"xValue and yValue are used for MolComponentVisualize so that components don't overlap, set to 0 if only one is shown"
 
 	xValue ifNil: [ xValue := 0 ].
@@ -326,11 +326,12 @@ ComponentBuilder >> initializeRelativeCoordinates [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> showComponent [
+MolComponentBuilder >> showComponent [
 
 	shapeExtent := 30 @ 30.
+	canvas := RSCanvas new.
 	canvas @ RSCanvasController.
-		canvas zoomToFit.
+	canvas zoomToFit.
 
 	self initializeRelativeCoordinates.
 
@@ -351,7 +352,7 @@ ComponentBuilder >> showComponent [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> showInterface: anInterfaceString [
+MolComponentBuilder >> showInterface: anInterfaceString [
 	"shows and formats the interfaces required and offered by a component"
 
 	| interfaces interfacesCopy |
@@ -399,13 +400,13 @@ ComponentBuilder >> showInterface: anInterfaceString [
 ]
 
 { #category : #rendering }
-ComponentBuilder >> xValue: x [
+MolComponentBuilder >> xValue: x [
 
 	xValue := x
 ]
 
 { #category : #rendering }
-ComponentBuilder >> yValue: y [
+MolComponentBuilder >> yValue: y [
 
 	yValue := y
 ]

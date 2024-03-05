@@ -13,27 +13,29 @@ MolComponentVisualizer >> buildComponent: aComponent xValue: xValue yValue: yVal
 	"builds a component visualization, similar to how the build method of ClyComponentBuilder works but for multiple components to be shown on the same canvas"
 
 	| componentBuilder |
-	componentBuilder := ComponentBuilder new.
+	componentBuilder := MolComponentBuilder new.
 	componentBuilder implementation: aComponent.
-	componentBuilder canvas: canvas.
 	componentBuilder xValue: xValue.
 	componentBuilder yValue: yValue.
 
 	"showComponent returns a RSCanvas, adds every part of a component to the canvas"
-	componentBuilder showComponent
+	^ componentBuilder showComponent
 ]
 
 { #category : #initialization }
 MolComponentVisualizer >> buildComponents [
 	"builds every component visualization, the x value being used to position the components"
 
-	| xValue yValue |
-	self flag: 'faire liens entre composants'.
-	xValue := -400. 
+	| xValue yValue canvasShape |
+	xValue := -400.
 	yValue := -200.
 
-	runningComponents keysDo: [ :component |
-		self buildComponent: component xValue: xValue yValue: yValue.
+	runningComponents keysDo: [ :component | "each component is its own shape of type RSComposite"
+		canvasShape := (self
+			                buildComponent: component
+			                xValue: xValue
+			                yValue: yValue) canvas asShape.
+		canvas add: canvasShape.
 		xValue := xValue + 600.
 		yValue := yValue + 200 ]
 ]
@@ -49,50 +51,64 @@ MolComponentVisualizer >> canvas [
 MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
-	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter |
+	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex |
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
-	"indexes are used to know the position of labels which is used to know the position of their associated shapes"
+	"component indexes are used to know which component is being selected"
+	componentIndex := 0.
+	componentCopyIndex := 0.
+
+	"canvas indexes are used to know the position of labels in components shape list"
 	canvasIndex := 0.
 	canvasCopyIndex := 0.
 
 	lineCounter := 0.
 
-	canvas shapes do: [ :element |
-		canvasCopy shapes do: [ :element2 |
-			(element class = RSLabel and: element2 class = RSLabel) ifTrue: [ "verify that Roassal elements of type RSLabel aren't the same element"
-				element == element2 ifFalse: [ "but have the same text"
-					element text = element2 text ifTrue: [ "that isn't an empty string"
-						element text = '' ifFalse: [ "should only create one line, two are not needed to symbolize the link"
-							lineCounter % 2 = 0 ifTrue: [
-								requiredShape := self determineComponentShape: canvasIndex.
-								offeredShape := self determineComponentShape: canvasCopyIndex.
+	"iterates on two components at the same time in order to not make compararison between elements of a same component (incoherent with Molecule architecture)"
+	canvas shapes do: [ :component | "adds the line after in order to not update the canvas while it's being iterated on"
+		componentIndex := canvasIndex + 1.
+		component children do: [ :child |
+			canvasCopy shapes do: [ :component2 |
+				componentCopyIndex := componentCopyIndex + 1.
+				component2 children do: [ :child2 |
+					(child class = RSLabel and: child2 class = RSLabel) ifTrue: [ "verify that Roassal elements of type RSLabel aren't the same element"
+						child == child2 ifFalse: [ "but have the same text"
+							child text = child2 text ifTrue: [ "that isn't an empty string"
+								child text = '' ifFalse: [ "should only create one line, two are not needed to symbolize the link"
+									lineCounter % 2 = 0 ifTrue: [
+										requiredShape := self
+											                 determineComponentShape: componentIndex
+											                 canvasIndex: canvasIndex.
+										offeredShape := self
+											                determineComponentShape: componentCopyIndex
+											                canvasIndex: canvasCopyIndex.
 
-								self flag: ''.
-								line := RSLine new
-									        from: offeredShape;
-									        to: requiredShape;
-									        yourself.
-								line attachPoint: RSBorderAttachPoint new.
-								line update.
-								lineArray add: line.
-								
-								lineCounter := lineCounter + 1 ] ] ] ] ].
-			canvasCopyIndex := canvasCopyIndex + 1 ].
-		canvasCopyIndex := 0.
-		canvasIndex := canvasIndex + 1 ].
+										line := RSLine new
+											        from: offeredShape;
+											        to: requiredShape;
+											        yourself.
+										line attachPoint: RSBorderAttachPoint new.
+										line update.
+										lineArray add: line.
 
-	"adds the line after in order to not update the canvas while it's being iterated on"
+										lineCounter := lineCounter + 1 ] ] ] ] ].
+					canvasCopyIndex := canvasCopyIndex + 1 ].
+				canvasCopyIndex := 0 ].
+			componentCopyIndex := 0.
+			canvasIndex := canvasIndex + 1 ].
+		canvasIndex := 0 ].
+
 	lineArray do: [ :l | canvas add: l ]
 ]
 
 { #category : #initialization }
-MolComponentVisualizer >> determineComponentShape: canvasIndex [
+MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: canvasIndex [
 	"used to determine which shape of which component is the starting and end point of a line"
 
-	| shape |
+	| shape component |
 	"the shape is added after the label for each part of a component's contract in ComponentBuilder"
-	shape := canvas shapes at: canvasIndex + 1.
+	component := canvas shapes at: componentIndex.
+	shape := component children at: canvasIndex + 1.
 
 	^ shape
 ]

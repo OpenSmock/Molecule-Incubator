@@ -35,7 +35,7 @@ MolImplementations >> connectPresenters [
 			canvas := RSCanvas new.
 			"canvas := componentBuilderPresenter canvas."
 			canvas @ RSCanvasController.
-			componentBuilder := ComponentBuilder new.
+			componentBuilder := MolComponentBuilder new.
 			componentBuilder implementation: implementationList selectedItem.
 			componentBuilder canvas: canvas.
 			componentBuilderPresenter canvas: componentBuilder showComponent.
