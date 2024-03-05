@@ -311,7 +311,7 @@ ComponentBuilder >> initializeRelativeCoordinates [
 ComponentBuilder >> showComponent [
 
 	self flag:
-		'composant à faire plus petit pour fenêtre?, zoom'.
+		'composant à faire plus petit pour fenêtre?, zoom, option running components library tab, voir new component classes dans img molecule-incubator github'.
 
 	canvas := RSCanvas new.
 	shapeExtent := 30 @ 30.
@@ -359,6 +359,7 @@ ComponentBuilder >> showInterface: anInterfaceString [
 	"needs to add carriage returns in order to not have every interface of a part of the component's contract displayed on the same line"
 	interfacesCopy := interfaces.
 	self flag: 'cr'.
+	interfaces := String new.
 	interfaces := String streamContents: [ :stream |
 		              interfacesCopy do: [ :interface | "interfaces add: interface asString , String cr""separatedBy: [
 				              stream
@@ -367,10 +368,16 @@ ComponentBuilder >> showInterface: anInterfaceString [
 					              nextPutAll: '
 			' ]"
 			              stream nextPutAll: interface asString.
+			              "stream nextPutAll: String cr"
+			              "stream nextPutAll: ' <r> '"
+			              "stream nextPutAll: '\ '"
+			              "stream nextPutAll: Win64Platform lineEnding"
 			              "stream nextPutAll: '
 			 '"
 			              "stream
 				              << interface asString;""<< String cr""stream cr ""cr" ] ].
+	"interfaces expandMacros."
+	"interfaces withCRs."
 
 	^ interfaces
 ]

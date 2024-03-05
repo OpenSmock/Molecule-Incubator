@@ -44,8 +44,9 @@ ClyComponentBuilder >> build [
 	componentBuilder := ComponentBuilder new.
 	componentBuilder implementation: implementation.
 	"showComponent returns a RSCanvas"
-	componentBuilder := componentBuilder showComponent.
-	self addMorph: componentBuilder open fullFrame: LayoutFrame identity
+	self
+		addMorph: componentBuilder showComponent open
+		fullFrame: LayoutFrame identity
 ]
 
 { #category : #initialization }
