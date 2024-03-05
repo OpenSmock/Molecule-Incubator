@@ -51,6 +51,8 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
 	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex |
+	self flag:
+		'passer souris sur shape interface affiche lien en rouge s il existe'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 	"component indexes are used to know which component is being selected"
@@ -67,6 +69,8 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	canvas shapes do: [ :component | "adds the line after in order to not update the canvas while it's being iterated on"
 		componentIndex := canvasIndex + 1.
 		component children do: [ :child |
+			"(child class inheritsFrom: RSShape) ifTrue: [ self halt.
+				child @ RSHighlightable ]."
 			canvasCopy shapes do: [ :component2 |
 				componentCopyIndex := componentCopyIndex + 1.
 				component2 children do: [ :child2 |
@@ -114,6 +118,31 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 ]
 
 { #category : #initialization }
+MolComponentVisualizer >> highlightShapes [
+	"hovering over an interface shape creates a red link to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to a producedEvents interface if it exists"
+
+	| shapeExtent componentIndex nextElement secondNextElement |
+	self flag:
+		'fonctionne pour Type mais pas pour partie used sauf usedservice qui bug, inverse à faire'.
+		self flag: 'voir page 163/4 agile visualization'.
+	shapeExtent := 30 @ 30.
+	componentIndex := 0.
+
+	canvas shapes do: [ :component |
+		component children do: [ :child | "provided shape part"
+			componentIndex := componentIndex + 1.
+			self flag: 'usedparameter not highlighted'.
+			componentIndex < (component children size - 2) ifTrue: [
+				nextElement := component children at: componentIndex + 1.
+				secondNextElement := component children at: componentIndex + 2 ].
+			(child extent = (30 @ 30) or:
+				 (nextElement class = RSLine and: secondNextElement class = RSLine))
+				ifTrue: [ "don't highlight the Type dot since it's linked to nothing"
+					child class = RSCircle ifFalse: [ "usedParameter shape is made of 3 lines"
+						child @ RSHighlightable red ] ] ] ]
+]
+
+{ #category : #initialization }
 MolComponentVisualizer >> initialize [
 	"gets the running Components as a dictionary and then builds the components"
 
@@ -125,5 +154,6 @@ MolComponentVisualizer >> initialize [
 		                     deployedComponents.
 
 	self buildComponents.
+	self highlightShapes.
 	self createLinksBetweenInterfaces
 ]

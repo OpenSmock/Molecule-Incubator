@@ -33,7 +33,7 @@ MolComponentBuilder >> canvas [
 MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 	"creates the fork shape used to represent the used parameter interfaces as defined by Molecule, made of a long upper line and two short ends"
 
-	| lineThickness usedServiceUpperLine usedServiceLowerLeftLine usedServiceLowerRightLine lineLength |
+	| lineThickness usedServiceUpperLine usedServiceLowerLeftLine usedServiceLowerRightLine lineLength  |
 	lineThickness := 1.
 	lineLength := 40.
 
@@ -49,14 +49,16 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 		                            yourself.
 	"puts the line vertically"
 	usedServiceLowerLeftLine rotateByDegrees: 90.
-	usedServiceLowerLeftLine translateTo: usedParameterX - 30 @ usedParameterY + 10.
+	usedServiceLowerLeftLine translateTo:
+		usedParameterX - 30 @ usedParameterY + 10.
 
 	usedServiceLowerRightLine := RSBox new
 		                             color: Color black;
 		                             extent: lineLength / 2 @ lineThickness;
 		                             yourself.
 	usedServiceLowerRightLine rotateByDegrees: 90.
-	usedServiceLowerRightLine translateTo: usedParameterX + 10 @ usedParameterY + 10.
+	usedServiceLowerRightLine translateTo:
+		usedParameterX + 10 @ usedParameterY + 10.
 
 	canvas add: usedServiceUpperLine.
 	canvas add: usedServiceLowerLeftLine.
@@ -101,7 +103,6 @@ MolComponentBuilder >> generateMoleculeComponent [
 	"generates the central box which represents the Molecule component as well as showing the name of the component"
 
 	| component |
-	self flag: 'yValue'.
 	box := RSBox new
 		       extent: 200 @ 200;
 		       borderColor: Color black;
@@ -191,7 +192,7 @@ MolComponentBuilder >> generateProvidedServices [
 		                        yourself.
 	providedServicesText translateTo: 220 @ yService.
 
-	providedServicesShape := RSCircle new
+	providedServicesShape := RSEllipse new
 		                         borderColor: Color black;
 		                         color: Color white;
 		                         extent: shapeExtent;
