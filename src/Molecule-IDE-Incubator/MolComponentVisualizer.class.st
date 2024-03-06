@@ -25,6 +25,8 @@ MolComponentVisualizer >> buildComponents [
 	"builds every component visualization, the x value being used to position the components"
 
 	| xValue yValue canvasShape |
+	self flag:
+		'faire en sort que composant relié à autre soit placé à gauche?'.
 	xValue := -400.
 	yValue := -200.
 
@@ -52,7 +54,7 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 
 	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex |
 	self flag:
-		'passer souris sur shape interface affiche lien en rouge s il existe'.
+		'passer souris sur shape interface affiche lien en rouge s il existe et interface shape à l autre bout?'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 	"component indexes are used to know which component is being selected"
@@ -68,8 +70,7 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"iterates on two components at the same time in order to not make compararison between elements of a same component (incoherent with Molecule architecture)"
 	canvas shapes do: [ :component | "adds the line after in order to not update the canvas while it's being iterated on"
 		componentIndex := canvasIndex + 1.
-		component children do: [ :child |
-			"(child class inheritsFrom: RSShape) ifTrue: [ self halt.
+		component children do: [ :child | "(child class inheritsFrom: RSShape) ifTrue: [ self halt.
 				child @ RSHighlightable ]."
 			canvasCopy shapes do: [ :component2 |
 				componentCopyIndex := componentCopyIndex + 1.
@@ -121,13 +122,24 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 MolComponentVisualizer >> highlightShapes [
 	"hovering over an interface shape creates a red link to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to a producedEvents interface if it exists"
 
-	| shapeExtent componentIndex nextElement secondNextElement childArray |
+	| shapeExtent componentIndex nextElement secondNextElement highlightableLine highlightableShape |
 	self flag: 'fonctionne pas pour partie used sauf usedservice qui bug'.
-	self flag: 'doit afficher lien quand curseur passe'.
+	self flag: 'doit afficher lien quand curseur passe?'.
 	self flag: 'voir page 163/4 agile visualization'.
 	shapeExtent := 30 @ 30.
 	componentIndex := 0.
-	childArray := OrderedCollection new.
+
+	highlightableLine := RSHighlightable new.
+	highlightableLine highlightColor: Color red.
+	"property used to highlight the lines that connect the interface shape to another"
+	highlightableLine withEdges.
+	"highlightable highlightBorder: (RSBorder new
+			 width: 30;
+			 color: Color black)."
+	highlightableShape := RSHighlightable new.
+	highlightableShape highlightColor: Color red.
+	"property used to highlight the other interface shape that the one hovered on is linked to"
+	highlightableShape withConnectedShapes.
 
 	canvas shapes do: [ :component |
 		component children do: [ :child | "provided shape part"
@@ -141,9 +153,8 @@ MolComponentVisualizer >> highlightShapes [
 					child class = RSCircle ifFalse: [ "usedParameter shape is made of 3 lines"
 						self flag:
 							'possible d exécuter bloc de code pour afficher lien ?'.
-						childArray add: child ] ] ] ].
-
-	childArray do: [ :child | child @ RSHighlightable red ]
+						child @ highlightableLine.
+						child @ highlightableShape ] ] ] ]
 ]
 
 { #category : #initialization }
