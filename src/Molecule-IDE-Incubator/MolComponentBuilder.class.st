@@ -327,45 +327,48 @@ MolComponentBuilder >> showInterface: anInterfaceString [
 	"shows and formats the interfaces required and offered by a component"
 
 	| interfaces interfacesCopy |
-	anInterfaceString = 'consumedEvent' ifTrue: [
-		interfaces := type allConsumedEvents ].
-	anInterfaceString = 'usedParameter' ifTrue: [
-		interfaces := type allUsedParameters ].
-	anInterfaceString = 'usedService' ifTrue: [
-		interfaces := type allUsedServices ].
+	"don't show a component if the selected element isn't one (Object superclass...)"
+	type isComponentType ifFalse: [ ^ '' ].
+	
+		anInterfaceString = 'consumedEvent' ifTrue: [
+			interfaces := type allConsumedEvents ].
+		anInterfaceString = 'usedParameter' ifTrue: [
+			interfaces := type allUsedParameters ].
+		anInterfaceString = 'usedService' ifTrue: [
+			interfaces := type allUsedServices ].
 
-	anInterfaceString = 'producedEvent' ifTrue: [
-		interfaces := type allProducedEvents ].
-	anInterfaceString = 'providedParameter' ifTrue: [
-		interfaces := type allProvidedParameters ].
-	anInterfaceString = 'providedService' ifTrue: [
-		interfaces := type allProvidedServices ].
+		anInterfaceString = 'producedEvent' ifTrue: [
+			interfaces := type allProducedEvents ].
+		anInterfaceString = 'providedParameter' ifTrue: [
+			interfaces := type allProvidedParameters ].
+		anInterfaceString = 'providedService' ifTrue: [
+			interfaces := type allProvidedServices ].
 
-	interfaces = OrderedCollection new ifTrue: [ ^ '' ].
-	"starts the Text by anOrderedCollection() without this line"
-	interfaces size = 1 ifTrue: [ ^ interfaces at: 1 ].
-	"needs to add carriage returns in order to not have every interface of a part of the component's contract displayed on the same line"
-	interfacesCopy := interfaces.
-	self flag: 'cr'.
-	interfaces := String new.
-	interfaces := String streamContents: [ :stream |
-		              interfacesCopy do: [ :interface | "interfaces add: interface asString , String cr""separatedBy: [
+		interfaces = OrderedCollection new ifTrue: [ ^ '' ].
+		"starts the Text by anOrderedCollection() without this line"
+		interfaces size = 1 ifTrue: [ ^ interfaces at: 1 ].
+		"needs to add carriage returns in order to not have every interface of a part of the component's contract displayed on the same line"
+		interfacesCopy := interfaces.
+		self flag: 'cr'.
+		interfaces := String new.
+		interfaces := String streamContents: [ :stream |
+			              interfacesCopy do: [ :interface | "interfaces add: interface asString , String cr""separatedBy: [
 				              stream
 					              nextPutAll: (String with: Character cr);
 					              nextPutAll: String cr;
 					              nextPutAll: '
 			' ]"
-			              stream nextPutAll: interface asString.
-			              "stream nextPutAll: String cr"
-			              "stream nextPutAll: ' <r> '"
-			              "stream nextPutAll: '\ '"
-			              "stream nextPutAll: Win64Platform lineEnding"
-			              "stream nextPutAll: '
+				              stream nextPutAll: interface asString
+				              "stream nextPutAll: String cr"
+				              "stream nextPutAll: ' <r> '"
+				              "stream nextPutAll: '\ '"
+				              "stream nextPutAll: Win64Platform lineEnding"
+				              "stream nextPutAll: '
 			 '"
-			              "stream
+				              "stream
 				              << interface asString;""<< String cr""stream cr ""cr" ] ].
-	"interfaces expandMacros."
-	"interfaces withCRs."
+		"interfaces expandMacros."
+		"interfaces withCRs."
 
-	^ interfaces
+		^ interfaces
 ]
