@@ -53,8 +53,7 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
 	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex |
-	self flag:
-		'passer souris sur shape interface affiche lien en rouge s il existe et interface shape à l autre bout?'.
+	
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 	"component indexes are used to know which component is being selected"
@@ -92,6 +91,8 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 											        to: requiredShape;
 											        yourself.
 										line attachPoint: RSBorderAttachPoint new.
+										"hides the line so that it can be shown when hovering on an interface shape"
+										line strokeColor: Color white.
 										line update.
 										lineArray add: line.
 
@@ -124,7 +125,6 @@ MolComponentVisualizer >> highlightShapes [
 
 	| shapeExtent componentIndex nextElement secondNextElement highlightableLine highlightableShape |
 	self flag: 'fonctionne pas pour partie used sauf usedservice qui bug'.
-	self flag: 'doit afficher lien quand curseur passe?'.
 	self flag: 'voir page 163/4 agile visualization'.
 	shapeExtent := 30 @ 30.
 	componentIndex := 0.
@@ -151,10 +151,29 @@ MolComponentVisualizer >> highlightShapes [
 				 (nextElement class = RSLine and: secondNextElement class = RSLine))
 				ifTrue: [ "don't highlight the Type dot since it isn't linked to anything"
 					child class = RSCircle ifFalse: [ "usedParameter shape is made of 3 lines"
-						self flag:
-							'possible d exécuter bloc de code pour afficher lien ?'.
-						child @ highlightableLine.
-						child @ highlightableShape ] ] ] ]
+						"child connectedLines size = 0 ifFalse: [" "if the component is connected through another by its hovered on interface shape"
+							child @ highlightableLine.
+							child @ highlightableShape ] ] ] ] "]"
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> highlightShowsLink [
+	"hovering over an interface shape shows a line that connects it to another component's interface shape"
+
+	| canvasCompositeShapes lines |
+	canvasCompositeShapes := OrderedCollection new.
+
+	"need to filter the lines added from createLinksBetweenInterfaces since only the interface shapes are used here"
+	canvas shapes do: [ :shape |
+		shape class = RSComposite ifTrue: [
+			canvasCompositeShapes add: shape ] ].
+
+	canvasCompositeShapes do: [ :composite |
+		composite children do: [ :shape |
+			shape when: RSMouseUp do: [ :evt |
+				lines := evt shapes connectedLines.
+				lines isEmpty ifFalse: [
+					lines do: [ :line | line strokeColor: Color red ] ] ] ] ]
 ]
 
 { #category : #initialization }
@@ -169,6 +188,8 @@ MolComponentVisualizer >> initialize [
 		                     deployedComponents.
 
 	self buildComponents.
+	
 	self highlightShapes.
-	self createLinksBetweenInterfaces
+	self createLinksBetweenInterfaces.
+	self highlightShowsLink
 ]
