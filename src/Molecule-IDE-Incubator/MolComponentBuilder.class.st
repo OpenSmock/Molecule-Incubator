@@ -15,6 +15,22 @@ Class {
 }
 
 { #category : #rendering }
+MolComponentBuilder >> addLineFromBoxTo: interfaceShape [
+	"used to link the main component box to its interface shapes"
+
+	| line |
+	line := RSLine new
+		        from: box;
+		        to: interfaceShape;
+		        color: Color black;
+		        yourself.
+	line attachPoint: RSBorderAttachPoint new.
+	line update.
+
+	canvas add: line
+]
+
+{ #category : #rendering }
 MolComponentBuilder >> asForm [
 	"used to return a form, a static image and not a canvas which is drawn upon"
 	self flag: 'à tester'.
@@ -72,7 +88,7 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 MolComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
-	| consumedEventText consumedEventShape line |
+	| consumedEventText consumedEventShape |
 	consumedEventText := RSLabel new
 		                     text: (self showInterface: 'consumedEvent');
 		                     yourself.
@@ -85,17 +101,10 @@ MolComponentBuilder >> generateConsumedEvents [
 		                      yourself.
 	consumedEventShape translateTo: -110 @ yEvent - 20.
 
-	line := RSLine new
-		        from: box;
-		        to: consumedEventShape;
-		        color: Color black;
-		        yourself.
-	line attachPoint: RSBorderAttachPoint new.
-	line update.
+	self addLineFromBoxTo: consumedEventShape.
 
 	canvas add: consumedEventText.
-	canvas add: consumedEventShape.
-	canvas add: line
+	canvas add: consumedEventShape
 ]
 
 { #category : #rendering }
@@ -124,7 +133,7 @@ MolComponentBuilder >> generateMoleculeComponent [
 MolComponentBuilder >> generateProducedEvents [
 	"generates the produced Events part, which is composed of the produced event interfaces, the diamond shape and the line that links the box and the shape"
 
-	| producedEventText producedEventShape line |
+	| producedEventText producedEventShape |
 	producedEventText := RSLabel new
 		                     text: (self showInterface: 'producedEvent');
 		                     yourself.
@@ -137,24 +146,17 @@ MolComponentBuilder >> generateProducedEvents [
 		                      yourself.
 	producedEventShape translateTo: 130 @ yEvent.
 
-	line := RSLine new
-		        from: box;
-		        to: producedEventShape;
-		        color: Color black;
-		        yourself.
-	line attachPoint: RSBorderAttachPoint new.
-	line update.
+	self addLineFromBoxTo: producedEventShape.
 
 	canvas add: producedEventText.
-	canvas add: producedEventShape.
-	canvas add: line
+	canvas add: producedEventShape
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateProvidedParameters [
 	"generates the provided parameters part, which is composed of the provided parameter interfaces, the square shape and the line that links the box and the shape"
 
-	| providedParameterText providedParameterShape line |
+	| providedParameterText providedParameterShape |
 	providedParameterText := RSLabel new
 		                         text:
 			                         (self showInterface: 'providedParameter');
@@ -168,24 +170,17 @@ MolComponentBuilder >> generateProvidedParameters [
 		                          yourself.
 	providedParameterShape translateTo: 60 @ 130.
 
-	line := RSLine new
-		        from: box;
-		        to: providedParameterShape;
-		        color: Color black;
-		        yourself.
-	line attachPoint: RSBorderAttachPoint new.
-	line update.
+	self addLineFromBoxTo: providedParameterShape.
 
 	canvas add: providedParameterText.
 	canvas add: providedParameterShape.
-	canvas add: line
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateProvidedServices [
 	"generates the provided services part, which is composed of the provided service interfaces, the circle shape and the line that links the box and the shape"
 
-	| providedServicesText providedServicesShape line |
+	| providedServicesText providedServicesShape |
 	providedServicesText := RSLabel new
 		                        text:
 			                        (self showInterface: 'providedService');
@@ -199,17 +194,10 @@ MolComponentBuilder >> generateProvidedServices [
 		                         yourself.
 	providedServicesShape translateTo: 130 @ yService.
 
-	line := RSLine new
-		        from: box;
-		        to: providedServicesShape;
-		        color: Color black;
-		        yourself.
-	line attachPoint: RSBorderAttachPoint new.
-	line update.
+	self addLineFromBoxTo: providedServicesShape.
 
 	canvas add: providedServicesText.
 	canvas add: providedServicesShape.
-	canvas add: line
 ]
 
 { #category : #rendering }
@@ -247,7 +235,7 @@ MolComponentBuilder >> generateType [
 MolComponentBuilder >> generateUsedParameters [
 	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape and the line that links the box and the shape"
 
-	| usedParameterText line usedServiceUpperLine usedParameterY usedParameterX |
+	| usedParameterText usedParameterUpperLine usedParameterY usedParameterX |
 	usedParameterText := RSLabel new
 		                     text: (self showInterface: 'usedParameter');
 		                     yourself.
@@ -255,52 +243,39 @@ MolComponentBuilder >> generateUsedParameters [
 
 	usedParameterX := -40.
 	usedParameterY := 115.
-	usedServiceUpperLine := self
-		                        createForkShape: usedParameterX
-		                        and: usedParameterY.
+	usedParameterUpperLine := self
+		                          createForkShape: usedParameterX
+		                          and: usedParameterY.
 
-	"usedServiceUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
-	line := RSLine new
-		        from: box;
-		        to: usedServiceUpperLine;
-		        color: Color black;
-		        yourself.
-	line attachPoint: RSBorderAttachPoint new.
-	line update.
+	"usedParameterUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
+	self addLineFromBoxTo: usedParameterUpperLine.
 
-	canvas add: usedParameterText.
-	canvas add: line
+	canvas add: usedParameterText
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
-	| usedServicesText usedServicesShape line |
+	| usedServiceText usedServiceShape |
 	self flag: 'shape'.
-	usedServicesText := RSLabel new
-		                    text: (self showInterface: 'usedService');
-		                    yourself.
-	usedServicesText translateTo: -200 @ yService.
+	usedServiceText := RSLabel new
+		                   text: (self showInterface: 'usedService');
+		                   yourself.
+	usedServiceText translateTo: -200 @ yService.
 
-	usedServicesShape := RSShapeFactory halfEmptyRightCircle
+	usedServiceShape := RSShapeFactory halfEmptyRightCircle
 		                     borderColor: Color black;
 		                     color: Color white;
 		                     extent: shapeExtent;
 		                     yourself.
-	usedServicesShape cornerRadii: 10.
-	usedServicesShape translateTo: -130 @ yService.
+	usedServiceShape cornerRadii: 10.
+	usedServiceShape translateTo: -130 @ yService.
 
-	line := RSLine new
-		        from: box;
-		        to: usedServicesShape;
-		        yourself.
-	line attachPoint: RSBorderAttachPoint new.
-	line update.
+	self addLineFromBoxTo: usedServiceShape.
 
-	canvas add: usedServicesText.
-	canvas add: usedServicesShape.
-	canvas add: line
+	canvas add: usedServiceText.
+	canvas add: usedServiceShape
 ]
 
 { #category : #rendering }
@@ -313,8 +288,8 @@ MolComponentBuilder >> implementation: aMoleculeImplementation [
 
 { #category : #rendering }
 MolComponentBuilder >> initializeRelativeCoordinates [
-
 	"y values used to position interface texts"
+
 	yService := -50.
 	yEvent := 80.
 	yParameter := 160
@@ -324,7 +299,7 @@ MolComponentBuilder >> initializeRelativeCoordinates [
 MolComponentBuilder >> showComponent [
 
 	shapeExtent := 30 @ 30.
-	
+
 	canvas := RSCanvas new.
 	canvas @ RSCanvasController.
 	canvas zoomToFit.

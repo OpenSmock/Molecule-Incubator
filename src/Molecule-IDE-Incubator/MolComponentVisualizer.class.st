@@ -123,9 +123,11 @@ MolComponentVisualizer >> highlightShapes [
 
 	| shapeExtent componentIndex nextElement secondNextElement childArray |
 	self flag: 'fonctionne pas pour partie used sauf usedservice qui bug'.
+	self flag: 'doit afficher lien quand curseur passe'.
 	self flag: 'voir page 163/4 agile visualization'.
 	shapeExtent := 30 @ 30.
 	componentIndex := 0.
+	childArray := OrderedCollection new.
 
 	canvas shapes do: [ :component |
 		component children do: [ :child | "provided shape part"
@@ -133,14 +135,15 @@ MolComponentVisualizer >> highlightShapes [
 			componentIndex < (component children size - 2) ifTrue: [
 				nextElement := component children at: componentIndex + 1.
 				secondNextElement := component children at: componentIndex + 2 ].
-			(child extent = (30 @ 30) or:
+			(child extent = shapeExtent or:
 				 (nextElement class = RSLine and: secondNextElement class = RSLine))
 				ifTrue: [ "don't highlight the Type dot since it isn't linked to anything"
 					child class = RSCircle ifFalse: [ "usedParameter shape is made of 3 lines"
 						self flag:
 							'possible d exécuter bloc de code pour afficher lien ?'.
-						childArray add: child.
-						child @ RSHighlightable red ] ] ] ]
+						childArray add: child ] ] ] ].
+
+	childArray do: [ :child | child @ RSHighlightable red ]
 ]
 
 { #category : #initialization }
