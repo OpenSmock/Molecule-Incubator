@@ -167,9 +167,12 @@ MolComponentVisualizer >> highlightShowsLink [
 
 	canvasCompositeShapes do: [ :composite |
 		composite children do: [ :shape |
-			shape when: RSMouseUp do: [ :evt |
-				lines := evt shapes connectedLines.
-					lines do: [ :line | line strokeColor: Color red ] ] ] ]
+			shape
+				when: RSMouseUp
+				do: [ :evt | "clicking the connected interface shape triggers an error otherwise"
+					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft) ifFalse: [
+						lines := evt shapes connectedLines.
+						lines do: [ :line | line strokeColor: Color red ] ] ] ] ]
 ]
 
 { #category : #initialization }
