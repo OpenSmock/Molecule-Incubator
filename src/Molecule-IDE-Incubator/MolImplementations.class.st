@@ -47,7 +47,7 @@ MolImplementations >> connectPresenters [
 MolImplementations >> defaultLayout [
 
 	^ SpBoxLayout newVertical
-		  add: implementationList;
+		  add: implementationList height: implementationList items size * 20;
 		  add: componentBuilderPresenter;
 		  addLast: actionBar;
 		  yourself

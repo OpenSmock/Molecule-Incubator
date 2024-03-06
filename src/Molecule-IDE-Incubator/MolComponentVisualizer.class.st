@@ -53,7 +53,6 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
 	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex |
-	
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 	"component indexes are used to know which component is being selected"
@@ -91,8 +90,10 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 											        to: requiredShape;
 											        yourself.
 										line attachPoint: RSBorderAttachPoint new.
-										"hides the line so that it can be shown when hovering on an interface shape"
+										
+										"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
 										line strokeColor: Color white.
+
 										line update.
 										lineArray add: line.
 
@@ -121,7 +122,7 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 
 { #category : #initialization }
 MolComponentVisualizer >> highlightShapes [
-	"hovering over an interface shape creates a red link to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to a producedEvents interface if it exists"
+	"hovering over an interface shape creates a red line to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to the relevant producedEvents interface (of another component obviously)"
 
 	| shapeExtent componentIndex nextElement secondNextElement highlightableLine highlightableShape canvasCompositeShapes |
 	self flag: 'fonctionne pas pour partie used sauf usedservice qui bug'.
@@ -141,7 +142,7 @@ MolComponentVisualizer >> highlightShapes [
 	"property used to highlight the other interface shape that the one hovered on is linked to"
 	highlightableShape withConnectedShapes.
 
-	canvasCompositeShapes := self removeLineForIteration.
+	canvasCompositeShapes := self removeLinesForIteration.
 
 	canvasCompositeShapes do: [ :component |
 		component children do: [ :child | "provided shape part"
@@ -163,7 +164,7 @@ MolComponentVisualizer >> highlightShowsLink [
 	"hovering over an interface shape shows a line that connects it to another component's interface shape"
 
 	| canvasCompositeShapes lines |
-	canvasCompositeShapes := self removeLineForIteration.
+	canvasCompositeShapes := self removeLinesForIteration.
 
 	canvasCompositeShapes do: [ :composite |
 		composite children do: [ :shape |
@@ -195,7 +196,7 @@ MolComponentVisualizer >> initialize [
 ]
 
 { #category : #initialization }
-MolComponentVisualizer >> removeLineForIteration [
+MolComponentVisualizer >> removeLinesForIteration [
 	"need to filter the lines added from createLinksBetweenInterfaces since only the interface shapes are used while iterating (which come from the RSComposite shapes)"
 
 	| canvasCompositeShapes |
