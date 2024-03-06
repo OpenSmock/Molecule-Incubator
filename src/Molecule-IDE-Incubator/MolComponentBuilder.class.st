@@ -88,11 +88,8 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 MolComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
-	| consumedEventText consumedEventShape |
-	consumedEventText := RSLabel new
-		                     text: (self showInterface: 'consumedEvent');
-		                     yourself.
-	consumedEventText translateTo: -220 @ yEvent.
+	| consumedEventShape |
+	self showInterfaces: 'consumedEvent' xValue: -220 yValue: yEvent.
 
 	consumedEventShape := RSShapeFactory rightArrow
 		                      borderColor: Color black;
@@ -103,7 +100,6 @@ MolComponentBuilder >> generateConsumedEvents [
 
 	self addLineFromBoxTo: consumedEventShape.
 
-	canvas add: consumedEventText.
 	canvas add: consumedEventShape
 ]
 
@@ -133,11 +129,11 @@ MolComponentBuilder >> generateMoleculeComponent [
 MolComponentBuilder >> generateProducedEvents [
 	"generates the produced Events part, which is composed of the produced event interfaces, the diamond shape and the line that links the box and the shape"
 
-	| producedEventText producedEventShape |
-	producedEventText := RSLabel new
-		                     text: (self showInterface: 'producedEvent');
-		                     yourself.
-	producedEventText translateTo: 220 @ yEvent.
+	| producedEventShape |
+	self
+		showInterfaces: 'producedEvent'
+		xValue: 220
+		yValue: yEvent.
 
 	producedEventShape := RSShapeFactory diamond
 		                      borderColor: Color black;
@@ -148,7 +144,6 @@ MolComponentBuilder >> generateProducedEvents [
 
 	self addLineFromBoxTo: producedEventShape.
 
-	canvas add: producedEventText.
 	canvas add: producedEventShape
 ]
 
@@ -156,12 +151,8 @@ MolComponentBuilder >> generateProducedEvents [
 MolComponentBuilder >> generateProvidedParameters [
 	"generates the provided parameters part, which is composed of the provided parameter interfaces, the square shape and the line that links the box and the shape"
 
-	| providedParameterText providedParameterShape |
-	providedParameterText := RSLabel new
-		                         text:
-			                         (self showInterface: 'providedParameter');
-		                         yourself.
-	providedParameterText translateTo: 100 @ yParameter.
+	| providedParameterShape |
+	self showInterfaces: 'providedParameter' xValue: 100 yValue: yParameter.
 
 	providedParameterShape := RSBox new
 		                          borderColor: Color black;
@@ -172,20 +163,15 @@ MolComponentBuilder >> generateProvidedParameters [
 
 	self addLineFromBoxTo: providedParameterShape.
 
-	canvas add: providedParameterText.
-	canvas add: providedParameterShape.
+	canvas add: providedParameterShape
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateProvidedServices [
 	"generates the provided services part, which is composed of the provided service interfaces, the circle shape and the line that links the box and the shape"
 
-	| providedServicesText providedServicesShape |
-	providedServicesText := RSLabel new
-		                        text:
-			                        (self showInterface: 'providedService');
-		                        yourself.
-	providedServicesText translateTo: 220 @ yService.
+	| providedServicesShape |
+	self showInterfaces: 'providedService' xValue: 220 yValue: yService.
 
 	providedServicesShape := RSEllipse new
 		                         borderColor: Color black;
@@ -195,9 +181,8 @@ MolComponentBuilder >> generateProvidedServices [
 	providedServicesShape translateTo: 130 @ yService.
 
 	self addLineFromBoxTo: providedServicesShape.
-
-	canvas add: providedServicesText.
-	canvas add: providedServicesShape.
+	
+	canvas add: providedServicesShape
 ]
 
 { #category : #rendering }
@@ -235,11 +220,8 @@ MolComponentBuilder >> generateType [
 MolComponentBuilder >> generateUsedParameters [
 	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape and the line that links the box and the shape"
 
-	| usedParameterText usedParameterUpperLine usedParameterY usedParameterX |
-	usedParameterText := RSLabel new
-		                     text: (self showInterface: 'usedParameter');
-		                     yourself.
-	usedParameterText translateTo: -60 @ yParameter.
+	| usedParameterUpperLine usedParameterY usedParameterX |
+	self showInterfaces: 'usedParameter' xValue: -60 yValue: yParameter.
 
 	usedParameterX := -40.
 	usedParameterY := 115.
@@ -248,33 +230,26 @@ MolComponentBuilder >> generateUsedParameters [
 		                          and: usedParameterY.
 
 	"usedParameterUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
-	self addLineFromBoxTo: usedParameterUpperLine.
-
-	canvas add: usedParameterText
+	self addLineFromBoxTo: usedParameterUpperLine
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
-	| usedServiceText usedServiceShape |
-	self flag: 'shape'.
-	usedServiceText := RSLabel new
-		                   text: (self showInterface: 'usedService');
-		                   yourself.
-	usedServiceText translateTo: -200 @ yService.
+	| usedServiceShape |
+	self showInterfaces: 'usedService' xValue: -200 yValue: yService.
 
 	usedServiceShape := RSShapeFactory halfEmptyRightCircle
-		                     borderColor: Color black;
-		                     color: Color white;
-		                     extent: shapeExtent;
-		                     yourself.
+		                    borderColor: Color black;
+		                    color: Color white;
+		                    extent: shapeExtent;
+		                    yourself.
 	usedServiceShape cornerRadii: 10.
 	usedServiceShape translateTo: -130 @ yService.
 
 	self addLineFromBoxTo: usedServiceShape.
 
-	canvas add: usedServiceText.
 	canvas add: usedServiceShape
 ]
 
@@ -323,52 +298,40 @@ MolComponentBuilder >> showComponent [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> showInterface: anInterfaceString [
+MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: yValue [
 	"shows and formats the interfaces required and offered by a component"
 
-	| interfaces interfacesCopy |
+	| interfaces label yLabel |
+	self flag: 'texte centré donc fait bizarre sur plusieurs lignes'.
 	"don't show a component if the selected element isn't one (Object superclass...)"
 	type isComponentType ifFalse: [ ^ '' ].
-	
-		anInterfaceString = 'consumedEvent' ifTrue: [
-			interfaces := type allConsumedEvents ].
-		anInterfaceString = 'usedParameter' ifTrue: [
-			interfaces := type allUsedParameters ].
-		anInterfaceString = 'usedService' ifTrue: [
-			interfaces := type allUsedServices ].
 
-		anInterfaceString = 'producedEvent' ifTrue: [
-			interfaces := type allProducedEvents ].
-		anInterfaceString = 'providedParameter' ifTrue: [
-			interfaces := type allProvidedParameters ].
-		anInterfaceString = 'providedService' ifTrue: [
-			interfaces := type allProvidedServices ].
+	anInterfaceString = 'consumedEvent' ifTrue: [
+		interfaces := type allConsumedEvents ].
+	anInterfaceString = 'usedParameter' ifTrue: [
+		interfaces := type allUsedParameters ].
+	anInterfaceString = 'usedService' ifTrue: [
+		interfaces := type allUsedServices ].
 
-		interfaces = OrderedCollection new ifTrue: [ ^ '' ].
-		"starts the Text by anOrderedCollection() without this line"
-		interfaces size = 1 ifTrue: [ ^ interfaces at: 1 ].
-		"needs to add carriage returns in order to not have every interface of a part of the component's contract displayed on the same line"
-		interfacesCopy := interfaces.
-		self flag: 'cr'.
-		interfaces := String new.
-		interfaces := String streamContents: [ :stream |
-			              interfacesCopy do: [ :interface | "interfaces add: interface asString , String cr""separatedBy: [
-				              stream
-					              nextPutAll: (String with: Character cr);
-					              nextPutAll: String cr;
-					              nextPutAll: '
-			' ]"
-				              stream nextPutAll: interface asString
-				              "stream nextPutAll: String cr"
-				              "stream nextPutAll: ' <r> '"
-				              "stream nextPutAll: '\ '"
-				              "stream nextPutAll: Win64Platform lineEnding"
-				              "stream nextPutAll: '
-			 '"
-				              "stream
-				              << interface asString;""<< String cr""stream cr ""cr" ] ].
-		"interfaces expandMacros."
-		"interfaces withCRs."
+	anInterfaceString = 'producedEvent' ifTrue: [
+		interfaces := type allProducedEvents ].
+	anInterfaceString = 'providedParameter' ifTrue: [
+		interfaces := type allProvidedParameters ].
+	anInterfaceString = 'providedService' ifTrue: [
+		interfaces := type allProvidedServices ].
 
-		^ interfaces
+	interfaces = OrderedCollection new ifTrue: [ ^ '' ].
+	"starts the Text by anOrderedCollection() without this line"
+	interfaces size = 1 ifTrue: [ ^ interfaces at: 1 ].
+
+	"used to position multiple labels when multiple interfaces need to be shown"
+	yLabel := 0.
+	interfaces do: [ :interface |
+		label := RSLabel new
+			         text: interface asString;
+			         yourself.
+		label translateTo: xValue @ yValue + yLabel.
+		canvas add: label.
+
+		yLabel := yLabel + 20 ]
 ]

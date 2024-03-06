@@ -26,6 +26,7 @@ MolImplementations >> buttonBrowseAction [
 MolImplementations >> connectPresenters [
 	"enables the Browse button if an implementation is selected, also shows a diagram of the selected component"
 
+	| rs c shape |
 	implementationList whenSelectionChangedDo: [
 		implementationList selectedItem ifNotNil: [
 			buttonBrowse enable.
@@ -34,7 +35,17 @@ MolImplementations >> connectPresenters [
 			componentBuilder implementation: implementationList selectedItem.
 			"adds the component visualization and zooms on it"
 			componentBuilderPresenter script: [ :view |
-				view addShape: componentBuilder showComponent asShape.
+				shape := componentBuilder showComponent asShape.
+				"if the Roassal header and its buttons ever come back in See Component Implementations put this"
+				"rs := RSCanvas new.
+				rs addShape: shape.
+				shape container: rs.
+				rs zoomToFit."
+				"logic is rs := RSCanvas new.
+				rs addShape: componentBuilder asShape.
+				componentBuilder container: rs.
+				rs zoomToFit."
+				view addShape: shape.
 				view zoomToFit ].
 
 			"used to zoom on the component visualization when the window is resized"
