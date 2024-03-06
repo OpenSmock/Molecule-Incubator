@@ -26,20 +26,21 @@ MolImplementations >> buttonBrowseAction [
 MolImplementations >> connectPresenters [
 	"enables the Browse button if an implementation is selected, also shows a diagram of the selected component"
 
-	self flag: 'componentBuilder'.
-
 	implementationList whenSelectionChangedDo: [
 		implementationList selectedItem ifNotNil: [
 			buttonBrowse enable.
 
-			canvas := RSCanvas new.
-			"canvas := componentBuilderPresenter canvas."
-			canvas @ RSCanvasController.
 			componentBuilder := MolComponentBuilder new.
 			componentBuilder implementation: implementationList selectedItem.
-			componentBuilder canvas: canvas.
-			componentBuilderPresenter canvas: componentBuilder showComponent.
-			componentBuilderPresenter refresh ] ]
+			"adds the component visualization and zooms on it"
+			componentBuilderPresenter script: [ :view |
+				view addShape: componentBuilder showComponent asShape.
+				view zoomToFit ].
+
+			"used to zoom on the component visualization when the window is resized"
+			componentBuilderPresenter canvas
+				when: RSExtentChangedEvent
+				do: [ :evt | componentBuilderPresenter canvas zoomToFit ] ] ]
 ]
 
 { #category : #initialization }

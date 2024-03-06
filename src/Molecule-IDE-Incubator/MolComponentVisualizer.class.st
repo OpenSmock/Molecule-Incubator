@@ -121,24 +121,25 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 MolComponentVisualizer >> highlightShapes [
 	"hovering over an interface shape creates a red link to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to a producedEvents interface if it exists"
 
-	| shapeExtent componentIndex nextElement secondNextElement |
-	self flag:
-		'fonctionne pour Type mais pas pour partie used sauf usedservice qui bug, inverse à faire'.
-		self flag: 'voir page 163/4 agile visualization'.
+	| shapeExtent componentIndex nextElement secondNextElement childArray |
+	self flag: 'fonctionne pas pour partie used sauf usedservice qui bug'.
+	self flag: 'voir page 163/4 agile visualization'.
 	shapeExtent := 30 @ 30.
 	componentIndex := 0.
 
 	canvas shapes do: [ :component |
 		component children do: [ :child | "provided shape part"
 			componentIndex := componentIndex + 1.
-			self flag: 'usedparameter not highlighted'.
 			componentIndex < (component children size - 2) ifTrue: [
 				nextElement := component children at: componentIndex + 1.
 				secondNextElement := component children at: componentIndex + 2 ].
 			(child extent = (30 @ 30) or:
 				 (nextElement class = RSLine and: secondNextElement class = RSLine))
-				ifTrue: [ "don't highlight the Type dot since it's linked to nothing"
+				ifTrue: [ "don't highlight the Type dot since it isn't linked to anything"
 					child class = RSCircle ifFalse: [ "usedParameter shape is made of 3 lines"
+						self flag:
+							'possible d exécuter bloc de code pour afficher lien ?'.
+						childArray add: child.
 						child @ RSHighlightable red ] ] ] ]
 ]
 

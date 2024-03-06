@@ -324,6 +324,7 @@ MolComponentBuilder >> initializeRelativeCoordinates [
 MolComponentBuilder >> showComponent [
 
 	shapeExtent := 30 @ 30.
+	
 	canvas := RSCanvas new.
 	canvas @ RSCanvasController.
 	canvas zoomToFit.
