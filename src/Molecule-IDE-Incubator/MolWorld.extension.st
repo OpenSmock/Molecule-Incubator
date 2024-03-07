@@ -13,7 +13,6 @@ MolWorld class >> menu15VisualizeRunningComponents: aBuilder [
 				ifTrue: [ "Visualize running components"
 					componentVisualizer := MolComponentVisualizer new.
 					canvas := componentVisualizer canvas.
-					"self halt."
 					canvas open ]
 				ifFalse: [ "No components are running"
 					self inform: 'No components are running' ] ];

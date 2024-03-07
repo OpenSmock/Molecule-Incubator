@@ -121,6 +121,21 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 ]
 
 { #category : #initialization }
+MolComponentVisualizer >> getLabelsForIteration: componentIndex [
+	"used for test purposes, keeps only labels of the interfaces (which are not empty) + name of the component and its Type"
+
+	| componentLabels component |
+	component := canvas shapes at: componentIndex.
+	componentLabels := OrderedCollection new.
+
+	component children do: [ :child |
+		child class = RSLabel ifTrue: [
+			child text = '' ifFalse: [ componentLabels add: child ] ] ].
+
+	^ componentLabels
+]
+
+{ #category : #initialization }
 MolComponentVisualizer >> highlightShapes [
 	"hovering over an interface shape creates a red line to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to the relevant producedEvents interface (of another component obviously)"
 
@@ -207,4 +222,18 @@ MolComponentVisualizer >> removeLinesForIteration [
 			canvasCompositeShapes add: shape ] ].
 
 	^ canvasCompositeShapes
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> removeShapesForIteration [
+	"used for test purposes, keeps only lines linking the components if they exist"
+
+	| canvasLines |
+	canvasLines := OrderedCollection new.
+
+	canvas shapes do: [ :shape |
+		shape class = RSComposite ifFalse: [
+			canvasLines add: shape ] ].
+
+	^ canvasLines
 ]
