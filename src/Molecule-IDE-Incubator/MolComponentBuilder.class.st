@@ -1,3 +1,35 @@
+"
+Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
+
+For the Class part: I'm the builder of the diagram representation of a component, used in several options offered by Molecule-IDE. See the scientific papers around Molecule to know what interface shape means what.
+
+For the Responsibility part: Three sentences about my main responsibilities - what I do, what I know.
+
+For the Collaborators Part: State my main collaborators and one line about how I interact with them.
+
+Public API and Key Messages
+
+- message one
+- message two
+- (for bonus points) how to create instances.
+
+   One simple example is simply gorgeous.
+
+Internal Representation and Key Implementation Points.
+
+    Instance Variables
+	box:		<Object>
+	canvas:		<Object>
+	implementation:		<Object>
+	shapeExtent:		<Object>
+	type:		<Object>
+	yEvent:		<Object>
+	yParameter:		<Object>
+	yService:		<Object>
+
+
+    Implementation Points
+"
 Class {
 	#name : #MolComponentBuilder,
 	#superclass : #Object,

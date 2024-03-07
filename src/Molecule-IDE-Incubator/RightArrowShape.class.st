@@ -1,7 +1,7 @@
 "
 Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
 
-For the Class part:  see class side for how to create a right arrow.
+For the Class part: see class side for how to create a right arrow.
 
 For the Responsibility part: Three sentences about my main responsibilities - what I do, what I know.
 

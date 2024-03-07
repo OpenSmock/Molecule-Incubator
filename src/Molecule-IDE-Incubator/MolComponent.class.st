@@ -1,3 +1,56 @@
+"
+Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
+
+For the Class part: I display the interfaces required and offered by a Molecule Type and by what other Type they're also used. I'm accessible by right-clicking a Molecule Type -> Molecule -> Edit Component Type.
+
+For the Responsibility part: Three sentences about my main responsibilities - what I do, what I know.
+
+For the Collaborators Part: State my main collaborators and one line about how I interact with them.
+
+Public API and Key Messages
+
+- message one
+- message two
+- (for bonus points) how to create instances.
+
+   One simple example is simply gorgeous.
+
+Internal Representation and Key Implementation Points.
+
+    Instance Variables
+	componentRepresentation:		<Object>
+	componentTypeText:		<Object>
+	consumedEventFrame:		<Object>
+	consumedEvents:		<Object>
+	package:		<Object>
+	parameterCheckboxRechecked:		<Object>
+	parameterLayout:		<Object>
+	parametersCheckBox:		<Object>
+	producedEventFrame:		<Object>
+	producedEvents:		<Object>
+	providedParameterChildren:		<Object>
+	providedParameterFrame:		<Object>
+	providedParameterLabel:		<Object>
+	providedParameterPresenter:		<Object>
+	providedParameters:		<Object>
+	providedServiceFrame:		<Object>
+	providedServices:		<Object>
+	roleOfferedInterface:		<Object>
+	roleRequiredInterface:		<Object>
+	scrollableUsedServicesPresenter:		<Object>
+	typeName:		<Object>
+	typeNameField:		<Object>
+	usedParameterChildren:		<Object>
+	usedParameterFrame:		<Object>
+	usedParameterLabel:		<Object>
+	usedParameterPresenter:		<Object>
+	usedParameters:		<Object>
+	usedServiceFrame:		<Object>
+	usedServices:		<Object>
+
+
+    Implementation Points
+"
 Class {
 	#name : #MolComponent,
 	#superclass : #SpPresenter,
