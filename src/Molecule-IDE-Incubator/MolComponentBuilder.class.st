@@ -98,9 +98,9 @@ MolComponentBuilder >> generateConsumedEvents [
 		                      yourself.
 	consumedEventShape translateTo: -110 @ yEvent - 20.
 
+	canvas add: consumedEventShape.
+	
 	self addLineFromBoxTo: consumedEventShape.
-
-	canvas add: consumedEventShape
 ]
 
 { #category : #rendering }
@@ -130,10 +130,7 @@ MolComponentBuilder >> generateProducedEvents [
 	"generates the produced Events part, which is composed of the produced event interfaces, the diamond shape and the line that links the box and the shape"
 
 	| producedEventShape |
-	self
-		showInterfaces: 'producedEvent'
-		xValue: 220
-		yValue: yEvent.
+	self showInterfaces: 'producedEvent' xValue: 220 yValue: yEvent.
 
 	producedEventShape := RSShapeFactory diamond
 		                      borderColor: Color black;
@@ -142,9 +139,9 @@ MolComponentBuilder >> generateProducedEvents [
 		                      yourself.
 	producedEventShape translateTo: 130 @ yEvent.
 
-	self addLineFromBoxTo: producedEventShape.
-
-	canvas add: producedEventShape
+	canvas add: producedEventShape.
+	
+self addLineFromBoxTo: producedEventShape.
 ]
 
 { #category : #rendering }
@@ -152,7 +149,10 @@ MolComponentBuilder >> generateProvidedParameters [
 	"generates the provided parameters part, which is composed of the provided parameter interfaces, the square shape and the line that links the box and the shape"
 
 	| providedParameterShape |
-	self showInterfaces: 'providedParameter' xValue: 100 yValue: yParameter.
+	self
+		showInterfaces: 'providedParameter'
+		xValue: 100
+		yValue: yParameter.
 
 	providedParameterShape := RSBox new
 		                          borderColor: Color black;
@@ -161,9 +161,9 @@ MolComponentBuilder >> generateProvidedParameters [
 		                          yourself.
 	providedParameterShape translateTo: 60 @ 130.
 
-	self addLineFromBoxTo: providedParameterShape.
-
-	canvas add: providedParameterShape
+	canvas add: providedParameterShape.
+	
+self addLineFromBoxTo: providedParameterShape.
 ]
 
 { #category : #rendering }
@@ -180,16 +180,16 @@ MolComponentBuilder >> generateProvidedServices [
 		                         yourself.
 	providedServicesShape translateTo: 130 @ yService.
 
-	self addLineFromBoxTo: providedServicesShape.
+	canvas add: providedServicesShape.
 	
-	canvas add: providedServicesShape
+self addLineFromBoxTo: providedServicesShape.
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateType [
 	"generates the black dot above the component as well as showing the Type of the component"
 
-	| dot line typeLabel yType |
+	| dot typeLabel yType |
 	yType := -150.
 
 	dot := RSCircle new
@@ -203,17 +203,10 @@ MolComponentBuilder >> generateType [
 		             yourself.
 	typeLabel translateTo: 100 @ yType.
 
-	line := RSLine new
-		        from: box;
-		        to: dot;
-		        color: Color black;
-		        yourself.
-	line attachPoint: RSBorderAttachPoint new.
-	line update.
-
 	canvas addShape: dot.
 	canvas addShape: typeLabel.
-	canvas addShape: line
+	
+	self addLineFromBoxTo: dot.
 ]
 
 { #category : #rendering }
@@ -248,9 +241,9 @@ MolComponentBuilder >> generateUsedServices [
 	usedServiceShape cornerRadii: 10.
 	usedServiceShape translateTo: -130 @ yService.
 
+	canvas add: usedServiceShape.
+	
 	self addLineFromBoxTo: usedServiceShape.
-
-	canvas add: usedServiceShape
 ]
 
 { #category : #rendering }
@@ -320,9 +313,19 @@ MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: 
 	anInterfaceString = 'providedService' ifTrue: [
 		interfaces := type allProvidedServices ].
 
-	interfaces = OrderedCollection new ifTrue: [ ^ '' ].
+	interfaces = OrderedCollection new ifTrue: [
+		label := RSLabel new
+			         text: '';
+			         yourself.
+		label translateTo: xValue @ yValue.
+		canvas add: label ].
 	"starts the Text by anOrderedCollection() without this line"
-	interfaces size = 1 ifTrue: [ ^ interfaces at: 1 ].
+	interfaces size = 1 ifTrue: [
+		label := RSLabel new
+			         text: (interfaces at: 1) asString;
+			         yourself.
+		label translateTo: xValue @ yValue.
+		canvas add: label ].
 
 	"used to position multiple labels when multiple interfaces need to be shown"
 	yLabel := 0.
