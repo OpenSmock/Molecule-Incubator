@@ -49,17 +49,17 @@ MolComponentBuilder >> canvas [
 MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 	"creates the fork shape used to represent the used parameter interfaces as defined by Molecule, made of a long upper line and two short ends"
 
-	| lineThickness usedServiceUpperLine usedServiceLowerLeftLine usedServiceLowerRightLine lineLength  |
+	| lineThickness usedServiceUpperLine usedServiceLowerLeftLine usedServiceLowerRightLine lineLength |
 	lineThickness := 1.
 	lineLength := 40.
 
-	usedServiceUpperLine := RSBox new
+	usedServiceUpperLine := RSFork new
 		                        color: Color black;
 		                        extent: lineLength @ lineThickness;
 		                        yourself.
 	usedServiceUpperLine translateTo: usedParameterX @ usedParameterY.
 
-	usedServiceLowerLeftLine := RSBox new
+	usedServiceLowerLeftLine := RSFork new
 		                            color: Color black;
 		                            extent: lineLength / 2 @ lineThickness;
 		                            yourself.
@@ -68,7 +68,7 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 	usedServiceLowerLeftLine translateTo:
 		usedParameterX - 30 @ usedParameterY + 10.
 
-	usedServiceLowerRightLine := RSBox new
+	usedServiceLowerRightLine := RSFork new
 		                             color: Color black;
 		                             extent: lineLength / 2 @ lineThickness;
 		                             yourself.
@@ -92,11 +92,11 @@ MolComponentBuilder >> generateConsumedEvents [
 	self flag: 'shape à remttre'.
 	self showInterfaces: 'consumedEvent' xValue: -220 yValue: yEvent.
 
-	consumedEventShape := RSShapeFactory box
+	consumedEventShape := RSShapeFactory rightArrow
 		                      borderColor: Color black;
 		                      color: Color white;
 		                      extent: shapeExtent;
-		                      yourself. "rightArrow"
+		                      yourself.
 	consumedEventShape translateTo: -110 @ yEvent - 20.
 
 	canvas add: consumedEventShape.

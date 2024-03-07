@@ -52,7 +52,7 @@ MolComponentVisualizer >> canvas [
 MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
-	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex inverseLine |
+	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex inverseLine startArray endArray numberArray |
 	self flag: 'to finish'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
@@ -68,22 +68,26 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"used to add only one line between two shapes and not two"
 	lineCounter := 0.
 
+	"line arrays"
+	startArray := Dictionary new.
+	endArray := Dictionary new.
+	numberArray := Dictionary new.
+
 	"iterates on two components at the same time in order to not make comparisons between elements of a same component (incoherent with Molecule architecture)"
 	canvas shapes do: [ :component | "adds the line after in order to not update the canvas while it's being iterated on"
 		componentIndex := componentIndex + 1.
-		"componentIndex := canvasIndex + 1."
 		component children do: [ :child |
 			canvasIndex := canvasIndex + 1.
 			canvasCopy shapes do: [ :component2 |
 				componentCopyIndex := componentCopyIndex + 1.
 				"safety measure to make sure that the two compared elements aren't from the same component"
-				componentIndex = componentCopyIndex ifFalse: [ "self halt."
+				componentIndex = componentCopyIndex ifFalse: [
 					component2 children do: [ :child2 |
 						(child class = RSLabel and: child2 class = RSLabel) ifTrue: [ "verify that Roassal elements of type RSLabel aren't the same element"
 							child == child2 ifFalse: [ "but have the same text"
 								child text = child2 text ifTrue: [ "that isn't an empty string"
 									child text = '' ifFalse: [ "should only create one line, two are not needed to symbolize the link"
-										lineCounter % 2 = 0 ifTrue: [
+										lineCounter % 2 = 0 ifTrue: [ "lineCounter := lineCounter + 1"
 											requiredShape := self
 												                 determineComponentShape: componentIndex
 												                 canvasIndex: canvasIndex.
@@ -93,33 +97,43 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 												                canvasIndex: canvasCopyIndex.
 
 											"used so that two shapes representing the same part of a component's contract from different components cannot be linked"
-											requiredShape = offeredShape ifFalse: [
+											requiredShape class = offeredShape class ifFalse: [
 												(requiredShape class = RSLine or:
-													 offeredShape class = RSLine) ifFalse: [
-														"shouldn't draw another line if one exists with opposite starting and end points"
-													inverseLine := line := RSLine new
-														                       from: offeredShape;
-														                       to: requiredShape;
+													 offeredShape class = RSLine) ifFalse: [ "shouldn't draw another line if one exists with opposite starting and end points""inverseLine := line := RSLine new
+														                       from: requiredShape;
+														                       to: offeredShape;
 														                       yourself.
-													(canvas shapes includes: inverseLine) ifFalse: [
-														line := RSLine new
-															        from: offeredShape;
-															        to: requiredShape;
-															        yourself.
-														line attachPoint: RSBorderAttachPoint new.
+													(canvas shapes includes: inverseLine) ifFalse: ["
+													line := RSLine new
+														        from: offeredShape;
+														        to: requiredShape;
+														        yourself.
+													line attachPoint: RSBorderAttachPoint new.
 
-														"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
-														line strokeColor: Color white.
-														line update.
+													"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
+													line strokeColor: Color white.
+													line update.
 
-														"lineCounter := lineCounter + 1."
-														lineArray add: line ] ] ] ] ] ] ] ].
+													lineArray add: line "]" ] ] ] ] ] ] ].
 						canvasCopyIndex := canvasCopyIndex + 1 ] ].
 				canvasCopyIndex := 0 ].
 			componentCopyIndex := 0 ].
 		canvasIndex := 0 ].
 
-	lineArray do: [ :l | "self halt" canvas add: l ]
+	"remove duplicates (lines with same start and end)"
+	"lineArray do: [ :l | self halt.
+		startArray at: l put: l from.
+		endArray at: l put: l to.
+		numberArray at: l put: 0 ]."
+
+	lineArray do: [ :l | "code for line removal while highlighting connected shapes""lineArray do: [ :l |
+		(l from = (startArray at: l) and: l to = (endArray at: l)) ifFalse: [
+			canvas add: l ] ]""startArray do: [ :start |
+			endArray do: [ :end |""] ]""(l from = (startArray at: l) and:
+			 (l to = (endArray at: l) and: (numberArray at: l) = 1)) ifFalse: [
+			numberArray at: l put: 1.""]"
+		"self halt."
+		canvas add: l ]
 ]
 
 { #category : #initialization }
@@ -136,7 +150,6 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 	[ shape class = RSLabel ] whileTrue: [
 		shape := component children at: canvasIndex + 2 + labelIndex.
 		labelIndex := labelIndex + 1 ].
-	"self halt."
 
 	^ shape
 ]
@@ -188,12 +201,12 @@ MolComponentVisualizer >> highlightShapes [
 				secondNextElement := component children at: componentIndex + 2 ]."
 			"usedParameter shape is made of 3 lines"
 			"("
-			child extent = shapeExtent ifTrue: [ "don't highlight the Type dot since it isn't linked to anything""or:
-				 (nextElement class = RSLine and: secondNextElement class = RSLine))"
+			child extent = shapeExtent ifTrue: [ "don't highlight the Type dot since it isn't linked to anything"
 				child class = RSCircle ifFalse: [ "if the component is connected through another by its hovered on interface shape"
 					child connectedLines isEmpty ifFalse: [
 						child @ highlightableLine.
-						child @ highlightableShape ] ] ] ] ]
+						child @ highlightableShape ] ] ] "and:
+				 (nextElement class = RSLine or: secondNextElement class = RSLine))" ] ]
 ]
 
 { #category : #initialization }
