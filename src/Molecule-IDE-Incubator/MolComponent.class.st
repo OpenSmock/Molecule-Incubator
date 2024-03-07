@@ -27,7 +27,6 @@ Class {
 		'producedEventFrame',
 		'providedParameterPresenter',
 		'parameterLayout',
-		'providedParameterFrameCopy',
 		'providedParameterChildren',
 		'usedParameterChildren',
 		'usedParameterPresenter',

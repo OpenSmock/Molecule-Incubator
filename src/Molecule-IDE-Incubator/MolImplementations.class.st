@@ -4,7 +4,6 @@ Class {
 	#instVars : [
 		'selectedType',
 		'componentBuilder',
-		'canvas',
 		'componentBuilderPresenter'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'

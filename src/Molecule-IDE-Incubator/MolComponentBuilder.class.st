@@ -89,18 +89,19 @@ MolComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
 	| consumedEventShape |
+	self flag: 'shape à remttre'.
 	self showInterfaces: 'consumedEvent' xValue: -220 yValue: yEvent.
 
-	consumedEventShape := RSShapeFactory rightArrow
+	consumedEventShape := RSShapeFactory box
 		                      borderColor: Color black;
 		                      color: Color white;
 		                      extent: shapeExtent;
-		                      yourself.
+		                      yourself. "rightArrow"
 	consumedEventShape translateTo: -110 @ yEvent - 20.
 
 	canvas add: consumedEventShape.
-	
-	self addLineFromBoxTo: consumedEventShape.
+
+	self addLineFromBoxTo: consumedEventShape
 ]
 
 { #category : #rendering }
@@ -170,19 +171,19 @@ self addLineFromBoxTo: providedParameterShape.
 MolComponentBuilder >> generateProvidedServices [
 	"generates the provided services part, which is composed of the provided service interfaces, the circle shape and the line that links the box and the shape"
 
-	| providedServicesShape |
+	| providedServiceShape |
 	self showInterfaces: 'providedService' xValue: 220 yValue: yService.
 
-	providedServicesShape := RSEllipse new
+	providedServiceShape := RSEllipse new
 		                         borderColor: Color black;
 		                         color: Color white;
 		                         extent: shapeExtent;
 		                         yourself.
-	providedServicesShape translateTo: 130 @ yService.
+	providedServiceShape translateTo: 130 @ yService.
 
-	canvas add: providedServicesShape.
+	canvas add: providedServiceShape.
 	
-self addLineFromBoxTo: providedServicesShape.
+self addLineFromBoxTo: providedServiceShape.
 ]
 
 { #category : #rendering }
@@ -214,8 +215,8 @@ MolComponentBuilder >> generateUsedParameters [
 	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape and the line that links the box and the shape"
 
 	| usedParameterUpperLine usedParameterY usedParameterX |
-	self showInterfaces: 'usedParameter' xValue: -60 yValue: yParameter.
-
+		self showInterfaces: 'usedParameter' xValue: -60 yValue: yParameter.
+	
 	usedParameterX := -40.
 	usedParameterY := 115.
 	usedParameterUpperLine := self

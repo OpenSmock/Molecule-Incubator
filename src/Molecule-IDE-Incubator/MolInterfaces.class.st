@@ -20,8 +20,7 @@ Class {
 		'eventsProduced',
 		'parametersProvided',
 		'servicesProvided',
-		'implemList',
-		'menuList'
+		'implemList'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
