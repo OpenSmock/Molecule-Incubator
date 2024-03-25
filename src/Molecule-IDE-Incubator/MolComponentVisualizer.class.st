@@ -162,10 +162,10 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 	shape := component children at: canvasIndex + 2.
 	"need to account for the fact that multiple labels are created depending on the number of interfaces on a part of a component's contract, is also sure to end since an interface shape is always added after the labels (see MolComponentBuilder)"
 	labelIndex := 1.
-	self flag: 'partie ne sert pas?'.
-	"[ shape class = RSLabel ] whileTrue: [
+
+	[ shape class = RSLabel ] whileTrue: [
 		shape := component children at: canvasIndex + 2 + labelIndex.
-		labelIndex := labelIndex + 1 ]."
+		labelIndex := labelIndex + 1 ].
 
 	^ shape
 ]
