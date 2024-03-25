@@ -162,6 +162,28 @@ MolComponentBuilder >> generateMoleculeComponent [
 ]
 
 { #category : #rendering }
+MolComponentBuilder >> generateName [
+	"generates the name of the component if it has been started with one (default not being shown), corresponds to the key of the Inspect running Components option"
+
+	| nameLabel name |
+
+	"can't get the name through the component directly so MolComponentManager is used here"
+	MolComponentManager default homeServices deployedComponents
+		keysAndValuesDo: [ :key :value |
+			key = implementation ifTrue: [
+				value keysDo: [ :keyName |
+					keyName = 'default' ifFalse: [ name := keyName ] ] ] ].
+
+	name ifNotNil: [
+		nameLabel := RSLabel new
+			             text: name;
+			             yourself.
+		nameLabel translateTo: 0 @ 50.
+
+		canvas addShape: nameLabel ]
+]
+
+{ #category : #rendering }
 MolComponentBuilder >> generateProducedEvents [
 	"generates the produced Events part, which is composed of the produced event interfaces, the diamond shape and the line that links the box and the shape"
 
@@ -326,6 +348,7 @@ MolComponentBuilder >> showComponent [
 
 	self generateMoleculeComponent.
 	self generateType.
+	self generateName.
 
 	"required part of the component"
 	self generateUsedServices.

@@ -78,7 +78,7 @@ MolComponentVisualizer >> canvas [
 MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
-	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex lineCounter componentIndex componentCopyIndex lineArrayCopy lineArrayFinal |
+	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex componentIndex componentCopyIndex lineArrayCopy lineArrayFinal |
 	self flag: 'to finish'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
@@ -90,9 +90,6 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"canvas indexes are used to know the position of labels in components shape list"
 	canvasIndex := 0.
 	canvasCopyIndex := 0.
-
-	"used to add only one line between two shapes and not two"
-	lineCounter := 0.
 
 	"iterates on two components at the same time in order to not make comparisons between elements of a same component (incoherent with Molecule architecture)"
 	canvas shapes do: [ :component | "adds the line after in order to not update the canvas while it's being iterated on"
@@ -107,31 +104,29 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 						(child class = RSLabel and: child2 class = RSLabel) ifTrue: [ "verify that Roassal elements of type RSLabel aren't the same element"
 							child == child2 ifFalse: [ "but have the same text"
 								child text = child2 text ifTrue: [ "that isn't an empty string"
-									child text = '' ifFalse: [ "should only create one line, two are not needed to symbolize the link"
-										lineCounter % 2 = 0 ifTrue: [ "lineCounter := lineCounter + 1"
-											requiredShape := self
-												                 determineComponentShape: componentIndex
-												                 canvasIndex: canvasIndex.
-											offeredShape := self
-												                determineComponentShape:
-												                componentCopyIndex
-												                canvasIndex: canvasCopyIndex.
+									child text = '' ifFalse: [
+										requiredShape := self
+											                 determineComponentShape: componentIndex
+											                 canvasIndex: canvasIndex.
+										offeredShape := self
+											                determineComponentShape: componentCopyIndex
+											                canvasIndex: canvasCopyIndex.
 
-											"used so that two shapes representing the same part of a component's contract from different components cannot be linked"
-											requiredShape class = offeredShape class ifFalse: [
-												(requiredShape class = RSLine or:
-													 offeredShape class = RSLine) ifFalse: [
-													line := RSLine new
-														        from: offeredShape;
-														        to: requiredShape;
-														        yourself.
-													line attachPoint: RSBorderAttachPoint new.
+										"used so that two shapes representing the same part of a component's contract from different components cannot be linked"
+										requiredShape class = offeredShape class ifFalse: [
+											(requiredShape class = RSLine or:
+												 offeredShape class = RSLine) ifFalse: [
+												line := RSLine new
+													        from: offeredShape;
+													        to: requiredShape;
+													        yourself.
+												line attachPoint: RSBorderAttachPoint new.
 
-													"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
-													line strokeColor: Color white.
-													line update.
+												"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
+												line strokeColor: Color white.
+												line update.
 
-													lineArray add: line ] ] ] ] ] ] ].
+												lineArray add: line ] ] ] ] ] ].
 						canvasCopyIndex := canvasCopyIndex + 1 ] ].
 				canvasCopyIndex := 0 ].
 			componentCopyIndex := 0 ].
@@ -186,6 +181,47 @@ MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 ]
 
 { #category : #initialization }
+MolComponentVisualizer >> highlightComponentShowsLinks [
+	"hovering over a component (its main RSBox) shows every line that connects it to another component's interface shapes"
+
+	| canvasCompositeShapes lines |
+	self flag: 'doesn t work'.
+	canvasCompositeShapes := self removeLinesForIteration.
+	lines := OrderedCollection new.
+	"self halt."
+
+	canvasCompositeShapes do: [ :composite |
+		composite children do: [ :shape |
+			(shape class = RSBox and: shape extent = (200 @ 200)) ifTrue:
+				(shape
+					 when: RSMouseUp
+					 do: [ :evt | "clicking the connected interface shape triggers an error otherwise"
+						 (evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
+							 ifFalse: [
+								 lines := evt shapes connectedLines.
+								 lines do: [ :line | line strokeColor: Color red ] ] ]) ] ]
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> highlightShapeShowsLink [
+	"hovering over an interface shape shows a line that connects it to another component's interface shape"
+
+	| canvasCompositeShapes lines |
+
+	canvasCompositeShapes := self removeLinesForIteration.
+
+	canvasCompositeShapes do: [ :composite |
+		composite children do: [ :shape |
+			shape
+				when: RSMouseUp
+				do: [ :evt | "clicking the connected interface shape triggers an error otherwise"
+					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
+						ifFalse: [
+							lines := evt shapes connectedLines.
+							lines do: [ :line | line strokeColor: Color red ] ] ] ] ]
+]
+
+{ #category : #initialization }
 MolComponentVisualizer >> highlightShapes [
 	"hovering over an interface shape creates a red line to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to the relevant producedEvents interface (of another component obviously)"
 
@@ -226,25 +262,6 @@ MolComponentVisualizer >> highlightShapes [
 ]
 
 { #category : #initialization }
-MolComponentVisualizer >> highlightShowsLink [
-	"hovering over an interface shape shows a line that connects it to another component's interface shape"
-
-	| canvasCompositeShapes lines |
-
-	canvasCompositeShapes := self removeLinesForIteration.
-
-	canvasCompositeShapes do: [ :composite |
-		composite children do: [ :shape |
-			shape
-				when: RSMouseUp
-				do: [ :evt | "clicking the connected interface shape triggers an error otherwise"
-					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
-						ifFalse: [
-							lines := evt shapes connectedLines.
-							lines do: [ :line | line strokeColor: Color red ] ] ] ] ]
-]
-
-{ #category : #initialization }
 MolComponentVisualizer >> initialize [
 	"gets the running Components as a dictionary and then builds the components"
 
@@ -260,7 +277,9 @@ MolComponentVisualizer >> initialize [
 	self createLinksBetweenInterfaces.
 	"links need to be created first in order to know what to highlight next"
 	self highlightShapes.
-	self highlightShowsLink.
+	self flag: 'order 2 derniers matter?'.
+	self highlightShapeShowsLink.
+	self highlightComponentShowsLinks
 ]
 
 { #category : #initialization }
