@@ -21,7 +21,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #RSFork,
+	#name : #Fork,
 	#superclass : #RSBox,
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }

@@ -1,11 +1,27 @@
 Extension { #name : #RSShapeFactory }
 
 { #category : #'*Molecule-IDE-Incubator' }
+RSShapeFactory class >> fork [
+
+	self flag: 'to finish'.
+	^ Fork new "self forkWithPoints: {
+			  (-1 @ 0).
+			  (0 @ 0).
+			  (1 @ 0.1) }"
+]
+
+{ #category : #'*Molecule-IDE-Incubator' }
+RSShapeFactory class >> forkWithPoints: points [
+	"make it so that its superclass isn't RSPolygon and thus can create the shape to be compared to other interface shapes"
+
+	^ Fork new
+		  privatePoints: points;
+		  yourself
+]
+
+{ #category : #'*Molecule-IDE-Incubator' }
 RSShapeFactory class >> halfEmptyRightCircle [
 
-	| t t1 |
-	t := 2 / 6 asFloat.
-	t1 := t negated.
 	^ self polygonWithPoints: {
 			  (-2 @ 2).
 			  (-2 @ 1.5).
