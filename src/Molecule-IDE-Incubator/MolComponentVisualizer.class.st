@@ -77,6 +77,7 @@ MolComponentVisualizer >> buildComponents [
 
 		"having RSComposite shapes makes it possible to move every element of a component at the same time"
 		canvasShape translateTo: xValue @ yValue.
+		canvasShape @ RSDraggable.
 		canvas add: canvasShape.
 
 		xValue := xValue + 600.
@@ -115,8 +116,7 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes and the interface labels"
 
 	| lineArray canvasCopy componentIndex componentCopyIndex lineArrayCopy lineArrayFinal canvasIndex requiredShape canvasCopyIndex offeredShape |
-	self flag:
-		'ne fonctionne pas complètement'.
+	self flag: 'ne fonctionne pas complètement, ne pas highlight lignes reliant à interfaces?'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 
@@ -257,6 +257,8 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 		whileTrue: [
 			labelShape := component children at: canvasIndex + labelIndex.
 			labelIndex := labelIndex + 1 ].
+
+	"labelShape class = RSPolygon ifTrue: [ self halt ]."
 
 	^ labelShape
 ]
@@ -412,9 +414,9 @@ MolComponentVisualizer >> initialize [
 	self highlightShapes.
 
 	self flag: 'order après matter?'.
-	self highlightShapeShowsLink.
 	
 	self highlightComponentShowsLinks.
+	self highlightShapeShowsLink.
 	self clickingComponentShowsInspector
 ]
 
