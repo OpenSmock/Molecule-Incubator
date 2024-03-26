@@ -47,6 +47,24 @@ Class {
 }
 
 { #category : #rendering }
+MolComponentBuilder >> addLineFrom: interfaceLabel to: interfaceShape [
+	"used to link an interface label to its interface shape (while being invisible), used to highlight the corresponding labels when an interface shape is hovered on"
+
+	| line |
+	self flag: 'not finished'.
+	"self halt."
+	line := RSLine new
+		        from: interfaceLabel;
+		        to: interfaceShape;
+		        color: Color white;
+		        yourself.
+	line attachPoint: RSBorderAttachPoint new.
+	line update.
+
+	canvas add: line
+]
+
+{ #category : #rendering }
 MolComponentBuilder >> addLineFromBoxTo: interfaceShape [
 	"used to link the main component box to its interface shapes"
 
@@ -118,16 +136,30 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 ]
 
 { #category : #rendering }
+MolComponentBuilder >> createInvisibleLinksBetween: labels and: interfaceShape [
+	"links every interface label to its interface shape"
+
+	self flag: 'doesn t work as intended'.
+
+	"self halt."
+	labels class = RSLabel
+		ifTrue: [ "if there's only one interface label"
+			"self addLineFrom: labels to: interfaceShape" ]
+		ifFalse: [ "as opposed to multiple"
+			"labels do: [ :label | self addLineFrom: label to: interfaceShape ]" ]
+]
+
+{ #category : #rendering }
 MolComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
-	| consumedEventShape noShape |
-	noShape := self
-		           showInterfaces: 'consumedEvent'
-		           xValue: -220
-		           yValue: yEvent.
+	| consumedEventShape labels |
+	labels := self
+		          showInterfaces: 'consumedEvent'
+		          xValue: -220
+		          yValue: yEvent.
 
-	noShape ifNil: [
+	labels ifNotNil: [
 		consumedEventShape := RSShapeFactory rightArrow
 			                      borderColor: Color black;
 			                      color: Color white;
@@ -136,6 +168,7 @@ MolComponentBuilder >> generateConsumedEvents [
 		consumedEventShape translateTo: -110 @ yEvent - 20.
 		canvas add: consumedEventShape.
 
+		self createInvisibleLinksBetween: labels and: consumedEventShape.
 		self addLineFromBoxTo: consumedEventShape ]
 ]
 
@@ -187,13 +220,13 @@ MolComponentBuilder >> generateName [
 MolComponentBuilder >> generateProducedEvents [
 	"generates the produced Events part, which is composed of the produced event interfaces, the diamond shape and the line that links the box and the shape"
 
-	| producedEventShape noShape |
-	noShape := self
-		           showInterfaces: 'producedEvent'
-		           xValue: 220
-		           yValue: yEvent.
+	| producedEventShape labels |
+	labels := self
+		          showInterfaces: 'producedEvent'
+		          xValue: 220
+		          yValue: yEvent.
 
-	noShape ifNil: [
+	labels ifNotNil: [
 		producedEventShape := RSShapeFactory diamond
 			                      borderColor: Color black;
 			                      color: Color white;
@@ -202,6 +235,7 @@ MolComponentBuilder >> generateProducedEvents [
 		producedEventShape translateTo: 130 @ yEvent.
 		canvas add: producedEventShape.
 
+		self createInvisibleLinksBetween: labels and: producedEventShape.
 		self addLineFromBoxTo: producedEventShape ]
 ]
 
@@ -209,13 +243,13 @@ MolComponentBuilder >> generateProducedEvents [
 MolComponentBuilder >> generateProvidedParameters [
 	"generates the provided parameters part, which is composed of the provided parameter interfaces, the square shape and the line that links the box and the shape"
 
-	| providedParameterShape noShape |
-	noShape := self
-		           showInterfaces: 'providedParameter'
-		           xValue: 100
-		           yValue: yParameter.
+	| providedParameterShape labels |
+	labels := self
+		          showInterfaces: 'providedParameter'
+		          xValue: 100
+		          yValue: yParameter.
 
-	noShape ifNil: [
+	labels ifNotNil: [
 		providedParameterShape := RSBox new
 			                          borderColor: Color black;
 			                          color: Color white;
@@ -224,20 +258,21 @@ MolComponentBuilder >> generateProvidedParameters [
 		providedParameterShape translateTo: 60 @ 130.
 		canvas add: providedParameterShape.
 
-	self addLineFromBoxTo: providedParameterShape ]
+		self createInvisibleLinksBetween: labels and: providedParameterShape.
+		self addLineFromBoxTo: providedParameterShape ]
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateProvidedServices [
 	"generates the provided services part, which is composed of the provided service interfaces, the circle shape and the line that links the box and the shape"
 
-	| providedServiceShape noShape |
-	noShape := self
-		           showInterfaces: 'providedService'
-		           xValue: 220
-		           yValue: yService.
+	| providedServiceShape labels |
+	labels := self
+		          showInterfaces: 'providedService'
+		          xValue: 220
+		          yValue: yService.
 
-	noShape ifNil: [
+	labels ifNotNil: [
 		providedServiceShape := RSEllipse new
 			                        borderColor: Color black;
 			                        color: Color white;
@@ -246,7 +281,8 @@ MolComponentBuilder >> generateProvidedServices [
 		providedServiceShape translateTo: 130 @ yService.
 		canvas add: providedServiceShape.
 
-	self addLineFromBoxTo: providedServiceShape ]
+		self createInvisibleLinksBetween: labels and: providedServiceShape.
+		self addLineFromBoxTo: providedServiceShape ]
 ]
 
 { #category : #rendering }
@@ -277,35 +313,36 @@ MolComponentBuilder >> generateType [
 MolComponentBuilder >> generateUsedParameters [
 	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape and the line that links the box and the shape"
 
-	| usedParameterUpperLine usedParameterY usedParameterX noShape |
-	noShape := self
-		           showInterfaces: 'usedParameter'
-		           xValue: -60
-		           yValue: yParameter.
+	| usedParameterUpperLine usedParameterY usedParameterX labels |
+	labels := self
+		          showInterfaces: 'usedParameter'
+		          xValue: -60
+		          yValue: yParameter.
 
 	usedParameterX := -40.
 	usedParameterY := 115.
 
-	noShape ifNil: [
+	labels ifNotNil: [
 		usedParameterUpperLine := self
 			                          createForkShape: usedParameterX
 			                          and: usedParameterY.
 
-	"usedParameterUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
-	self addLineFromBoxTo: usedParameterUpperLine ]
+		self createInvisibleLinksBetween: labels and: usedParameterUpperLine.
+		"usedParameterUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
+		self addLineFromBoxTo: usedParameterUpperLine ]
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
-	| usedServiceShape noShape |
-	noShape := self
-		           showInterfaces: 'usedService'
-		           xValue: -200
-		           yValue: yService.
+	| usedServiceShape labels |
+	labels := self
+		          showInterfaces: 'usedService'
+		          xValue: -200
+		          yValue: yService.
 
-	noShape ifNil: [
+	labels ifNotNil: [
 		usedServiceShape := RSShapeFactory halfEmptyRightCircle
 			                    borderColor: Color black;
 			                    color: Color white;
@@ -315,7 +352,8 @@ MolComponentBuilder >> generateUsedServices [
 		usedServiceShape translateTo: -130 @ yService.
 		canvas add: usedServiceShape.
 
-	self addLineFromBoxTo: usedServiceShape ]
+		self createInvisibleLinksBetween: labels and: usedServiceShape.
+		self addLineFromBoxTo: usedServiceShape ]
 ]
 
 { #category : #rendering }
@@ -365,13 +403,12 @@ MolComponentBuilder >> showComponent [
 
 { #category : #rendering }
 MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: yValue [
-	"shows and formats the interfaces required and offered by a component"
+	"shows and formats the interfaces required and offered by a component, returns the created labels"
 
-	| interfaces label yLabel noShape |
+	| interfaces label yLabel labels |
 	self flag: 'texte centré donc fait bizarre sur plusieurs lignes'.
 	"don't show a component if the selected element isn't one (Object superclass...)"
-	type isComponentType ifFalse: [ ^ '' ].
-	noShape := nil.
+	type isComponentType ifFalse: [ ^ nil "''" ].
 
 	anInterfaceString = 'consumedEvent' ifTrue: [
 		interfaces := type allConsumedEvents ].
@@ -388,20 +425,23 @@ MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: 
 		interfaces := type allProvidedServices ].
 
 	interfaces = OrderedCollection new ifTrue: [ "doesn't show the interface shape if no interface label exists"
-		noShape := false.
 		label := RSLabel new
 			         text: '';
 			         yourself.
 		label translateTo: xValue @ yValue.
-		canvas add: label ].
+		canvas add: label.
+		^ nil ].
+
 	"starts the Text by anOrderedCollection() without this line"
 	interfaces size = 1 ifTrue: [
 		label := RSLabel new
 			         text: (interfaces at: 1) asString;
 			         yourself.
 		label translateTo: xValue @ yValue.
-		canvas add: label ].
+		canvas add: label.
+		^ label ].
 
+			labels := OrderedCollection new.
 	"used to position multiple labels when multiple interfaces need to be shown"
 	yLabel := 0.
 	interfaces do: [ :interface |
@@ -411,8 +451,9 @@ MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: 
 		"xValue +/- (label textWidth / 10)"
 		label translateTo: xValue @ yValue + yLabel.
 		canvas add: label.
+		labels add: label.
 
 		yLabel := yLabel + 20 ].
-	
-^ noShape
+
+	^ labels
 ]
