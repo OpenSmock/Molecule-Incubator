@@ -35,6 +35,22 @@ Class {
 }
 
 { #category : #initialization }
+MolComponentVisualizer >> addLineFrom: interfaceLabelOrShape to: otherInterfaceLabelOrShape [
+	"used to link an interface label/shape to another interface label/shape (while being invisible by the color of the link being white), used to highlight the corresponding labels when an interface shape is hovered on"
+
+	| line |
+	line := RSLine new
+		        from: interfaceLabelOrShape;
+		        to: otherInterfaceLabelOrShape;
+		        color: Color white;
+		        yourself.
+	line attachPoint: RSBorderAttachPoint new.
+	line update.
+
+	^ line
+]
+
+{ #category : #initialization }
 MolComponentVisualizer >> buildComponent: aComponent [
 	"builds a component visualization, similar to how the build method of ClyComponentBuilder works but for multiple components to be shown on the same canvas"
 
@@ -98,9 +114,9 @@ MolComponentVisualizer >> clickingComponentShowsInspector [
 MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes and the interface labels"
 
-	| line lineArray canvasCopy componentIndex componentCopyIndex lineArrayCopy lineArrayFinal canvasIndex requiredShape canvasCopyIndex offeredShape line2 |
+	| lineArray canvasCopy componentIndex componentCopyIndex lineArrayCopy lineArrayFinal canvasIndex requiredShape canvasCopyIndex offeredShape |
 	self flag:
-		'to finish, comment, relie label à label et pas shape à label'.
+		'ne fonctionne pas complètement'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 
@@ -124,6 +140,7 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 					componentIndex = componentCopyIndex ifFalse: [
 						component2 class = RSLine ifFalse: [ "same as last ifTrue: of the same nature"
 							component2 children do: [ :child2 |
+								canvasCopyIndex := canvasCopyIndex + 1.
 								(child class = RSLabel and: child2 class = RSLabel) ifTrue: [ "verify that Roassal elements of type RSLabel aren't the same element"
 									child == child2 ifFalse: [ "but have the same text"
 										child text = child2 text ifTrue: [ "that isn't an empty string"
@@ -137,36 +154,20 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 													                componentCopyIndex
 													                canvasIndex: canvasCopyIndex.
 
-												line := RSLine new
-													        from: child;
-													        to: requiredShape;
-													        yourself.
-												line attachPoint: RSBorderAttachPoint new.
-
-												"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
-												line strokeColor: Color white.
-												line update.
-
-												lineArray add: line.
-
-												line2 := RSLine new
-													         from: child2;
-													         to: offeredShape;
-													         yourself.
-												line2 attachPoint: RSBorderAttachPoint new.
-
-												"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
-												line2 strokeColor: Color white.
-												line2 update.
-
-												lineArray add: line2 ] ] ] ] ] ].
-						canvasCopyIndex := canvasCopyIndex + 1 ] ].
-				canvasCopyIndex := 0 ].
-			componentCopyIndex := 0 ].
+												requiredShape class = offeredShape class ifFalse: [
+													lineArray add:
+														(self addLineFrom: child to: requiredShape).
+													lineArray add: (self addLineFrom: child to: offeredShape).
+													lineArray add:
+														(self addLineFrom: child2 to: requiredShape).
+													lineArray add:
+														(self addLineFrom: child2 to: offeredShape) ] ] ] ] ] ].
+							canvasCopyIndex := 0 ] ].
+					componentCopyIndex := 0 ] ] ].
 		canvasIndex := 0 ].
 
 	"remove duplicate lines (lines with same start and end)"
-	self flag: 'losange component de gauche 2 lignes'.
+	"self flag: 'losange component de gauche 2 lignes'.
 	lineArrayCopy := lineArray.
 	lineArrayFinal := lineArray.
 	lineArray do: [ :l |
@@ -174,17 +175,16 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 			l ifNotNil: [
 				l2 ifNotNil: [
 					(l from = l2 from and: l to = l2 to) ifTrue: [
-						lineArrayFinal remove: l ] ] ] ] ].
+						lineArrayFinal remove: l ] ] ] ] ]."
 
-	lineArrayFinal do: [ :l | canvas add: l ]
+	lineArray do: [ :l | canvas add: l ]
 ]
 
 { #category : #initialization }
 MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
-	| line offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex componentIndex componentCopyIndex lineArrayCopy lineArrayFinal |
-	self flag: 'to finish'.
+	| offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex componentIndex componentCopyIndex lineArrayCopy lineArrayFinal |
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 
@@ -219,20 +219,11 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 
 										"used so that two shapes representing the same part of a component's contract from different components cannot be linked"
 										requiredShape class = offeredShape class ifFalse: [
-											line := RSLine new
-												        from: offeredShape;
-												        to: requiredShape;
-												        yourself.
-											line attachPoint: RSBorderAttachPoint new.
-
-											"has the effect of hiding the line so that it can be shown when hovering on an interface shape"
-											line strokeColor: Color white.
-											line update.
-
-											lineArray add: line ] ] ] ] ].
-						canvasCopyIndex := canvasCopyIndex + 1 ] ].
-				canvasCopyIndex := 0 ].
-			componentCopyIndex := 0 ].
+											lineArray add:
+												(self addLineFrom: requiredShape to: offeredShape) ] ] ] ] ].
+						canvasCopyIndex := canvasCopyIndex + 1 ].
+					canvasCopyIndex := 0 ].
+				componentCopyIndex := 0 ] ].
 		canvasIndex := 0 ].
 
 	"remove duplicate lines (lines with same start and end)"
@@ -416,13 +407,13 @@ MolComponentVisualizer >> initialize [
 	self buildComponents.
 
 	self createLinksBetweenInterfaces.
-	self flag: 'next line'.
-	"self createInvisibleLinksBetweenInterfaces."
+	self createInvisibleLinksBetweenInterfaces.
 	"links need to be created first in order to know what to highlight next"
 	self highlightShapes.
 
 	self flag: 'order après matter?'.
 	self highlightShapeShowsLink.
+	
 	self highlightComponentShowsLinks.
 	self clickingComponentShowsInspector
 ]

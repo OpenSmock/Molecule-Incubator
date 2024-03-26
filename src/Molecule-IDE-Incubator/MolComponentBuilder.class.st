@@ -48,11 +48,9 @@ Class {
 
 { #category : #rendering }
 MolComponentBuilder >> addLineFrom: interfaceLabel to: interfaceShape [
-	"used to link an interface label to its interface shape (while being invisible), used to highlight the corresponding labels when an interface shape is hovered on"
+	"used to link an interface label to its interface shape (while being invisible by the color of the link being white), used to highlight the corresponding labels when an interface shape is hovered on"
 
 	| line |
-	self flag: 'not finished'.
-	"self halt."
 	line := RSLine new
 		        from: interfaceLabel;
 		        to: interfaceShape;
