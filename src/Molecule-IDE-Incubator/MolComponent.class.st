@@ -88,7 +88,7 @@ Class {
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> addBackLayouts: parameterChildren forPresenter: parameterPresenter [
 	"used to add the parameter layouts after they've been deleted from unchecking the checkbox"
 
@@ -112,7 +112,7 @@ MolComponent >> addBackLayouts: parameterChildren forPresenter: parameterPresent
 		parameterPresenter layout: parameterChildrenLayout ]
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> checkboxParameters [
 	"shows used and provided parameter interfaces if the checkbox is checked"
 
@@ -125,18 +125,31 @@ MolComponent >> checkboxParameters [
 		ifFalse: [ self setEmptyParameters ]
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> componentRepresentationTab [
-	"used to define the second tab of the window, which shows a graphical representation of the component based on the Corba Component Model (its Type and interfaces with icons symbolizing what role they have based on its component contract)"
+	"used to define the second tab of the window, which shows a graphical representation of the component based on the Corba Component Model (its Type and interfaces with icons and labels symbolizing what role they have based on its component contract)"
 
-	"MolDiagram new"
-	^ SpTextPresenter new
-		  text: 'to do';
-		  beNotEditable;
-		  yourself
+	| componentBuilderPresenter componentBuilder shape roassalLayout |
+	componentBuilderPresenter := SpRoassalPresenter new.
+	componentBuilder := MolComponentBuilder new.
+	componentBuilder type: typeName asClass.
+	shape := componentBuilder showComponent asShape.
+
+	componentBuilder canvas add: shape.
+	componentBuilderPresenter canvas: componentBuilder canvas.
+
+	componentBuilderPresenter canvas
+		when: RSExtentChangedEvent
+		do: [ :evt | componentBuilderPresenter canvas zoomToFit ].
+
+	roassalLayout := SpBoxLayout newVertical
+		                 add: componentBuilderPresenter;
+		                 yourself.
+
+	^ roassalLayout
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> componentTypeTab [
 	"used to define the first tab of the window, which shows the interfaces of the component (events, parameters and services)"
 
@@ -189,13 +202,13 @@ MolComponent >> componentTypeTab [
 		  yourself
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> connectPresenters [
 
 	parametersCheckBox whenChangedDo: [ self checkboxParameters ].
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> defaultLayout [
 	"only defines the tabs, with each of them executing their code"
 
@@ -229,7 +242,7 @@ MolComponent >> deleteEventsServicesParameters: interface forFrame: interfaceFra
 		eventServiceParameter fill ifFalse: [ eventServiceParameter delete ] ]
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> determineRoleInterface: interface [
 	"used in order to search in the relevant parts of the contracts of the Types using an interface (for a required interface, it will search in the offered parts of a component's contract)"
 
@@ -244,7 +257,7 @@ MolComponent >> determineRoleInterface: interface [
 		ifFalse: [ ^ roleRequiredInterface ]
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> initialExtent [
 
 	self flag: 'dynamique ?'.
@@ -252,7 +265,7 @@ MolComponent >> initialExtent [
 	^ 600 @ 450
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> initializeParameters [
 	"shows used and provided parameter interfaces if a parameter interface is detected upon opening the window"
 
@@ -260,7 +273,7 @@ MolComponent >> initializeParameters [
 		ifTrue: [ parametersCheckBox state: true ]
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> initializePresenters [
 
 	self flag: 'to clean'.
@@ -426,7 +439,7 @@ MolComponent >> isInterfaceUsed: interface forFrame: interfaceFrame roleInterfac
 	^ typesUsingInterface = OrderedCollection new
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> listTypesInPackage [
 	"lists all the Type Traits in the current package"
 
@@ -506,7 +519,7 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 	interfaceFrame add: SpBoxLayout newVertical height: 10
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setEmptyParameters [
 	"removes the parameters shown on screen when the checkbox is unchecked"
 
@@ -528,7 +541,7 @@ MolComponent >> setEmptyParameters [
 	usedParameterFrame removeAll
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setEvents [
 	"sets the Event interfaces related to the Type"
 
@@ -543,7 +556,7 @@ MolComponent >> setEvents [
 		roleInterface: roleRequiredInterface
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setInterfaces [
 	"sets the interfaces of the current Type"
 
@@ -557,7 +570,7 @@ MolComponent >> setInterfaces [
 	providedServices := typeName asClass allProvidedServices
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setProvidedParameters [
 	"shows provided parameter interfaces if the checkbox is checked"
 
@@ -575,7 +588,7 @@ MolComponent >> setProvidedParameters [
 				roleInterface: roleRequiredInterface ]
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setServices [
 	"sets the Service interfaces related to the Type"
  self
@@ -590,16 +603,15 @@ MolComponent >> setServices [
 	"providedServicesFrame add: providedServicesTree"
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setTabs [
 
 	componentTypeText := self componentTypeTab.
 
-	componentRepresentation := self componentRepresentationTab.
-	componentRepresentation beNotEditable
+	componentRepresentation := self componentRepresentationTab
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setTypeName: aTypeName package: aPackage [
 	"sets the Type name to its associated field, which triggers the showing of its interfaces"
 
@@ -616,7 +628,7 @@ MolComponent >> setTypeName: aTypeName package: aPackage [
 self setTabs
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> setUsedParameters [
 	"shows used parameter interfaces if the checkbox is checked"
 
@@ -634,7 +646,7 @@ MolComponent >> setUsedParameters [
 				                     roleInterface: roleOfferedInterface ]
 ]
 
-{ #category : #TOREMOVE }
+{ #category : #private }
 MolComponent >> title [
 
 	^ 'Edit Molecule Component'

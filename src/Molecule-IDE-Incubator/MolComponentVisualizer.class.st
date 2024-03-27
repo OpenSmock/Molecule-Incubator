@@ -93,23 +93,21 @@ MolComponentVisualizer >> canvas [
 
 { #category : #initialization }
 MolComponentVisualizer >> clickingComponentShowsInspector [
-	"clicking on a component (its main RSBox) shows its detail in the Pharo Inspector"
+	"clicking on a component shows its detail in the Pharo Inspector"
 
 	| canvasCompositeShapes lines |
-	self flag: 'would be better to navigate through deployedComponents instead of opening inspect on the selected component, don t know how the inspector is coded though'.
+	self flag:
+		'would be better to navigate through deployedComponents instead of opening inspect on the selected component, don t know how the inspector is coded though'.
 	canvasCompositeShapes := self removeLinesForIteration.
 	lines := OrderedCollection new.
-	"self halt."
 
 	canvasCompositeShapes do: [ :composite |
-		composite children do: [ :shape | "(shape class = RSBox and: shape extent = (200 @ 200)) ifTrue:"
-			shape
-				when: RSMouseUp
-				do: [ :evt | "clicking the connected interface shape triggers an error otherwise"
-					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
-						ifTrue: [ "2nd shape of a RSComposite is the name of the component"
-							(MolComponentManager default homeServices deployedComponents
-								 at: (composite children at: 2) text asClass) inspect ] ] ] ]
+		composite children do: [ :shape | "(shape class = RSBox and: shape extent = (200 @ 200)) ifTrue:""("
+			shape when: RSMouseUp do: [ :evt |
+				(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
+					ifTrue: [ "2nd shape of a RSComposite is always a RSlabel with the name of the component"
+						(MolComponentManager default homeServices deployedComponents
+							 at: (composite children at: 2) text asClass) inspect ] ] ] ]
 ]
 
 { #category : #initialization }
@@ -283,23 +281,40 @@ MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 MolComponentVisualizer >> highlightComponent [
 	"hovering over a component (its main RSBox) shows every line that connects it to another component's interface shapes"
 
-	| highlightableLabel canvasCompositeShapes shapes |
+	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine |
 	self flag:
-		'comment, to finish, highlight seulement rscomposite alors qu il ne devrait pas'.
+		'comment, to finish, highlight seulement rscomposite, besoin d unhighlight'.
 
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
 
+	highlightableShape := RSHighlightable new.
+	highlightableShape highlightColor: Color red.
+	"property used to highlight the other interface shape that the one hovered on is linked to"
+	highlightableShape withConnectedShapes.
+
+	highlightableLine := RSHighlightable new.
+	highlightableLine highlightColor: Color red.
+	"property used to highlight the lines that connect the interface shape to another"
+	"highlightableLine withEdges."
+	highlightableLine withLines.
+
 	canvasCompositeShapes := self removeLinesForIteration.
-	"self halt."
-
-	canvasCompositeShapes do: [ :component |
-		highlightableLabel highlightShapes: [ :composite |
+	canvasCompositeShapes do: [ :component | "highlightableLabel highlightShapes: [ :composite |
 			composite children do: [ :shape |
-				shape class = RSLine ifFalse: [ "shapes := "shape connectedLines"self halt""composite @ highlightableLabel"
-					 ] ] ].
+				shape class = RSLine ifFalse: [
+					shape @ highlightableShape.
+					shape @ highlightableLine ] ] ].""highlightableLabel outgoingLines.""component @ highlightableLabel"
+		highlightableLabel highlightShapes: [ :box |
+			component children do: [ :shape |
+				(shape class = RSLine or: (shape class = RSCircle or: shape class = RSLabel)) ifFalse: [
+					shape @ highlightableShape.
+					shape @ highlightableLine ] ] ].
 
-		component @ highlightableLabel ]
+		component children do: [ :child | "component children do: [ :child |
+			child class = RSLine ifFalse: [" "and:
+				 (nextElement class = RSLine or: secondNextElement class = RSLine))" "child connectedLines isEmpty ifFalse: [" "if the component is connected through another by its hovered on interface shape""child @ highlightableLabel" "] ] ]"
+			child class = RSBox ifTrue: [ child @ highlightableLabel ] ] ]
 ]
 
 { #category : #initialization }
@@ -317,7 +332,7 @@ MolComponentVisualizer >> highlightComponentShowsLinks [
 		compositeIndex := compositeIndex + 1.
 		composite children do: [ :shape |
 			shape when: RSMouseUp do: [ :evt |
-				(evt shape class = RSBox and: evt shape extent = (200 @ 200))
+				(shape class = RSBox and: shape extent = (200 @ 200))
 					ifTrue:
 					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
 					ifFalse: [ "lines := evt shapes connectedLines"" "
@@ -346,17 +361,14 @@ MolComponentVisualizer >> highlightShapeShowsLink [
 
 { #category : #initialization }
 MolComponentVisualizer >> highlightShapes [
-	"hovering over an interface shape creates a red line to the associated interface of another component if it exists. For example, putting the cursor on a consumedEvents interface creates a link to the relevant producedEvents interface (of another component obviously)"
+	"hovering over an interface shape creates a red line to the associated interface shape of another component if it exists. For example, putting the cursor on the consumedEvents interface shape creates a link to the relevant producedEvents interface shape (of another component obviously)"
 
-	"hovering over an interface shape creates a red line to its associated interface as well as the associated interface of another component, useful when multiple interfaces exist for one part of a component's contract"
+	"hovering over an interface shape also creates a red line to its associated interface(s) labels as well as the associated interface(s) labels of another component, useful there's multiple interface labels for one part of a component's contract"
 
-	| shapeExtent canvasIndex nextElement secondNextElement highlightableLine highlightableShape canvasCompositeShapes |
-	self flag: 'partie used'.
+	| canvasIndex nextElement secondNextElement highlightableLine highlightableShape canvasCompositeShapes |
 	self flag: 'voir page 163/4 agile visualization'.
-	self flag:
-		'highlight label par lignes invisibles et connectedLines mais ne fonctionne pas'.
-	shapeExtent := 30 @ 30.
-	canvasIndex := 0.
+	self flag: 'highlight label par lignes invisibles et connectedLines'.
+	"canvasIndex := 0."
 
 	highlightableLine := RSHighlightable new.
 	highlightableLine highlightColor: Color red.
@@ -375,19 +387,14 @@ MolComponentVisualizer >> highlightShapes [
 	canvasCompositeShapes := self removeLinesForIteration.
 
 	canvasCompositeShapes do: [ :component |
-		component children do: [ :child |
-			canvasIndex := canvasIndex + 1.
-			"componentIndex < (component children size - 2) ifTrue: [
+		component children do: [ :child | "canvasIndex := canvasIndex + 1.""componentIndex < (component children size - 2) ifTrue: [
 				nextElement := component children at: componentIndex + 1.
-				secondNextElement := component children at: componentIndex + 2 ]."
-			"usedParameter shape is made of 3 lines"
-			"("
-			child extent = shapeExtent ifTrue: [ "and:
+				secondNextElement := component children at: componentIndex + 2 ].""usedParameter shape is made of 3 lines""("
+			child class = RSLine ifFalse: [ "and:
 				 (nextElement class = RSLine or: secondNextElement class = RSLine))"
-				child class = RSCircle ifFalse: [ "don't highlight the Type dot since it isn't linked to anything"
-					child connectedLines isEmpty ifFalse: [ "if the component is connected through another by its hovered on interface shape"
-						child @ highlightableLine.
-						child @ highlightableShape ] ] ] ] ]
+				child connectedLines isEmpty ifFalse: [ "if the component is connected through another by its hovered on interface shape"
+					child @ highlightableLine.
+					child @ highlightableShape ] ] ] ]
 ]
 
 { #category : #initialization }
@@ -408,10 +415,10 @@ MolComponentVisualizer >> initialize [
 	"links need to be created first in order to know what to highlight next"
 	self highlightShapes.
 
-	self flag: 'order après matter?'.
+	self flag: 'remettre un highlightComponent, order après matter?'.
 
 	self highlightShapeShowsLink.
-	self highlightComponent.
+	"self highlightComponent."
 	"self highlightComponentShowsLinks."
 	self clickingComponentShowsInspector
 ]

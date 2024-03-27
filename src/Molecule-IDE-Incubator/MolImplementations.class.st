@@ -52,7 +52,8 @@ MolImplementations >> buttonBrowseAction [
 MolImplementations >> connectPresenters [
 	"enables the Browse button if an implementation is selected, also shows a diagram of the selected component"
 
-	| rs c shape |
+	| shape |
+	self flag: 'code'.
 	implementationList whenSelectionChangedDo: [
 		implementationList selectedItem ifNotNil: [
 			buttonBrowse enable.

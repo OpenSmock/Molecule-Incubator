@@ -172,10 +172,9 @@ MolComponentBuilder >> generateConsumedEvents [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> generateMoleculeComponent [
-	"generates the central box which represents the Molecule component as well as showing the name of the component"
+MolComponentBuilder >> generateMoleculeBox [
+	"generates the central box which represents the Molecule component"
 
-	| component |
 	box := RSBox new
 		       extent: 200 @ 200;
 		       borderColor: Color black;
@@ -184,12 +183,21 @@ MolComponentBuilder >> generateMoleculeComponent [
 	box cornerRadius: 10.
 	box translateTo: 0 @ 0.
 
+	canvas addShape: box.
+]
+
+{ #category : #rendering }
+MolComponentBuilder >> generateMoleculeComponent [
+	"generates the central box which represents the Molecule component as well as showing the name of the component"
+
+	| component |
+	self generateMoleculeBox.
+
 	component := RSLabel new
 		             text: implementation;
 		             yourself.
 	component translateTo: 0 @ 0.
-
-	canvas addShape: box.
+	
 	canvas addShape: component
 ]
 
@@ -342,16 +350,15 @@ MolComponentBuilder >> generateUsedServices [
 		          xValue: -200
 		          yValue: yService.
 
-	labels ifNotNil: [
-		usedServiceShape := RSShapeFactory halfEmptyRightCircle
+	labels ifNotNil: [ usedServiceShape := RSShapeFactory halfEmptyRightCircle
 			                    borderColor: Color black;
 			                    color: Color white;
 			                    extent: shapeExtent;
 			                    yourself.
 		usedServiceShape cornerRadii: 10.
 		self flag: 'shape'.
-		"usedServiceShape := ShapeIcon usedServiceIcon."
-		"usedServiceShape := Form fromBase64String:
+		"usedServiceShape := ShapeIcon usedServiceIcon.
+		usedServiceShape := Form fromBase64String:
 			                    ShapeIcon usedServiceIconEncoding."
 		usedServiceShape translateTo: -130 @ yService.
 		"usedServiceShape offset: -130 @ yService."
@@ -363,7 +370,7 @@ MolComponentBuilder >> generateUsedServices [
 
 { #category : #rendering }
 MolComponentBuilder >> implementation: aMoleculeImplementation [
-	"attributes the implementation as well as getting their Molecule Type Trait"
+	"attributes the implementation as well as getting its Molecule Type Trait"
 
 	implementation := aMoleculeImplementation.
 	type := implementation allTraits at: 1
@@ -389,9 +396,15 @@ MolComponentBuilder >> showComponent [
 
 	self initializeRelativeCoordinates.
 
-	self generateMoleculeComponent.
+	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show these shapes"
+	implementation ifNotNil: [
+		self generateMoleculeComponent.
+		"generateType was here if the order needs to be respected"
+		self generateName ].
+
+	implementation ifNil: [ self generateMoleculeBox ].
+
 	self generateType.
-	self generateName.
 
 	"required part of the component"
 	self generateUsedServices.
@@ -402,6 +415,8 @@ MolComponentBuilder >> showComponent [
 	self generateProvidedParameters.
 	self generateProducedEvents.
 	self generateProvidedServices.
+
+	"self halt."
 
 	^ canvas
 ]
@@ -461,4 +476,11 @@ MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: 
 		yLabel := yLabel + 20 ].
 
 	^ labels
+]
+
+{ #category : #rendering }
+MolComponentBuilder >> type: typeClass [
+	"used for the Component Representation tab for the Edit Component Type option"
+
+	type := typeClass
 ]
