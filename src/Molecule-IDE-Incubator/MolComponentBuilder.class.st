@@ -158,6 +158,7 @@ MolComponentBuilder >> generateConsumedEvents [
 		          yValue: yEvent.
 
 	labels ifNotNil: [
+		self flag: 'shape'.
 		consumedEventShape := RSShapeFactory rightArrow
 			                      borderColor: Color black;
 			                      color: Color white;
@@ -321,6 +322,7 @@ MolComponentBuilder >> generateUsedParameters [
 	usedParameterY := 115.
 
 	labels ifNotNil: [
+		self flag: 'shape'.
 		usedParameterUpperLine := self
 			                          createForkShape: usedParameterX
 			                          and: usedParameterY.
@@ -347,7 +349,12 @@ MolComponentBuilder >> generateUsedServices [
 			                    extent: shapeExtent;
 			                    yourself.
 		usedServiceShape cornerRadii: 10.
+		self flag: 'shape'.
+		"usedServiceShape := ShapeIcon usedServiceIcon."
+		"usedServiceShape := Form fromBase64String:
+			                    ShapeIcon usedServiceIconEncoding."
 		usedServiceShape translateTo: -130 @ yService.
+		"usedServiceShape offset: -130 @ yService."
 		canvas add: usedServiceShape.
 
 		self createInvisibleLinksBetween: labels and: usedServiceShape.
