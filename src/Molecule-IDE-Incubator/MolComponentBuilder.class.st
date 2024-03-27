@@ -350,15 +350,16 @@ MolComponentBuilder >> generateUsedServices [
 		          xValue: -200
 		          yValue: yService.
 
-	labels ifNotNil: [ usedServiceShape := RSShapeFactory halfEmptyRightCircle
+	labels ifNotNil: [
+		usedServiceShape := RSShapeFactory halfEmptyRightCircle
 			                    borderColor: Color black;
 			                    color: Color white;
 			                    extent: shapeExtent;
 			                    yourself.
 		usedServiceShape cornerRadii: 10.
 		self flag: 'shape'.
-		"usedServiceShape := ShapeIcon usedServiceIcon.
-		usedServiceShape := Form fromBase64String:
+		"usedServiceShape := ShapeIcon usedServiceIcon."
+		"usedServiceShape := Form fromBase64String:
 			                    ShapeIcon usedServiceIconEncoding."
 		usedServiceShape translateTo: -130 @ yService.
 		"usedServiceShape offset: -130 @ yService."
@@ -391,13 +392,13 @@ MolComponentBuilder >> showComponent [
 	shapeExtent := 30 @ 30.
 
 	canvas := RSCanvas new.
-	canvas @ RSCanvasController.
 	canvas zoomToFit.
 
 	self initializeRelativeCoordinates.
 
 	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show these shapes"
 	implementation ifNotNil: [
+			canvas @ RSCanvasController.
 		self generateMoleculeComponent.
 		"generateType was here if the order needs to be respected"
 		self generateName ].

@@ -44,6 +44,7 @@ ShapeIcon class >> icons [
 ShapeIcon class >> usedServiceIcon [
 
 	<script: 'self usedServiceIcon inspect'>
+	self flag: 'utile?'.
 	^ self icons at: #usedService ifAbsentPut: [
 		  Form fromBinaryStream:
 			  self usedServiceIconEncoding base64Decoded readStream ]

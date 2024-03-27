@@ -44,8 +44,8 @@ SpFilteringListDoubleClickPresenter >> doubleClickActivated [
 	listPresenter whenActivatedDo: [
 		item := listPresenter selectedItem.
 		item class = RPackageTag
-			ifTrue: [ "needs to be redirected to a package when only one Tag exists"
-		size := package classTags size.
+			ifTrue: [ "New Component part, needs to be redirected to a package when only one Tag exists"
+				size := package classTags size.
 				size = 1
 					ifTrue: [ package browse ]
 					ifFalse: [

@@ -373,10 +373,8 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 				               (self determineRoleInterface: interface) ].
 
 		interfaceTree := self newTree
-			                 children: [ :i | "interface methodDict keys
-					                 ifEmpty: [  ]
-					                 ifNotEmpty: ["
-				                 interface methodDict keys "]" ];
+			                 children: [ :i |
+				                 interface methodDict keys ];
 			                 displayIcon: [ :aClass |
 				                 self iconNamed: aClass systemIconName ];
 			                 roots: { interface };
@@ -416,7 +414,7 @@ MolComponent >> interfaceTreeAdd: interfaces forFrame: interfaceFrame roleInterf
 			forFrame: interfaceFrame
 			roleInterface: roleInterface ].
 
-		^ interfacesTree
+	^ interfacesTree
 ]
 
 { #category : #'as yet unclassified' }
