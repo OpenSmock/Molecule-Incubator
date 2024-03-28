@@ -116,7 +116,7 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 
 	| lineArray canvasCopy componentIndex componentCopyIndex lineArrayCopy lineArrayFinal canvasIndex requiredShape canvasCopyIndex offeredShape |
 	self flag:
-		'ne fonctionne pas complètement, ne pas highlight lignes reliant à interfaces?'.
+		'toujours trop de lignes'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 
@@ -157,6 +157,10 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 												= RSShapeFactory halfEmptyRightCircle class ifTrue: [
 													self halt ]."
 
+												(child text = 'MolMyLocalTimeEvents' and:
+													 offeredShape class = RSShapeFactory fork class) ifTrue: [
+													self halt ].
+
 												requiredShape class = offeredShape class ifFalse: [
 													lineArray add:
 														(self addLineFrom: child to: requiredShape).
@@ -164,13 +168,17 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 													lineArray add:
 														(self addLineFrom: child2 to: requiredShape).
 													lineArray add:
-														(self addLineFrom: child2 to: offeredShape) ] ] ] ] ] ].
-							canvasCopyIndex := 0 ] ].
-					componentCopyIndex := 0 ] ] ].
+														(self addLineFrom: child2 to: offeredShape).
+
+													(child class = RSLabel and: child text = child2 text)
+														ifTrue: [
+														lineArray add: (self addLineFrom: child to: child2) ] ] ] ] ] ] ].
+							canvasCopyIndex := 0 ] ] ].
+				componentCopyIndex := 0 ] ].
 		canvasIndex := 0 ].
 
 	"remove duplicate lines (lines with same start and end)"
-	"self flag: 'losange component de gauche 2 lignes'.
+	self flag: 'losange component de gauche 2 lignes'.
 	lineArrayCopy := lineArray.
 	lineArrayFinal := lineArray.
 	lineArray do: [ :l |
@@ -178,9 +186,10 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 			l ifNotNil: [
 				l2 ifNotNil: [
 					(l from = l2 from and: l to = l2 to) ifTrue: [
-						lineArrayFinal remove: l ] ] ] ] ]."
+						(lineArrayCopy indexOf: l) = 0 ifFalse: [
+							lineArrayFinal remove: l ] ] ] ] ] ].
 
-	lineArray do: [ :l | canvas add: l ]
+	lineArrayFinal do: [ :l | canvas add: l ]
 ]
 
 { #category : #initialization }
@@ -253,17 +262,18 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 
 	"since we know the position of an interface label of a component that is connected to the same interface in another component's (mirror part of the contract) in the current used canvas, we can then deduce the position of its associated interface shape. To do that, we first need to understand how visualization of components are implemented: a component's part of the contract is visually represented by 0, 1 or more interface labels, an interface shape (if at least 1 interface label exists) and a line between shape and the main RSBox). That means that to get the interface shape associated to the given interface label, we need to search for the next element that isn't a RSLabel nor a RSLine"
 
-	| component labelIndex labelShape |
+	| component labelIndex labelShape index |
 	component := canvas shapes at: componentIndex.
 
 	labelShape := component children at: canvasIndex.
 	"need to account for the fact that multiple labels are created depending on the number of interfaces on a part of a component's contract"
 	labelIndex := 1. "0, aucun changement détecté"
 
-	[ labelShape class = RSLabel or: labelShape class = RSLine ]
-		whileTrue: [
-			labelShape := component children at: canvasIndex + labelIndex.
-			labelIndex := labelIndex + 1 ].
+	[
+	labelShape class = RSLabel or: labelShape class = RSLine ] whileTrue: [
+		index := canvasIndex + labelIndex.
+		labelShape := component children at: index.
+		labelIndex := labelIndex + 1 ].
 
 	"labelShape class = RSPolygon ifTrue: [ self halt ]."
 
@@ -419,7 +429,7 @@ MolComponentVisualizer >> initialize [
 	self buildComponents.
 
 	self createLinksBetweenInterfaces.
-	"self createInvisibleLinksBetweenInterfaces."
+	self createInvisibleLinksBetweenInterfaces.
 	"links need to be created first in order to know what to highlight next"
 	self highlightShapes.
 

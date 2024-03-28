@@ -403,7 +403,7 @@ MolComponentBuilder >> showComponent [
 
 	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show these shapes"
 	implementation ifNotNil: [
-			canvas @ RSCanvasController.
+		canvas @ RSCanvasController.
 		self generateMoleculeComponent.
 		"generateType was here if the order needs to be respected"
 		self generateName ].
@@ -421,8 +421,6 @@ MolComponentBuilder >> showComponent [
 	self generateProvidedParameters.
 	self generateProducedEvents.
 	self generateProvidedServices.
-
-	"self halt."
 
 	^ canvas
 ]
