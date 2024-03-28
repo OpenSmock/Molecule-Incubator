@@ -137,14 +137,14 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 MolComponentBuilder >> createInvisibleLinksBetween: labels and: interfaceShape [
 	"links every interface label to its interface shape"
 
-	self flag: 'doesn t work as intended'.
+	self flag: 'doesn t work as intended, unused'.
 
 	"self halt."
 	labels class = RSLabel
-		ifTrue: [ "if there's only one interface label"
-			"self addLineFrom: labels to: interfaceShape" ]
-		ifFalse: [ "as opposed to multiple"
-			"labels do: [ :label | self addLineFrom: label to: interfaceShape ]" ]
+		ifTrue: [ "if there's only one interface label""self addLineFrom: labels to: interfaceShape"
+			 ]
+		ifFalse: [ "as opposed to multiple""labels do: [ :label | self addLineFrom: label to: interfaceShape ]"
+			 ]
 ]
 
 { #category : #rendering }
@@ -242,7 +242,7 @@ MolComponentBuilder >> generateProducedEvents [
 		producedEventShape translateTo: 130 @ yEvent.
 		canvas add: producedEventShape.
 
-		self createInvisibleLinksBetween: labels and: producedEventShape.
+		"self createInvisibleLinksBetween: labels and: producedEventShape."
 		self addLineFromBoxTo: producedEventShape ]
 ]
 
@@ -265,7 +265,7 @@ MolComponentBuilder >> generateProvidedParameters [
 		providedParameterShape translateTo: 60 @ 130.
 		canvas add: providedParameterShape.
 
-		self createInvisibleLinksBetween: labels and: providedParameterShape.
+		"self createInvisibleLinksBetween: labels and: providedParameterShape."
 		self addLineFromBoxTo: providedParameterShape ]
 ]
 
@@ -288,7 +288,7 @@ MolComponentBuilder >> generateProvidedServices [
 		providedServiceShape translateTo: 130 @ yService.
 		canvas add: providedServiceShape.
 
-		self createInvisibleLinksBetween: labels and: providedServiceShape.
+		"self createInvisibleLinksBetween: labels and: providedServiceShape."
 		self addLineFromBoxTo: providedServiceShape ]
 ]
 
@@ -335,7 +335,7 @@ MolComponentBuilder >> generateUsedParameters [
 			                          createForkShape: usedParameterX
 			                          and: usedParameterY.
 
-		self createInvisibleLinksBetween: labels and: usedParameterUpperLine.
+		"self createInvisibleLinksBetween: labels and: usedParameterUpperLine."
 		"usedParameterUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
 		self addLineFromBoxTo: usedParameterUpperLine ]
 ]
@@ -344,28 +344,33 @@ MolComponentBuilder >> generateUsedParameters [
 MolComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
-	| usedServiceShape labels |
+	| usedServiceShape labels usedServiceBlElement usedServiceComposite |
 	labels := self
 		          showInterfaces: 'usedService'
 		          xValue: -200
 		          yValue: yService.
 
 	labels ifNotNil: [
+		self flag: 'shape'.
 		usedServiceShape := RSShapeFactory halfEmptyRightCircle
 			                    borderColor: Color black;
 			                    color: Color white;
 			                    extent: shapeExtent;
 			                    yourself.
 		usedServiceShape cornerRadii: 10.
-		self flag: 'shape'.
 		"usedServiceShape := ShapeIcon usedServiceIcon."
 		"usedServiceShape := Form fromBase64String:
 			                    ShapeIcon usedServiceIconEncoding."
 		usedServiceShape translateTo: -130 @ yService.
 		"usedServiceShape offset: -130 @ yService."
+		"usedServiceBlElement := (BlElement new layout: usedServiceShape)
+			                        asShape."
+		"usedServiceComposite := RSComposite new add: usedServiceShape." "shapes:"
 		canvas add: usedServiceShape.
+		"canvas add: usedServiceBlElement."
+		"canvas add: usedServiceComposite."
 
-		self createInvisibleLinksBetween: labels and: usedServiceShape.
+		"self createInvisibleLinksBetween: labels and: usedServiceShape."
 		self addLineFromBoxTo: usedServiceShape ]
 ]
 

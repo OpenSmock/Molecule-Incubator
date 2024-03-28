@@ -115,7 +115,8 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes and the interface labels"
 
 	| lineArray canvasCopy componentIndex componentCopyIndex lineArrayCopy lineArrayFinal canvasIndex requiredShape canvasCopyIndex offeredShape |
-	self flag: 'ne fonctionne pas complètement, ne pas highlight lignes reliant à interfaces?'.
+	self flag:
+		'ne fonctionne pas complètement, ne pas highlight lignes reliant à interfaces?'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 
@@ -152,6 +153,9 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 													                determineComponentShape:
 													                componentCopyIndex
 													                canvasIndex: canvasCopyIndex.
+												"offeredShape class
+												= RSShapeFactory halfEmptyRightCircle class ifTrue: [
+													self halt ]."
 
 												requiredShape class = offeredShape class ifFalse: [
 													lineArray add:
@@ -219,10 +223,14 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 										"used so that two shapes representing the same part of a component's contract from different components cannot be linked"
 										requiredShape class = offeredShape class ifFalse: [
 											lineArray add:
-												(self addLineFrom: requiredShape to: offeredShape) ] ] ] ] ].
+												(self addLineFrom: requiredShape to: offeredShape)
+											"lineArray add: (self addLineFrom: child to: requiredShape).
+											lineArray add: (self addLineFrom: child to: offeredShape).
+											lineArray add: (self addLineFrom: child2 to: requiredShape).
+											lineArray add: (self addLineFrom: child2 to: offeredShape)" ] ] ] ] ].
 						canvasCopyIndex := canvasCopyIndex + 1 ].
-					canvasCopyIndex := 0 ].
-				componentCopyIndex := 0 ] ].
+					canvasCopyIndex := 0 ] ].
+				componentCopyIndex := 0 ].
 		canvasIndex := 0 ].
 
 	"remove duplicate lines (lines with same start and end)"
@@ -250,7 +258,7 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 
 	labelShape := component children at: canvasIndex.
 	"need to account for the fact that multiple labels are created depending on the number of interfaces on a part of a component's contract"
-	labelIndex := 1.
+	labelIndex := 1. "0, aucun changement détecté"
 
 	[ labelShape class = RSLabel or: labelShape class = RSLine ]
 		whileTrue: [
@@ -411,7 +419,7 @@ MolComponentVisualizer >> initialize [
 	self buildComponents.
 
 	self createLinksBetweenInterfaces.
-	self createInvisibleLinksBetweenInterfaces.
+	"self createInvisibleLinksBetweenInterfaces."
 	"links need to be created first in order to know what to highlight next"
 	self highlightShapes.
 
