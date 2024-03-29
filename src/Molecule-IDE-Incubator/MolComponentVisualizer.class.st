@@ -115,8 +115,11 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes and the interface labels"
 
 	| lineArray canvasCopy componentIndex componentCopyIndex lineArrayCopy lineArrayFinal canvasIndex requiredShape canvasCopyIndex offeredShape |
-	self flag: 'toujours trop de liens'.
+	self flag:
+		'toujours trop de liens, rien n est enelvé de lineArrayFinal'.
 	lineArray := OrderedCollection new.
+	"voir https://discord.com/channels/223421264751099906/305208145020715019/954505784467816508"
+	"lineArray := IdentitySet new."
 	canvasCopy := canvas.
 
 	"component indexes are used to know which component is being selected"
@@ -170,16 +173,21 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 		canvasIndex := 0 ].
 
 	"remove duplicate lines (lines with same start and end)"
-	lineArrayCopy := lineArray.
-	lineArrayFinal := lineArray.
+	lineArrayCopy := lineArray postCopy.
+	lineArrayFinal := lineArray postCopy.
 	lineArray do: [ :l |
 		lineArrayCopy do: [ :l2 |
-			l ifNotNil: [
-				l2 ifNotNil: [
-					(l from = l2 from and: l to = l2 to) ifTrue: [
-						(lineArray indexOf: l) = 0 ifFalse: [ lineArrayFinal remove: l ] ] ] ] ] ].
+			(l isNil or: l2 isNil) ifFalse: [
+				l = l2 ifFalse: [
+					(l from = l2 from and: l to = l2 to) ifTrue: [ "((lineArrayFinal indexOf: l) = 0 and:
+							 (lineArrayFinal indexOf: l2) = 0)
+							ifFalse: [""ifTrue: [""""lineArrayFinal remove: l2""] ]"
+						lineArrayFinal remove: l2
+						"lineArrayFinal remove: l" ] ] ] ] ].
 
-	lineArrayFinal do: [ :l | canvas add: l ]
+	lineArrayFinal do: [ :l | canvas add: l ].
+	"lineArray do: [ :l | canvas add: l ]."
+	"self halt"
 ]
 
 { #category : #initialization }
@@ -281,11 +289,11 @@ MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 
 { #category : #initialization }
 MolComponentVisualizer >> highlightComponent [
-	"hovering over a component (its main RSBox) shows every line that connects it to another component's interface shapes"
+	"hovering over a component (its main RSBox) highlight every interface shape and labels it has as well as showing every line that connects it to another component's interface shapes and labels"
 
 	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine |
 	self flag:
-		'comment, to finish, highlight seulement rscomposite, besoin d unhighlight'.
+		'doesnt work, highlight seulement rscomposite, besoin d unhighlight'.
 
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
@@ -307,17 +315,16 @@ MolComponentVisualizer >> highlightComponent [
 				shape class = RSLine ifFalse: [
 					shape @ highlightableShape.
 					shape @ highlightableLine ] ] ].""highlightableLabel outgoingLines.""component @ highlightableLabel"
-		highlightableLabel highlightShapes: [ :box |
-			component children do: [ :shape |
-				(shape class = RSLine or:
-					 (shape class = RSCircle or: shape class = RSLabel)) ifFalse: [
-					shape @ highlightableShape.
-					shape @ highlightableLine ] ] ].
-
 		component children do: [ :child | "component children do: [ :child |
-			child class = RSLine ifFalse: [" "and:
-				 (nextElement class = RSLine or: secondNextElement class = RSLine))" "child connectedLines isEmpty ifFalse: [" "if the component is connected through another by its hovered on interface shape""child @ highlightableLabel" "] ] ]"
-			child class = RSBox ifTrue: [ child @ highlightableLabel ] ] ]
+			child class = RSLine ifFalse: [""and:
+				 (nextElement class = RSLine or: secondNextElement class = RSLine))""child connectedLines isEmpty ifFalse: [""if the component is connected through another by its hovered on interface shape""child @ highlightableLabel""] ] ]"
+			(child class = RSBox and: child extent = (200 @ 200)) ifTrue: [
+				child @ highlightableLabel ] ].
+
+		"highlightableLabel highlightShapes: [ :box | component children do: [ :shape |
+				(shape class = RSLine or: shape class = RSCircle) ifFalse: [ 
+					shape @ highlightableShape.
+					shape @ highlightableLine ] ] ]" ]
 ]
 
 { #category : #initialization }
@@ -481,7 +488,7 @@ MolComponentVisualizer >> initialize [
 	self flag: 'remettre un highlightComponent, order après matter?'.
 
 	self highlightShapeShowsLink.
-	"self highlightComponent."
+	self highlightComponent.
 	"self highlightComponentShowsLinks."
 	self clickingComponentShowsInspector
 ]

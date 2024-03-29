@@ -3,7 +3,7 @@ Extension { #name : #RSShapeFactory }
 { #category : #'*Molecule-IDE-Incubator' }
 RSShapeFactory class >> fork [
 
-	self flag: 'to finish'.
+	self flag: 'unused'.
 	^ Fork new "self forkWithPoints: {
 			  (-1 @ 0).
 			  (0 @ 0).
@@ -13,6 +13,7 @@ RSShapeFactory class >> fork [
 { #category : #'*Molecule-IDE-Incubator' }
 RSShapeFactory class >> forkWithPoints: points [
 	"make it so that its superclass isn't RSPolygon and thus can create the shape to be compared to other interface shapes"
+	self flag: 'unused'.
 
 	^ Fork new
 		  privatePoints: points;
@@ -22,25 +23,43 @@ RSShapeFactory class >> forkWithPoints: points [
 { #category : #'*Molecule-IDE-Incubator' }
 RSShapeFactory class >> halfEmptyRightCircle [
 
+	| mValue |
+	mValue := 100.
+
 	^ self polygonWithPoints: {
-			  (-2 @ 2).
+			  (-2 * mValue @ (2 * mValue)).
+			  (-2 * mValue @ (1.5 * mValue)).
+			  (-1 @ 1).
+			  (-2 * mValue @ (0.5 * mValue)).
+			  (-2 * mValue @ 0).
+			  (0 @ 1) }
+	"(-2 @ 2).
 			  (-2 @ 1.5).
 			  (-1 @ 1).
 			  (-2 @ 0.5).
 			  (-2 @ 0).
-			  (0 @ 1) }
+			  (0 @ 1)"
 ]
 
 { #category : #'*Molecule-IDE-Incubator' }
 RSShapeFactory class >> rightArrow [
 
+	| mValue |
+	mValue := 100.
+
 	^ self rightArrowWithPoints: {
-			  (-2 @ 2).
+			  (-2 * mValue @ (2 * mValue)).
+			  (-2 * mValue @ 1).
+			  (-1.5 * mValue @ 0).
+			  (-2 * mValue @ -1).
+			  (-2 * mValue @ (-2 * mValue)).
+			  (-1 @ 0)
+			  "(-2 @ 2).
 			  (-2 @ 1).
 			  (-1.5 @ 0).
 			  (-2 @ -1).
 			  (-2 @ -2).
-			  (0 @ 0) } "self polygonWithPoints: {
+			  (0 @ 0)" } "self polygonWithPoints: {
 			  (-2 @ 2).
 			  (-2 @ 1.5).
 			  (-1.5 @ 1).
