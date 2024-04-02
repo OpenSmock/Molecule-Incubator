@@ -176,7 +176,7 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 							canvasCopyIndex := 0 ] ] ].
 				componentCopyIndex := 0 ] ].
 		canvasIndex := 0 ].
-
+	
 	self removeDuplicateLines: lineArray
 ]
 
@@ -386,14 +386,8 @@ MolComponentVisualizer >> initialize [
 
 	self highlightShapeShowsLink.
 	self highlightComponent.
-	
-	self clickingComponentShowsInspector
-]
 
-{ #category : #initialization }
-MolComponentVisualizer >> removeDuplicateLines [
-	"removes duplicate lines (lines with same start and end)"
-	
+	self clickingComponentShowsInspector
 ]
 
 { #category : #initialization }
@@ -401,16 +395,17 @@ MolComponentVisualizer >> removeDuplicateLines: lineArray [
 	"removes duplicate lines (lines with same start and end)"
 
 	| lineArrayCopy lineArrayFinal |
-	lineArrayCopy := lineArray.
-	lineArrayFinal := lineArray.
+	"copies the memory reference (and not the values) without the copy message"
+	lineArrayCopy := lineArray copy.
+	lineArrayFinal := lineArray copy.
+
 	lineArray do: [ :l |
 		lineArrayCopy do: [ :l2 |
 			(l isNil or: l2 isNil) ifFalse: [
-				(l from = l2 from and: l to = l2 to) ifTrue: [
-					lineArrayFinal remove: l2 ] ] ] ].
-
-	lineArrayFinal do: [ :l | "lineArray do: [ :l | canvas add: l ]"
-		canvas add: l ]
+				l = l2 ifFalse: [
+					(l from = l2 from and:
+						 (l to = l2 to and: (lineArrayFinal includes: l2))) ifTrue: [
+						lineArrayFinal remove: l2 ] ] ] ] ]
 ]
 
 { #category : #initialization }
