@@ -21,7 +21,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #SpFilteringListDoubleClickPresenter,
+	#name : #MolSpFilteringListDoubleClickPresenter,
 	#superclass : #SpFilteringListPresenter,
 	#classVars : [
 		'package'
@@ -30,14 +30,14 @@ Class {
 }
 
 { #category : #simulation }
-SpFilteringListDoubleClickPresenter >> connectPresenters [
+MolSpFilteringListDoubleClickPresenter >> connectPresenters [
 
 	super connectPresenters.
 	self doubleClickActivated
 ]
 
 { #category : #simulation }
-SpFilteringListDoubleClickPresenter >> doubleClickActivated [
+MolSpFilteringListDoubleClickPresenter >> doubleClickActivated [
 	"activates the Browse functionality by double-clicking an element"
 
 	| item molComponent size |
@@ -55,7 +55,7 @@ SpFilteringListDoubleClickPresenter >> doubleClickActivated [
 ]
 
 { #category : #simulation }
-SpFilteringListDoubleClickPresenter >> initializePresenters [
+MolSpFilteringListDoubleClickPresenter >> initializePresenters [
 	"changes the original 'Filter...' placeholder text to 'Hit return to accept'"
 
 	super initializePresenters.
@@ -63,7 +63,7 @@ SpFilteringListDoubleClickPresenter >> initializePresenters [
 ]
 
 { #category : #'as yet unclassified' }
-SpFilteringListDoubleClickPresenter >> package: p [
+MolSpFilteringListDoubleClickPresenter >> package: p [
 	"stocks the package in order to double-click a Tag"
 
 package := p

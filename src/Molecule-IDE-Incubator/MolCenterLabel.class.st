@@ -1,7 +1,7 @@
 "
 Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
 
-For the Class part: see class side for how to create a right arrow.
+For the Class part:  I am a subclass of RSLabel used for the labels at the center of each component (its implementation class + what name it was stared with if there is one). I am used to still show these labels even when a component is hovered on (so that they aren't highlighted)
 
 For the Responsibility part: Three sentences about my main responsibilities - what I do, what I know.
 
@@ -21,7 +21,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #RightArrowShape,
-	#superclass : #RSPolygon,
+	#name : #MolCenterLabel,
+	#superclass : #RSLabel,
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }

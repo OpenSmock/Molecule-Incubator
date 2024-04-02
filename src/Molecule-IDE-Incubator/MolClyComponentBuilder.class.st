@@ -24,7 +24,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #ClyComponentBuilder,
+	#name : #MolClyComponentBuilder,
 	#superclass : #ClyBrowserToolMorph,
 	#instVars : [
 		'implementation'
@@ -33,7 +33,7 @@ Class {
 }
 
 { #category : #activation }
-ClyComponentBuilder class >> browserTabActivation [
+MolClyComponentBuilder class >> browserTabActivation [
 	"This declaration specifies that in any browser when a Type is selected, a ComponentBuilder window will be visible in a tab"
 
 	<classAnnotation>
@@ -42,7 +42,7 @@ ClyComponentBuilder class >> browserTabActivation [
 ]
 
 { #category : #testing }
-ClyComponentBuilder class >> shouldBeActivatedInContext: aBrowserContext [
+MolClyComponentBuilder class >> shouldBeActivatedInContext: aBrowserContext [
 	"is only shown for Molecule components, not their Types"
 
 	^ aBrowserContext isClassSelected and: [
@@ -50,18 +50,18 @@ ClyComponentBuilder class >> shouldBeActivatedInContext: aBrowserContext [
 ]
 
 { #category : #accessing }
-ClyComponentBuilder class >> tabOrder [
+MolClyComponentBuilder class >> tabOrder [
 	^ ClyClassDefinitionEditorToolMorph tabOrder + 1
 ]
 
 { #category : #testing }
-ClyComponentBuilder >> activationPriority [
+MolClyComponentBuilder >> activationPriority [
 
 	^ -300
 ]
 
 { #category : #testing }
-ClyComponentBuilder >> build [
+MolClyComponentBuilder >> build [
 
 	| componentBuilder canvas |
 	"see class side for shouldBeActivatedInContext: , which is the method that determines for which selected Pharo element in the System Browser the option should be displayed"
@@ -76,26 +76,26 @@ ClyComponentBuilder >> build [
 ]
 
 { #category : #initialization }
-ClyComponentBuilder >> defaultIconName [
+MolClyComponentBuilder >> defaultIconName [
 
 	^ #smallItalic
 ]
 
 { #category : #initialization }
-ClyComponentBuilder >> defaultTitle [
+MolClyComponentBuilder >> defaultTitle [
 
 	^ 'ComponentBuilder'
 ]
 
 { #category : #testing }
-ClyComponentBuilder >> isSimilarTo: anotherBrowserTool [
+MolClyComponentBuilder >> isSimilarTo: anotherBrowserTool [
 
 	(super isSimilarTo: anotherBrowserTool) ifFalse: [ ^ false ].
 	^ implementation = anotherBrowserTool type
 ]
 
 { #category : #testing }
-ClyComponentBuilder >> isValidInContext: aClyFullBrowserContext [
+MolClyComponentBuilder >> isValidInContext: aClyFullBrowserContext [
 
 	self context class = aClyFullBrowserContext class ifFalse: [ ^ false ].
 
@@ -107,7 +107,7 @@ ClyComponentBuilder >> isValidInContext: aClyFullBrowserContext [
 ]
 
 { #category : #initialization }
-ClyComponentBuilder >> setUpModelFromContext [
+MolClyComponentBuilder >> setUpModelFromContext [
 
 	implementation := context lastSelectedClass
 ]

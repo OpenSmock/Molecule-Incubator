@@ -188,17 +188,33 @@ MolComponentBuilder >> generateMoleculeBox [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> generateMoleculeComponent [
-	"generates the central box which represents the Molecule component as well as showing the name of the component"
+MolComponentBuilder >> generateMoleculeBox: numberedComponent [
+	"generates the central box which represents the Molecule component"
+
+	self flag: 'fonctionne?'.
+
+	box := MolBoxComponent new
+		       extent: 200 @ 200;
+		       borderColor: Color black;
+		       color: Color white;
+		       yourself.
+	box cornerRadius: 10.
+	box translateTo: 0 @ 0.
+	box componentNumber: numberedComponent.
+
+	canvas addShape: box
+]
+
+{ #category : #rendering }
+MolComponentBuilder >> generateMoleculeComponentName [
+	"generates the name of the component"
 
 	| component |
-	self generateMoleculeBox.
-
-	component := RSLabel new
+	component := MolCenterLabel new
 		             text: implementation;
 		             yourself.
 	component translateTo: 0 @ 0.
-	
+
 	canvas addShape: component
 ]
 
@@ -207,7 +223,6 @@ MolComponentBuilder >> generateName [
 	"generates the name of the component if it has been started with one (default not being shown), corresponds to the key of the Inspect running Components option"
 
 	| nameLabel name |
-
 	"can't get the name through the component directly so MolComponentManager is used here"
 	MolComponentManager default homeServices deployedComponents
 		keysAndValuesDo: [ :key :value |
@@ -216,7 +231,7 @@ MolComponentBuilder >> generateName [
 					keyName = 'default' ifFalse: [ name := keyName ] ] ] ].
 
 	name ifNotNil: [
-		nameLabel := RSLabel new
+		nameLabel := MolCenterLabel new
 			             text: name;
 			             yourself.
 		nameLabel translateTo: 0 @ 50.
@@ -405,7 +420,47 @@ MolComponentBuilder >> showComponent [
 	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show these shapes"
 	implementation ifNotNil: [
 		canvas @ RSCanvasController.
-		self generateMoleculeComponent.
+
+		self generateMoleculeBox.
+		self generateMoleculeComponentName.
+		"generateType was here if the order needs to be respected"
+		self generateName ].
+
+	implementation ifNil: [ self generateMoleculeBox ].
+
+	self generateType.
+
+	"required part of the component"
+	self generateUsedServices.
+	self generateConsumedEvents.
+	self generateUsedParameters.
+
+	"offered part of the component"
+	self generateProvidedParameters.
+	self generateProducedEvents.
+	self generateProvidedServices.
+
+	^ canvas
+]
+
+{ #category : #rendering }
+MolComponentBuilder >> showComponent: numberedComponent [
+
+	self flag: 'fonctionne?'.
+
+	shapeExtent := 30 @ 30.
+
+	canvas := RSCanvas new.
+	canvas zoomToFit.
+
+	self initializeRelativeCoordinates.
+
+	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show these shapes"
+	implementation ifNotNil: [
+		canvas @ RSCanvasController.
+
+		self generateMoleculeBox: numberedComponent.
+		self generateMoleculeComponentName.
 		"generateType was here if the order needs to be respected"
 		self generateName ].
 

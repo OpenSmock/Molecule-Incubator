@@ -4,7 +4,7 @@ Extension { #name : #RSShapeFactory }
 RSShapeFactory class >> fork [
 
 	self flag: 'unused'.
-	^ Fork new "self forkWithPoints: {
+	^ MolFork new "self forkWithPoints: {
 			  (-1 @ 0).
 			  (0 @ 0).
 			  (1 @ 0.1) }"
@@ -15,7 +15,7 @@ RSShapeFactory class >> forkWithPoints: points [
 	"make it so that its superclass isn't RSPolygon and thus can create the shape to be compared to other interface shapes"
 	self flag: 'unused'.
 
-	^ Fork new
+	^ MolFork new
 		  privatePoints: points;
 		  yourself
 ]
@@ -72,7 +72,7 @@ RSShapeFactory class >> rightArrow [
 RSShapeFactory class >> rightArrowWithPoints: points [
 	"make it so that its superclass isn't RSPolygon and thus can create the shape to be compared to other interface shapes"
 
-	^ RightArrowShape new
+	^ MolRightArrowShape new
 		  privatePoints: points;
 		  yourself
 ]

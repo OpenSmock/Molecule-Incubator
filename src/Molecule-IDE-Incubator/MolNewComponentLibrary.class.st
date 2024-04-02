@@ -144,14 +144,14 @@ MolNewComponentLibrary >> initializePresenters [
 
 	self initializePresentersMolOptions.
 
-	packageList := SpFilteringListDoubleClickPresenter new.
+	packageList := MolSpFilteringListDoubleClickPresenter new.
 	packageList listPresenter
 		display: [ :pack | pack name ];
 		displayIcon: [ self iconNamed: #package ];
 		sortingBlock: [ :a :b | a name < b name ];
 		items: RPackageOrganizer default packages.
 
-	tagList := SpFilteringListDoubleClickPresenter new.
+	tagList := MolSpFilteringListDoubleClickPresenter new.
 	tagList listPresenter
 		display: [ :t | t name ];
 		displayIcon: [ self iconNamed: #tag ];

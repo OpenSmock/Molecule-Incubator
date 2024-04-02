@@ -21,7 +21,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #ShapeIcon,
+	#name : #MolShapeIcon,
 	#superclass : #Object,
 	#instVars : [
 		'icons'
@@ -33,7 +33,7 @@ Class {
 }
 
 { #category : #accessing }
-ShapeIcon class >> icons [
+MolShapeIcon class >> icons [
 
 	<script: 'self icons inspect'>
 	icons ifNil: [ icons := Dictionary new ].
@@ -41,7 +41,7 @@ ShapeIcon class >> icons [
 ]
 
 { #category : #accessing }
-ShapeIcon class >> usedServiceIcon [
+MolShapeIcon class >> usedServiceIcon [
 
 	<script: 'self usedServiceIcon inspect'>
 	self flag: 'utile?'.
@@ -51,7 +51,7 @@ ShapeIcon class >> usedServiceIcon [
 ]
 
 { #category : #accessing }
-ShapeIcon class >> usedServiceIconEncoding [
+MolShapeIcon class >> usedServiceIconEncoding [
 
 	^ 'iVBORw0KGgoAAAANSUhEUgAAACUAAABECAYAAAAGNvz8AAAAAXNSR0IArs4c6QAACTVJREFU
 aEPt2WtQU9kdAPBzAeMS8EGVh8Tw3LQ8RmTppGBQXMNDRCKGsigwuI4gCKzijEgNyissjypM
