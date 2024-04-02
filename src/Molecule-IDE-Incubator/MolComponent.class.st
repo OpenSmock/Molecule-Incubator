@@ -133,7 +133,7 @@ MolComponent >> componentRepresentationTab [
 	componentBuilderPresenter := SpRoassalPresenter new.
 	componentBuilder := MolComponentBuilder new.
 	componentBuilder type: typeName asClass.
-	shape := componentBuilder showComponent asShape.
+	shape := (componentBuilder showComponent: nil) asShape.
 
 	componentBuilder canvas add: shape.
 	componentBuilderPresenter canvas: componentBuilder canvas.

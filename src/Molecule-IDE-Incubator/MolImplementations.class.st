@@ -62,7 +62,7 @@ MolImplementations >> connectPresenters [
 			componentBuilder implementation: implementationList selectedItem.
 			"adds the component visualization and zooms on it"
 			componentBuilderPresenter script: [ :view |
-				shape := componentBuilder showComponent asShape.
+				shape := (componentBuilder showComponent: nil) asShape.
 				"if the Roassal header and its buttons ever come back in See Component Implementations put this"
 				"rs := RSCanvas new.
 				rs addShape: shape.

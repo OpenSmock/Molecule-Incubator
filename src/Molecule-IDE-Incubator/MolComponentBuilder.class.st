@@ -158,21 +158,6 @@ MolComponentBuilder >> generateConsumedEvents [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> generateMoleculeBox [
-	"generates the central box which represents the Molecule component"
-
-	box := RSBox new
-		       extent: 200 @ 200;
-		       borderColor: Color black;
-		       color: Color white;
-		       yourself.
-	box cornerRadius: 10.
-	box translateTo: 0 @ 0.
-
-	canvas addShape: box
-]
-
-{ #category : #rendering }
 MolComponentBuilder >> generateMoleculeBox: numberedComponent [
 	"generates the central box which represents the Molecule component and stocks in it the index of the component in the canvas"
 
@@ -183,7 +168,9 @@ MolComponentBuilder >> generateMoleculeBox: numberedComponent [
 		       yourself.
 	box cornerRadius: 10.
 	box translateTo: 0 @ 0.
-	box componentNumber: numberedComponent.
+	
+	numberedComponent ifNotNil: [ 
+	box componentNumber: numberedComponent ].
 
 	canvas addShape: box
 ]
@@ -391,43 +378,6 @@ MolComponentBuilder >> initializeRelativeCoordinates [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> showComponent [
-	"method used for every visualization that isn't Visualize running Components"
-
-	shapeExtent := 30 @ 30.
-
-	canvas := RSCanvas new.
-	canvas zoomToFit.
-
-	self initializeRelativeCoordinates.
-
-	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show these shapes"
-	implementation ifNotNil: [
-		canvas @ RSCanvasController.
-
-		self generateMoleculeBox.
-		self generateMoleculeComponentName.
-		"generateType was here if the order needs to be respected"
-		self generateName ].
-
-	implementation ifNil: [ self generateMoleculeBox ].
-
-	self generateType.
-
-	"required part of the component"
-	self generateUsedServices.
-	self generateConsumedEvents.
-	self generateUsedParameters.
-
-	"offered part of the component"
-	self generateProvidedParameters.
-	self generateProducedEvents.
-	self generateProvidedServices.
-
-	^ canvas
-]
-
-{ #category : #rendering }
 MolComponentBuilder >> showComponent: numberedComponent [
 	"method used for Visualize running Components, every main component box needs to know the index of its component in order to highlight every interface shape and label as well as the lines that connect it to other components"
 
@@ -447,7 +397,7 @@ MolComponentBuilder >> showComponent: numberedComponent [
 		"generateType was here if the order needs to be respected"
 		self generateName ].
 
-	implementation ifNil: [ self generateMoleculeBox ].
+	implementation ifNil: [ self generateMoleculeBox: nil ].
 
 	self generateType.
 
@@ -471,7 +421,7 @@ MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: 
 	| interfaces label yLabel labels |
 	self flag: 'texte centré donc fait bizarre sur plusieurs lignes'.
 	"don't show a component if the selected element isn't one (Object superclass...)"
-	type isComponentType ifFalse: [ ^ nil "''" ].
+	type isComponentType ifFalse: [ ^ nil ].
 
 	anInterfaceString = 'consumedEvent' ifTrue: [
 		interfaces := type allConsumedEvents ].
@@ -504,7 +454,7 @@ MolComponentBuilder >> showInterfaces: anInterfaceString xValue: xValue yValue: 
 		canvas add: label.
 		^ label ].
 
-			labels := OrderedCollection new.
+	labels := OrderedCollection new.
 	"used to position multiple labels when multiple interfaces need to be shown"
 	yLabel := 0.
 	interfaces do: [ :interface |

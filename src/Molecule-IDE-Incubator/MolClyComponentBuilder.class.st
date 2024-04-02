@@ -71,7 +71,7 @@ MolClyComponentBuilder >> build [
 	componentBuilder implementation: implementation.
 	"showComponent returns a RSCanvas"
 	self
-		addMorph: componentBuilder showComponent open
+		addMorph: ((componentBuilder showComponent: nil) open)
 		fullFrame: LayoutFrame identity
 ]
 
