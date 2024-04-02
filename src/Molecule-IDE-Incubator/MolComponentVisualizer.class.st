@@ -297,12 +297,12 @@ MolComponentVisualizer >> highlightComponent [
 						c children do: [ :shape | "adds the shapes that need to be highlighted"
 							(shape class = RSLine or:
 								 (shape class = RSCircle or: shape class = MolCenterLabel))
-								ifFalse: [
-									list add: shape.
-									"adds the lines connecting the components"
+								ifFalse: [ "adds the lines connecting the components"
 									lines := shape connectedLines.
+									"only highlights the shapes connected to other components as well as the main box"
+									lines isEmpty ifFalse: [ list add: shape. list add: box ].
 									list addAll: lines.
-									"highlights the shapes ans labels from other components connected to the component"
+									"highlights the shapes and labels from other components connected to the component"
 									lines do: [ :line | list add: line to ] ] ].
 
 						group addAll: list.
