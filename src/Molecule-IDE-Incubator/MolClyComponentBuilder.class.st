@@ -43,8 +43,10 @@ MolClyComponentBuilder class >> browserTabActivation [
 
 { #category : #testing }
 MolClyComponentBuilder class >> shouldBeActivatedInContext: aBrowserContext [
-	"is only shown for Molecule components"
-	aBrowserContext lastSelectedClass isTrait ifTrue: [ ^ aBrowserContext lastSelectedClass isComponentType ].
+	"is only shown for Molecule components, Types included"
+
+	aBrowserContext lastSelectedClass isTrait ifTrue: [
+		^ aBrowserContext lastSelectedClass isComponentType ].
 
 	^ aBrowserContext isClassSelected and: [
 		  aBrowserContext lastSelectedClass inheritsFrom:

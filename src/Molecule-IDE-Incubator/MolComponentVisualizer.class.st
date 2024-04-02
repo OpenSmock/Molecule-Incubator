@@ -108,11 +108,10 @@ MolComponentVisualizer >> clickingComponentShowsInspector [
 
 	canvasCompositeShapes do: [ :composite |
 		composite children do: [ :shape | "(shape class = RSBox and: shape extent = (200 @ 200)) ifTrue:""("
-			shape when: RSMouseUp do: [ :evt |
-				(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
-					ifTrue: [ "2nd shape of a RSComposite is always a RSlabel with the name of the component"
+			shape when: RSMouseDoubleClick do: [ :evt |
+"2nd shape of a RSComposite is always a RSlabel with the name of the component"
 						(MolComponentManager default homeServices deployedComponents
-							 at: (composite children at: 2) text asClass) inspect ] ] ] ]
+							 at: (composite children at: 2) text asClass) inspect ] ] ]
 ]
 
 { #category : #initialization }
