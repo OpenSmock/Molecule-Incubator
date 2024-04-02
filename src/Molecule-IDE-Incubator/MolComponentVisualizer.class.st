@@ -297,8 +297,7 @@ MolComponentVisualizer >> highlightComponent [
 	"hovering over a component (its main RSBox) highlights every interface shape and label it has as well as showing every line that connects it to another component's interface shapes and labels"
 
 	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c list group |
-	self flag:
-		'trop de lines'.
+	self flag: 'ajoute toutes les lignes au lieu des pertinentes'.
 
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
@@ -391,7 +390,6 @@ MolComponentVisualizer >> highlightShapes [
 { #category : #initialization }
 MolComponentVisualizer >> ifInterfaceShape: shape [
 	"answers a boolean depending on if the selected shape is an interface shape or something else entirely"
-	self flag: 'MolBoxComponent'.
 
 	^ shape class = MolBoxComponent or:
 		  (shape class = RSLabel or: (shape class = MolRightArrowShape or:
@@ -413,16 +411,13 @@ MolComponentVisualizer >> initialize [
 	self buildComponents.
 
 	self createLinksBetweenInterfaces.
-	"self highlightComponentTest."
 	self createInvisibleLinksBetweenInterfaces.
 	"links need to be created first in order to know what to highlight next"
 	self highlightShapes.
 
-	self flag: 'remettre un highlightComponent, order après matter?'.
-
 	self highlightShapeShowsLink.
 	self highlightComponent.
-	"self highlightComponentShowsLinks."
+	
 	self clickingComponentShowsInspector
 ]
 

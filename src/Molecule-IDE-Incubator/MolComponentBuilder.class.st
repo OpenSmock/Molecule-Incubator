@@ -134,20 +134,6 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> createInvisibleLinksBetween: labels and: interfaceShape [
-	"links every interface label to its interface shape"
-
-	self flag: 'doesn t work as intended, unused'.
-
-	"self halt."
-	labels class = RSLabel
-		ifTrue: [ "if there's only one interface label""self addLineFrom: labels to: interfaceShape"
-			 ]
-		ifFalse: [ "as opposed to multiple""labels do: [ :label | self addLineFrom: label to: interfaceShape ]"
-			 ]
-]
-
-{ #category : #rendering }
 MolComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
@@ -167,14 +153,13 @@ MolComponentBuilder >> generateConsumedEvents [
 		consumedEventShape translateTo: -110 @ yEvent - 20.
 		canvas add: consumedEventShape.
 
-		self createInvisibleLinksBetween: labels and: consumedEventShape.
+		"self createInvisibleLinksBetween: labels and: consumedEventShape."
 		self addLineFromBoxTo: consumedEventShape ]
 ]
 
 { #category : #rendering }
 MolComponentBuilder >> generateMoleculeBox [
 	"generates the central box which represents the Molecule component"
-	self flag: 'subclass RSBox pour incrémenter un component index (voir highlightComponent)'.
 
 	box := RSBox new
 		       extent: 200 @ 200;
@@ -189,9 +174,7 @@ MolComponentBuilder >> generateMoleculeBox [
 
 { #category : #rendering }
 MolComponentBuilder >> generateMoleculeBox: numberedComponent [
-	"generates the central box which represents the Molecule component"
-
-	self flag: 'fonctionne?'.
+	"generates the central box which represents the Molecule component and stocks in it the index of the component in the canvas"
 
 	box := MolBoxComponent new
 		       extent: 200 @ 200;
@@ -445,8 +428,6 @@ MolComponentBuilder >> showComponent [
 
 { #category : #rendering }
 MolComponentBuilder >> showComponent: numberedComponent [
-
-	self flag: 'fonctionne?'.
 
 	shapeExtent := 30 @ 30.
 
