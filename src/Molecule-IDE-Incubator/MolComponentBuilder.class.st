@@ -304,15 +304,15 @@ MolComponentBuilder >> generateType [
 		       yourself.
 	dot translateTo: 0 @ yType.
 
-	typeLabel := RSLabel new
+	typeLabel := MolCenterLabel new
 		             text: type asString;
 		             yourself.
 	typeLabel translateTo: 100 @ yType.
 
 	canvas addShape: dot.
 	canvas addShape: typeLabel.
-	
-	self addLineFromBoxTo: dot.
+
+	self addLineFromBoxTo: dot
 ]
 
 { #category : #rendering }
@@ -392,6 +392,7 @@ MolComponentBuilder >> initializeRelativeCoordinates [
 
 { #category : #rendering }
 MolComponentBuilder >> showComponent [
+	"method used for every visualization that isn't Visualize running Components"
 
 	shapeExtent := 30 @ 30.
 
@@ -428,6 +429,7 @@ MolComponentBuilder >> showComponent [
 
 { #category : #rendering }
 MolComponentBuilder >> showComponent: numberedComponent [
+	"method used for Visualize running Components, every main component box needs to know the index of its component in order to highlight every interface shape and label as well as the lines that connect it to other components"
 
 	shapeExtent := 30 @ 30.
 

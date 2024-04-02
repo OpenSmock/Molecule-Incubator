@@ -296,9 +296,7 @@ MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 MolComponentVisualizer >> highlightComponent [
 	"hovering over a component (its main RSBox) highlights every interface shape and label it has as well as showing every line that connects it to another component's interface shapes and labels"
 
-	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c list group |
-	self flag: 'ajoute toutes les lignes au lieu des pertinentes'.
-
+	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c list group lines |
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
 
@@ -326,11 +324,17 @@ MolComponentVisualizer >> highlightComponent [
 
 						c := canvas shapes at: box componentNumber.
 						c children do: [ :shape | "adds the shapes that need to be highlighted"
-							(shape class = RSCircle or: shape class = MolCenterLabel)
-								ifFalse: [ list add: shape ].
-							canvas shapes do: [ :s | "adds the lines connecting the components"
-								s class = RSComposite ifFalse: [ list add: s ] ].
-							group addAll: list ].
+							(shape class = RSLine or:
+								 (shape class = RSCircle or: shape class = MolCenterLabel))
+								ifFalse: [
+									list add: shape.
+									"adds the lines connecting the components"
+									lines := shape connectedLines.
+									list addAll: lines.
+									"highlights the shapes ans labels from other components connected to the component"
+									lines do: [ :line | list add: line to ] ] ].
+
+						group addAll: list.
 						group ].
 
 					child @ highlightableLabel ] ] ]
@@ -385,16 +389,6 @@ MolComponentVisualizer >> highlightShapes [
 				child connectedLines isEmpty ifFalse: [ "if the component is connected through another by its hovered on interface shape"
 					child @ highlightableLine.
 					child @ highlightableShape ] ] ] ]
-]
-
-{ #category : #initialization }
-MolComponentVisualizer >> ifInterfaceShape: shape [
-	"answers a boolean depending on if the selected shape is an interface shape or something else entirely"
-
-	^ shape class = MolBoxComponent or:
-		  (shape class = RSLabel or: (shape class = MolRightArrowShape or:
-				    (shape class = MolFork or: (shape class = RSBox or:
-						      (shape class = RSPolygon or: shape class = RSEllipse)))))
 ]
 
 { #category : #initialization }
