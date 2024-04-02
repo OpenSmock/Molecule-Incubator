@@ -120,8 +120,6 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes and the interface labels"
 
 	| lineArray canvasCopy componentIndex componentCopyIndex canvasIndex requiredShape canvasCopyIndex offeredShape |
-	self flag:
-		'toujours trop de liens, rien n est enelvé de lineArrayFinal'.
 	lineArray := OrderedCollection new.
 	"voir https://discord.com/channels/223421264751099906/305208145020715019/954505784467816508"
 	"lineArray := IdentitySet new."
@@ -176,7 +174,7 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 							canvasCopyIndex := 0 ] ] ].
 				componentCopyIndex := 0 ] ].
 		canvasIndex := 0 ].
-	
+
 	self removeDuplicateLines: lineArray
 ]
 
@@ -185,7 +183,6 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
 	| offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex componentIndex componentCopyIndex |
-	self flag: 'trop ou pas assez de lignes'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 
@@ -405,7 +402,10 @@ MolComponentVisualizer >> removeDuplicateLines: lineArray [
 				l = l2 ifFalse: [
 					(l from = l2 from and:
 						 (l to = l2 to and: (lineArrayFinal includes: l2))) ifTrue: [
-						lineArrayFinal remove: l2 ] ] ] ] ]
+						lineArrayFinal remove: l2 ] ] ] ] ].
+
+	lineArrayFinal do: [ :l |
+		canvas add: l ]
 ]
 
 { #category : #initialization }
