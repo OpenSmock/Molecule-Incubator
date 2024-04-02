@@ -293,7 +293,7 @@ MolComponentVisualizer >> highlightComponent [
 
 	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine |
 	self flag:
-		'doesnt work, highlight seulement rscomposite, besoin d unhighlight'.
+		'doesnt work, highlight seulement rscomposite, besoin d unhighlight, comment retrouver composant depuis rsbox, avec subclass?'.
 
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
@@ -317,14 +317,13 @@ MolComponentVisualizer >> highlightComponent [
 					shape @ highlightableLine ] ] ].""highlightableLabel outgoingLines.""component @ highlightableLabel"
 		component children do: [ :child | "component children do: [ :child |
 			child class = RSLine ifFalse: [""and:
-				 (nextElement class = RSLine or: secondNextElement class = RSLine))""child connectedLines isEmpty ifFalse: [""if the component is connected through another by its hovered on interface shape""child @ highlightableLabel""] ] ]"
-			(child class = RSBox and: child extent = (200 @ 200)) ifTrue: [
-				child @ highlightableLabel ] ].
-
-		"highlightableLabel highlightShapes: [ :box | component children do: [ :shape |
+				 (nextElement class = RSLine or: secondNextElement class = RSLine))""child connectedLines isEmpty ifFalse: [""if the component is connected through another by its hovered on interface shape""child @ highlightableLabel""] ] ]""highlightableLabel highlightShapes: [ :box | component children do: [ :shape |
 				(shape class = RSLine or: shape class = RSCircle) ifFalse: [ 
 					shape @ highlightableShape.
-					shape @ highlightableLine ] ] ]" ]
+					shape @ highlightableLine ] ] ]"
+			(child class = RSBox and: child extent = (200 @ 200)) ifTrue: [
+				"self halt."
+				child @ highlightableLabel ] ] ]
 ]
 
 { #category : #initialization }

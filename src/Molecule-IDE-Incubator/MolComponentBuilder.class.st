@@ -174,6 +174,7 @@ MolComponentBuilder >> generateConsumedEvents [
 { #category : #rendering }
 MolComponentBuilder >> generateMoleculeBox [
 	"generates the central box which represents the Molecule component"
+	self flag: 'subclass RSBox pour incrémenter un component index (voir highlightComponent)'.
 
 	box := RSBox new
 		       extent: 200 @ 200;
@@ -183,7 +184,7 @@ MolComponentBuilder >> generateMoleculeBox [
 	box cornerRadius: 10.
 	box translateTo: 0 @ 0.
 
-	canvas addShape: box.
+	canvas addShape: box
 ]
 
 { #category : #rendering }
