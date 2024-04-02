@@ -119,7 +119,7 @@ MolComponentVisualizer >> clickingComponentShowsInspector [
 MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes and the interface labels"
 
-	| lineArray canvasCopy componentIndex componentCopyIndex lineArrayCopy lineArrayFinal canvasIndex requiredShape canvasCopyIndex offeredShape |
+	| lineArray canvasCopy componentIndex componentCopyIndex canvasIndex requiredShape canvasCopyIndex offeredShape |
 	self flag:
 		'toujours trop de liens, rien n est enelvé de lineArrayFinal'.
 	lineArray := OrderedCollection new.
@@ -177,29 +177,15 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 				componentCopyIndex := 0 ] ].
 		canvasIndex := 0 ].
 
-	"remove duplicate lines (lines with same start and end)"
-	lineArrayCopy := lineArray postCopy.
-	lineArrayFinal := lineArray postCopy.
-	lineArray do: [ :l |
-		lineArrayCopy do: [ :l2 |
-			(l isNil or: l2 isNil) ifFalse: [
-				l = l2 ifFalse: [
-					(l from = l2 from and: l to = l2 to) ifTrue: [ "((lineArrayFinal indexOf: l) = 0 and:
-							 (lineArrayFinal indexOf: l2) = 0)
-							ifFalse: [""ifTrue: [""""lineArrayFinal remove: l2""] ]"
-						lineArrayFinal remove: l2
-						"lineArrayFinal remove: l" ] ] ] ] ].
-
-	lineArrayFinal do: [ :l | canvas add: l ].
-	"lineArray do: [ :l | canvas add: l ]."
-	"self halt"
+	self removeDuplicateLines: lineArray
 ]
 
 { #category : #initialization }
 MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
-	| offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex componentIndex componentCopyIndex lineArrayCopy lineArrayFinal |
+	| offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex componentIndex componentCopyIndex |
+	self flag: 'trop ou pas assez de lignes'.
 	lineArray := OrderedCollection new.
 	canvasCopy := canvas.
 
@@ -241,18 +227,7 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 			componentCopyIndex := 0 ].
 		canvasIndex := 0 ].
 
-	"remove duplicate lines (lines with same start and end)"
-	self flag: 'losange component de gauche 2 lignes'.
-	lineArrayCopy := lineArray.
-	lineArrayFinal := lineArray.
-	lineArray do: [ :l |
-		lineArrayCopy do: [ :l2 |
-			l ifNotNil: [
-				l2 ifNotNil: [
-					(l from = l2 from and: l to = l2 to) ifTrue: [
-						lineArrayFinal remove: l ] ] ] ] ].
-
-	lineArrayFinal do: [ :l | canvas add: l ]
+	self removeDuplicateLines: lineArray
 ]
 
 { #category : #initialization }
@@ -413,6 +388,29 @@ MolComponentVisualizer >> initialize [
 	self highlightComponent.
 	
 	self clickingComponentShowsInspector
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> removeDuplicateLines [
+	"removes duplicate lines (lines with same start and end)"
+	
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> removeDuplicateLines: lineArray [
+	"removes duplicate lines (lines with same start and end)"
+
+	| lineArrayCopy lineArrayFinal |
+	lineArrayCopy := lineArray.
+	lineArrayFinal := lineArray.
+	lineArray do: [ :l |
+		lineArrayCopy do: [ :l2 |
+			(l isNil or: l2 isNil) ifFalse: [
+				(l from = l2 from and: l to = l2 to) ifTrue: [
+					lineArrayFinal remove: l2 ] ] ] ].
+
+	lineArrayFinal do: [ :l | "lineArray do: [ :l | canvas add: l ]"
+		canvas add: l ]
 ]
 
 { #category : #initialization }
