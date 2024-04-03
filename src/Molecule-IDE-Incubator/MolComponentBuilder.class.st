@@ -153,7 +153,6 @@ MolComponentBuilder >> generateConsumedEvents [
 		consumedEventShape translateTo: -110 @ yEvent - 20.
 		canvas add: consumedEventShape.
 
-		"self createInvisibleLinksBetween: labels and: consumedEventShape."
 		self addLineFromBoxTo: consumedEventShape ]
 ]
 
@@ -228,7 +227,6 @@ MolComponentBuilder >> generateProducedEvents [
 		producedEventShape translateTo: 130 @ yEvent.
 		canvas add: producedEventShape.
 
-		"self createInvisibleLinksBetween: labels and: producedEventShape."
 		self addLineFromBoxTo: producedEventShape ]
 ]
 
@@ -251,7 +249,6 @@ MolComponentBuilder >> generateProvidedParameters [
 		providedParameterShape translateTo: 60 @ 130.
 		canvas add: providedParameterShape.
 
-		"self createInvisibleLinksBetween: labels and: providedParameterShape."
 		self addLineFromBoxTo: providedParameterShape ]
 ]
 
@@ -274,7 +271,6 @@ MolComponentBuilder >> generateProvidedServices [
 		providedServiceShape translateTo: 130 @ yService.
 		canvas add: providedServiceShape.
 
-		"self createInvisibleLinksBetween: labels and: providedServiceShape."
 		self addLineFromBoxTo: providedServiceShape ]
 ]
 

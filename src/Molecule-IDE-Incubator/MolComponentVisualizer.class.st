@@ -36,13 +36,13 @@ Class {
 
 { #category : #initialization }
 MolComponentVisualizer >> addLineFrom: interfaceLabelOrShape to: otherInterfaceLabelOrShape [
-	"used to link an interface label/shape to another interface label/shape (while being invisible by the color of the link being white), used to highlight the corresponding labels when an interface shape is hovered on"
+	"used to link an interface label/shape to another interface label/shape (while being invisible by the color of the link being transparent), used to highlight the corresponding labels when an interface shape is hovered on"
 
 	| line |
 	line := RSLine new
 		        from: interfaceLabelOrShape;
 		        to: otherInterfaceLabelOrShape;
-		        color: Color white;
+		        color: Color transparent;
 		        yourself.
 	line attachPoint: RSBorderAttachPoint new.
 	line update.
@@ -120,8 +120,6 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 
 	| lineArray canvasCopy componentIndex componentCopyIndex canvasIndex requiredShape canvasCopyIndex offeredShape |
 	lineArray := OrderedCollection new.
-	"voir https://discord.com/channels/223421264751099906/305208145020715019/954505784467816508"
-	"lineArray := IdentitySet new."
 	canvasCopy := canvas.
 
 	"component indexes are used to know which component is being selected"

@@ -67,16 +67,37 @@ MolClyComponentBuilder >> activationPriority [
 { #category : #testing }
 MolClyComponentBuilder >> build [
 
-	| componentBuilder canvas |
+	| componentBuilder canvas rs |
 	"see class side for shouldBeActivatedInContext: , which is the method that determines for which selected Pharo element in the System Browser the option should be displayed"
 	canvas := RSCanvas new.
+	self flag:
+		'fenêtre avec entete à enlever, pas de presenter (morph/roassal)'.
 
 	componentBuilder := MolComponentBuilder new.
 	componentBuilder implementation: implementation.
+
 	"showComponent returns a RSCanvas"
-	self
-		addMorph: ((componentBuilder showComponent: nil) open)
-		fullFrame: LayoutFrame identity
+	"rs := componentBuilder showComponent: nil."
+	rs := RSCanvas new.
+	rs addShape: (componentBuilder showComponent: nil) asShape.
+	"componentBuilder container: rs."
+	"rs container: componentBuilder."
+	rs zoomToFit.
+	"rs := rs asForm."
+
+	"self
+		addMorph: (componentBuilder showComponent: nil) open
+		fullFrame: LayoutFrame identity"
+	self addMorph: rs open fullFrame: LayoutFrame identity
+
+	"rs := RSCanvas new.
+				rs addShape: shape.
+				shape container: rs.
+				rs zoomToFit."
+	"logic is"" rs := RSCanvas new.
+				rs addShape: componentBuilder asShape.
+				componentBuilder container: rs.
+				rs zoomToFit."
 ]
 
 { #category : #initialization }
