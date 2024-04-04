@@ -41,12 +41,66 @@ MolShapeIcon class >> icons [
 ]
 
 { #category : #accessing }
+MolShapeIcon class >> redUsedServiceIcon [
+
+	<script: 'self redUsedServiceIcon inspect'>
+	self flag: 'utile?'.
+	^ self icons
+		  at: #usedServiceRed
+		  ifAbsentPut: [ "Form fromBinaryStream:
+			  self redUsedServiceIconEncoding base64Decoded readStream"
+			  ColorForm fromBinaryStream:
+				  self redUsedServiceIconEncoding base64Decoded readStream ]
+]
+
+{ #category : #accessing }
+MolShapeIcon class >> redUsedServiceIconEncoding [
+
+	^ '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
+sb6NDwAAAABJRU5ErkJggg=='
+]
+
+{ #category : #accessing }
 MolShapeIcon class >> usedServiceIcon [
 
 	<script: 'self usedServiceIcon inspect'>
 	self flag: 'utile?'.
 	^ self icons at: #usedService ifAbsentPut: [
-		  Form fromBinaryStream:
+		  "Form fromBinaryStream:
+			  self usedServiceIconEncoding base64Decoded readStream"
+			ColorForm fromBinaryStream:
 			  self usedServiceIconEncoding base64Decoded readStream ]
 ]
 

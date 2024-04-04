@@ -327,34 +327,92 @@ MolComponentBuilder >> generateUsedParameters [
 MolComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
-	| usedServiceShape labels usedServiceBlElement usedServiceComposite |
+	| usedServiceShape labels usedServiceComposite usedServiceGroup usedServiceBitmap |
+	self flag: 'unused'.
 	labels := self
 		          showInterfaces: 'usedService'
 		          xValue: -200
 		          yValue: yService.
 
 	labels ifNotNil: [
-		self flag: 'shape'.
-		usedServiceShape := RSShapeFactory halfEmptyRightCircle
+		self flag: 'shape, pas de highlight'.
+		"usedServiceShape := RSShapeFactory halfEmptyRightCircle
 			                    borderColor: Color black;
 			                    color: Color white;
 			                    extent: shapeExtent;
 			                    yourself.
-		usedServiceShape cornerRadii: 10.
-		"usedServiceShape := ShapeIcon usedServiceIcon."
+		usedServiceShape cornerRadii: 10."
+		usedServiceShape := MolShapeIcon usedServiceIcon.
 		"usedServiceShape := Form fromBase64String:
-			                    ShapeIcon usedServiceIconEncoding."
-		usedServiceShape translateTo: -130 @ yService.
+			                    MolShapeIcon usedServiceIconEncoding."
+		usedServiceBitmap := RSBitmap new.
+		usedServiceBitmap form: usedServiceShape.
+		"usedServiceShape translateTo: -130 @ yService."
+		usedServiceBitmap translateTo: -130 @ yService.
 		"usedServiceShape offset: -130 @ yService."
-		"usedServiceBlElement := (BlElement new layout: usedServiceShape)
-			                        asShape."
-		"usedServiceComposite := RSComposite new add: usedServiceShape." "shapes:"
-		canvas add: usedServiceShape.
-		"canvas add: usedServiceBlElement."
-		"canvas add: usedServiceComposite."
+		"usedServiceComposite := RSComposite new.
+		usedServiceGroup := RSGroup new."
+		"usedServiceComposite add: usedServiceShape."
+		"usedServiceComposite addBasicShape: usedServiceShape." "shapes:"
+		"usedServiceGroup add: usedServiceShape."
+		"canvas add: usedServiceShape."
+		"canvas asForm add: usedServiceShape."
+		"canvas add: usedServiceComposite"
+		"canvas addAll: usedServiceGroup."
+		"usedServiceShape displayOn: canvas"
+		"usedServiceShape displayAt: -130 @ yService"
+		canvas add: usedServiceBitmap.
 
 		"self createInvisibleLinksBetween: labels and: usedServiceShape."
-		self addLineFromBoxTo: usedServiceShape ]
+		"self addLineFromBoxTo: usedServiceShape"
+		"self addLineFromBoxTo: usedServiceComposite"
+		self addLineFromBoxTo: usedServiceBitmap ]
+]
+
+{ #category : #rendering }
+MolComponentBuilder >> generateUsedServices: numberedComponent [
+	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
+
+	| usedServiceShape labels usedServiceComposite usedServiceGroup usedServiceBitmap |
+	labels := self
+		          showInterfaces: 'usedService'
+		          xValue: -200
+		          yValue: yService.
+
+	labels ifNotNil: [
+		self flag: 'shape, pas de highlight'.
+		"usedServiceShape := RSShapeFactory halfEmptyRightCircle
+			                    borderColor: Color black;
+			                    color: Color white;
+			                    extent: shapeExtent;
+			                    yourself.
+		usedServiceShape cornerRadii: 10."
+		usedServiceShape := MolShapeIcon usedServiceIcon.
+		"usedServiceShape := Form fromBase64String:
+			                    MolShapeIcon usedServiceIconEncoding."
+		usedServiceBitmap := MolUsedServiceShape new.
+		usedServiceBitmap form: usedServiceShape.
+		usedServiceBitmap componentNumber: numberedComponent.
+		"usedServiceShape translateTo: -130 @ yService."
+		usedServiceBitmap translateTo: -130 @ yService.
+		"usedServiceShape offset: -130 @ yService."
+		"usedServiceComposite := RSComposite new.
+		usedServiceGroup := RSGroup new."
+		"usedServiceComposite add: usedServiceShape."
+		"usedServiceComposite addBasicShape: usedServiceShape." "shapes:"
+		"usedServiceGroup add: usedServiceShape."
+		"canvas add: usedServiceShape."
+		"canvas asForm add: usedServiceShape."
+		"canvas add: usedServiceComposite"
+		"canvas addAll: usedServiceGroup."
+		"usedServiceShape displayOn: canvas"
+		"usedServiceShape displayAt: -130 @ yService"
+		canvas add: usedServiceBitmap.
+
+		"self createInvisibleLinksBetween: labels and: usedServiceShape."
+		"self addLineFromBoxTo: usedServiceShape"
+		"self addLineFromBoxTo: usedServiceComposite"
+		self addLineFromBoxTo: usedServiceBitmap ]
 ]
 
 { #category : #rendering }
@@ -402,6 +460,12 @@ MolComponentBuilder >> showComponent: numberedComponent [
 	self generateUsedServices.
 	self generateConsumedEvents.
 	self generateUsedParameters.
+
+	numberedComponent ifNotNil: [
+		self flag: 'ifNil + autres fonctions'.
+		self generateUsedServices: numberedComponent
+		"self generateConsumedEvents: numberedComponent.
+		self generateUsedParameters: numberedComponent" ].
 
 	"offered part of the component"
 	self generateProvidedParameters.

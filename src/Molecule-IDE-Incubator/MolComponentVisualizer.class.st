@@ -265,7 +265,8 @@ MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 MolComponentVisualizer >> highlightComponent [
 	"hovering over a component (its main RSBox) highlights every interface shape and label it has as well as showing every line that connects it to another component's interface shapes and labels"
 
-	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c list group lines |
+	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c list group lines highlightedShape formBitmapShape |
+	self flag: 'subfonction changement form, need to unhighlight form'.
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
 
@@ -298,7 +299,14 @@ MolComponentVisualizer >> highlightComponent [
 								ifFalse: [ "adds the lines connecting the components"
 									lines := shape connectedLines.
 									"only highlights the shapes connected to other components as well as the main box"
-									lines isEmpty ifFalse: [ list add: shape. list add: box ].
+									lines isEmpty ifFalse: [
+										list add: shape.
+										""
+										(shape isKindOf: MolFormShape) ifTrue: [
+											highlightedShape := MolShapeIcon redUsedServiceIcon.
+											shape form: highlightedShape ].
+										
+										list add: box ].
 									list addAll: lines.
 									"highlights the shapes and labels from other components connected to the component"
 									lines do: [ :line | list add: line to ] ] ].
@@ -310,21 +318,120 @@ MolComponentVisualizer >> highlightComponent [
 ]
 
 { #category : #initialization }
+MolComponentVisualizer >> highlightFormRed [
+	"hovering over a complex interface shape (the Used part, uses Forms instead of polygons) highlights it"
+
+	| canvasCompositeShapes lines form redShape c canvasIndex formBitmapShape highlightedShape shapeIndex s |
+	canvasCompositeShapes := self removeLinesForIteration.
+	self flag:
+		'faire plusieurs subclass pour mémoriser component number et associer shape du canvas à highlighted, RSMouseDown?, shapeIndex'.
+	canvasIndex := 0.
+
+	shapeIndex := 0.
+
+	canvasCompositeShapes do: [ :composite |
+		composite children do: [ :shape | "shape class = RSBitmap"
+			shapeIndex := shapeIndex + 1.
+			(shape isKindOf: MolFormShape) ifTrue: [ "multiple MolFormShape subclasses are used to separate the types of shapes and their icons"
+				shape class = MolUsedServiceShape ifTrue: [
+					highlightedShape := MolShapeIcon redUsedServiceIcon.
+					formBitmapShape := MolUsedServiceShape new
+					"self halt" ].
+				"redShape := MolShapeIcon redUsedServiceIcon."
+				"formBitmapShape form: redShape."
+				formBitmapShape form: highlightedShape.
+				formBitmapShape componentNumber: shape componentNumber.
+				"form := shape form."
+				c := canvas shapes at: shape componentNumber.
+
+				"(shape isKindOf: MolFormShape) ifTrue: [
+					c := canvas shapes at: formBitmapShape componentNumber.
+					s := c children at: shapeIndex.
+					self halt.
+					s form: highlightedShape ]."
+
+				shape when: RSMouseUp do: [ :evt |
+					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
+						ifFalse: [ "c children do: [ :child |""lines are already highlighted in highlightShapeShowsLink""canvasIndex := canvasIndex + 1.""highlights ALL MolFormShapes?""child class = RSLine ifFalse: [
+									(child isKindOf: MolFormShape) ifTrue: [""child class = MolUsedServiceShape ifTrue: [
+									c := canvas shapes at: formBitmapShape componentNumber.
+									(c children at: shapeIndex) form: highlightedShape""canvasIndex""]""] ]."
+							shape form: highlightedShape.
+							canvasIndex := 0 ] ] ] ].
+		shapeIndex := 0 ]
+]
+
+{ #category : #initialization }
 MolComponentVisualizer >> highlightShapeShowsLink [
 	"hovering over an interface shape shows a line that connects it to another component's interface shape"
 
-	| canvasCompositeShapes lines |
+	| canvasCompositeShapes lines form redShape |
 	canvasCompositeShapes := self removeLinesForIteration.
 
 	canvasCompositeShapes do: [ :composite |
 		composite children do: [ :shape |
+			shape when: RSMouseUp do: [ :evt | "self highlightFormRed: shape."
+				"shape class = RSBitmap ifTrue: [" "redShape := MolShapeIcon redUsedServiceIcon."
+					"self halt.
+					form := shape form.
+					form mapColor: Color white to: Color red.
+					shape form: form"
+					"shape form: redShape" "]."
+
+				(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
+					ifFalse: [
+						lines := evt shapes connectedLines.
+						lines do: [ :line | line strokeColor: Color red ] ] ] ] ]
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> highlightShapeShowsLinkAndForm [
+	"hovering over an interface shape shows a line that connects it to another component's interface shape. It also highlights the Forms (shapes used for the required part of the interfaces which are not polygons"
+
+	| canvasCompositeShapes lines highlightedShape canvasIndex c |
+	self flag:
+		'faire subfonctions'.
+	canvasCompositeShapes := self removeLinesForIteration.
+	"canvasIndex := 0."
+
+	canvasCompositeShapes do: [ :composite |
+		composite children do: [ :shape | "canvasIndex := canvasIndex + 1.""canvasIndex := 0"
 			shape
 				when: RSMouseUp
-				do: [ :evt |
+				do: [ :evt | "lines := evt shapes connectedLines."
 					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
 						ifFalse: [
-							lines := evt shapes connectedLines.
-							lines do: [ :line | line strokeColor: Color red ] ] ] ] ]
+							shape class = RSLine ifFalse: [
+								lines := evt shape connectedLines.
+								lines do: [ :line | line strokeColor: Color red ] ].
+
+							(shape isKindOf: MolFormShape) ifTrue: [
+								lines isEmpty ifFalse: [
+									highlightedShape := MolShapeIcon redUsedServiceIcon.
+									evt shape form: highlightedShape ] ] ] ].
+
+			shape
+				when: RSMouseLeave
+				do: [ :evt | "forms are unhighlighted whenever the cursor isn't on a component anymore"
+					self flag: 'works?, refaire code plus proprement'.
+					"keeps some lines on screen after hovering on other shapes without evt"
+					(evt shape class = RSBox and: evt shape extent = (200 @ 200))
+						ifTrue: [
+							highlightedShape := MolShapeIcon usedServiceIcon.
+
+							c := canvas shapes at: shape componentNumber. "evt"
+							c children do: [ :child | "evt shape form: highlightedShape""canvasIndex := canvasIndex + 1.""to do"
+								(c isKindOf: MolFormShape) ifTrue: [
+									child form: highlightedShape ] ] ].
+
+					evt shape class = RSLine ifFalse: [
+						lines := evt shape connectedLines.
+						lines do: [ :line | line strokeColor: Color transparent ].
+
+						""
+						(shape isKindOf: MolFormShape) ifTrue: [ "keeps some lines on screen after hovering on other shapes without evt"
+							highlightedShape := MolShapeIcon usedServiceIcon.
+							evt shape form: highlightedShape ] ] ] ] ]
 ]
 
 { #category : #initialization }
@@ -378,7 +485,10 @@ MolComponentVisualizer >> initialize [
 	"links need to be created first in order to know what to highlight next"
 	self highlightShapes.
 
-	self highlightShapeShowsLink.
+	"self highlightShapeShowsLink."
+	"self highlightFormRed."
+	self highlightShapeShowsLinkAndForm.
+	"self highlightShapeShowsLink."
 	self highlightComponent.
 
 	self clickingComponentShowsInspector

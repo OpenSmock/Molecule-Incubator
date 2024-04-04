@@ -79,6 +79,7 @@ MolClyComponentBuilder >> build [
 	rs @ RSCanvasController.
 	rs zoomToFit.
 
+	"createMorph doesn't return a Roassal window with its own buttons and title"
 	self addMorph: rs createMorph fullFrame: LayoutFrame identity
 ]
 
