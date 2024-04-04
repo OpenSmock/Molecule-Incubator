@@ -389,8 +389,7 @@ MolComponentVisualizer >> highlightShapeShowsLinkAndForm [
 	"hovering over an interface shape shows a line that connects it to another component's interface shape. It also highlights the Forms (shapes used for the required part of the interfaces which are not polygons"
 
 	| canvasCompositeShapes lines highlightedShape canvasIndex c |
-	self flag:
-		'faire subfonctions'.
+	self flag: 'faire subfonctions'.
 	canvasCompositeShapes := self removeLinesForIteration.
 	"canvasIndex := 0."
 
@@ -398,17 +397,19 @@ MolComponentVisualizer >> highlightShapeShowsLinkAndForm [
 		composite children do: [ :shape | "canvasIndex := canvasIndex + 1.""canvasIndex := 0"
 			shape
 				when: RSMouseUp
-				do: [ :evt | "lines := evt shapes connectedLines."
+				do: [ :evt | "putting these lines of code in when RSMouseEnter: make some links stay after hovering on certain interface labels"
 					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
 						ifFalse: [
 							shape class = RSLine ifFalse: [
 								lines := evt shape connectedLines.
-								lines do: [ :line | line strokeColor: Color red ] ].
+								lines do: [ :line | line strokeColor: Color red ] ] ] ].
 
-							(shape isKindOf: MolFormShape) ifTrue: [
-								lines isEmpty ifFalse: [
-									highlightedShape := MolShapeIcon redUsedServiceIcon.
-									evt shape form: highlightedShape ] ] ] ].
+			shape when: RSMouseEnter do: [ :evt2 |
+				(shape isKindOf: MolFormShape) ifTrue: [
+					lines := evt2 shape connectedLines.
+					lines isEmpty ifFalse: [
+						highlightedShape := MolShapeIcon redUsedServiceIcon.
+						evt2 shape form: highlightedShape ] ] ].
 
 			shape
 				when: RSMouseLeave
@@ -424,14 +425,14 @@ MolComponentVisualizer >> highlightShapeShowsLinkAndForm [
 								(c isKindOf: MolFormShape) ifTrue: [
 									child form: highlightedShape ] ] ].
 
-					evt shape class = RSLine ifFalse: [
+					"evt shape class = RSLine ifFalse: [
 						lines := evt shape connectedLines.
-						lines do: [ :line | line strokeColor: Color transparent ].
+						lines do: [ :line | line strokeColor: Color transparent ] ]."
 
-						""
-						(shape isKindOf: MolFormShape) ifTrue: [ "keeps some lines on screen after hovering on other shapes without evt"
-							highlightedShape := MolShapeIcon usedServiceIcon.
-							evt shape form: highlightedShape ] ] ] ] ]
+					""
+					(shape isKindOf: MolFormShape) ifTrue: [ "keeps some lines on screen after hovering on other shapes without evt"
+						highlightedShape := MolShapeIcon usedServiceIcon.
+						evt shape form: highlightedShape ] ] ] ]
 ]
 
 { #category : #initialization }
