@@ -81,7 +81,8 @@ MolComponentBuilder >> addLineFromBoxTo: interfaceShape [
 { #category : #rendering }
 MolComponentBuilder >> asForm [
 	"used to return a form, a static image and not a canvas which is drawn upon"
-	self flag: 'à tester'.
+
+	self flag: 'see RSCanvas asForm'.
 
 	^ canvas asForm
 ]
