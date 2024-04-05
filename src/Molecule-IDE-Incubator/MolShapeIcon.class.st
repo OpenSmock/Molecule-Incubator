@@ -44,13 +44,9 @@ MolShapeIcon class >> icons [
 MolShapeIcon class >> redUsedServiceIcon [
 
 	<script: 'self redUsedServiceIcon inspect'>
-	self flag: 'utile?'.
-	^ self icons
-		  at: #usedServiceRed
-		  ifAbsentPut: [ "Form fromBinaryStream:
-			  self redUsedServiceIconEncoding base64Decoded readStream"
-			  ColorForm fromBinaryStream:
-				  self redUsedServiceIconEncoding base64Decoded readStream ]
+	^ self icons at: #usedServiceRed ifAbsentPut: [
+		  Form fromBinaryStream:
+			  self redUsedServiceIconEncoding base64Decoded readStream ]
 ]
 
 { #category : #accessing }
@@ -96,11 +92,8 @@ sb6NDwAAAABJRU5ErkJggg=='
 MolShapeIcon class >> usedServiceIcon [
 
 	<script: 'self usedServiceIcon inspect'>
-	self flag: 'utile?'.
 	^ self icons at: #usedService ifAbsentPut: [
-		  "Form fromBinaryStream:
-			  self usedServiceIconEncoding base64Decoded readStream"
-			ColorForm fromBinaryStream:
+		  Form fromBinaryStream:
 			  self usedServiceIconEncoding base64Decoded readStream ]
 ]
 

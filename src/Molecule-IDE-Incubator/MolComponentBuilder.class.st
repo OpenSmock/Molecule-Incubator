@@ -135,6 +135,14 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 ]
 
 { #category : #rendering }
+MolComponentBuilder >> determineCanvasIndex [
+	"used to determine the index in the canvas of the last element added (so that every MolFormShape knows its index and thus can get it easily to unhighlight it whenever the cursor leaves a component"
+
+	"adds 1 since the MolFormShape is gonna be the next element added to the canvas"
+	^ canvas shapes size + 1
+]
+
+{ #category : #rendering }
 MolComponentBuilder >> generateConsumedEvents [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
 
@@ -393,6 +401,7 @@ MolComponentBuilder >> generateUsedServices: numberedComponent [
 		usedServiceBitmap := MolUsedServiceShape new.
 		usedServiceBitmap form: usedServiceShape.
 		usedServiceBitmap componentNumber: numberedComponent.
+		usedServiceBitmap canvasIndex: self determineCanvasIndex.
 		"usedServiceShape translateTo: -130 @ yService."
 		usedServiceBitmap translateTo: -130 @ yService.
 		"usedServiceShape offset: -130 @ yService."
