@@ -363,66 +363,83 @@ MolComponentVisualizer >> highlightShapeShowsLink [
 MolComponentVisualizer >> highlightShapeShowsLinkAndForm [
 	"hovering over an interface shape shows a line that connects it to another component's interface shape. It also highlights the Forms (shapes used for the required part of the interfaces which are not polygons"
 
-	| canvasCompositeShapes lines highlightedShape c molFormShape |
+	| canvasCompositeShapes lines highlightedShape c molFormShape unhighlightedShape |
 	self flag:
-		'faire subfonctions?, adapt code for molformshape and subclasses, class comments'.
+		'faire subfonctions?, adapt code for molformshape and subclasses, class comments, highlight autres composants (box ou shape) n highlight pas form'.
 	canvasCompositeShapes := self removeLinesForIteration.
 
 	canvasCompositeShapes do: [ :composite |
 		composite children do: [ :shape |
 			shape
 				when: RSMouseUp
-				do: [ :evt | "putting these lines of code in when RSMouseEnter: make some links stay after hovering on certain interface labels"
+				do: [ :evt | "putting these lines of code in when RSMouseEnter: make some links stay after hovering on certain interface labels""self flag: 'à retenter'."
 					(evt class = RSMouseUpRight or: evt class = RSMouseUpLeft)
 						ifFalse: [
 							shape class = RSLine ifFalse: [
-								lines := evt shape connectedLines.
-								lines do: [ :line | line strokeColor: Color red ] ] ] ].
-
+								lines := shape connectedLines.
+								lines do: [ :line |
+									line strokeColor: Color red. "highlight the forms when another component than the one it pertains to is highlighted"
+									molFormShape := line to.
+									(molFormShape isKindOf: MolFormShape) ifTrue: [
+										highlightedShape := MolShapeIcon redUsedServiceIcon.
+										self flag: 'componentNumber isn t enough?'.
+										self flag: '2 prochaines lignes?'.
+										"c := canvas shapes at: molFormShape componentNumber.
+										c form: highlightedShape"
+										molFormShape form: highlightedShape ] ] ] ] ].
 			shape
 				when: RSMouseEnter
-				do: [ :evt2 | "highlighting an interface label connected to a form needs to also highlight the form"
-					evt2 shape class = RSLabel ifTrue: [
-						lines := evt2 shape connectedLines.
+				do: [ :evt2 | "highlighting an interface label connected to a form also highlights the form"
+					lines := shape connectedLines.
+
+					"shape class = RSLine ifFalse: [
+						lines := shape connectedLines.
+						lines do: [ :line |
+							line strokeColor: Color red."
+					"highlight the forms when another component than the one it pertains to is highlighted"
+					"molFormShape := line to.
+							(molFormShape isKindOf: MolFormShape) ifTrue: [
+								highlightedShape := MolShapeIcon redUsedServiceIcon.
+								self flag: 'componentNumber isn t enough?'."
+					"c := canvas shapes at: molFormShape componentNumber.
+										c form: highlightedShape"
+					"molFormShape form: highlightedShape ] ] ]."
+
+					shape class = RSLabel ifTrue: [
+						highlightedShape := MolShapeIcon redUsedServiceIcon.
+
 						lines do: [ :line | "line to can be used since there's always a line linking a MolFormShape to the main MolBoxComponent (which is the tiny one displayed on screen)"
 							molFormShape := line to.
 							(molFormShape isKindOf: MolFormShape) ifTrue: [
-								highlightedShape := MolShapeIcon redUsedServiceIcon.
-								c := canvas shapes at: molFormShape componentNumber.
 								molFormShape form: highlightedShape ] ] ].
 
+					"highlights the form when the cursor is over it"
 					(shape isKindOf: MolFormShape) ifTrue: [
-						lines := evt2 shape connectedLines.
-						lines isEmpty ifFalse: [
-							highlightedShape := MolShapeIcon redUsedServiceIcon.
-							evt2 shape form: highlightedShape ] ] ].
+						lines isEmpty ifFalse: [ shape form: highlightedShape ] ] ].
 
 			shape
 				when: RSMouseLeave
-				do: [ :evt3 | "unhighlights the forms whenever the cursor leaves a component (its main RSBox)""keeps some lines on screen after hovering on other shapes without evt"
-					(evt3 shape class = MolBoxComponent and:
-						 evt3 shape extent = (200 @ 200)) ifTrue: [
-						highlightedShape := MolShapeIcon usedServiceIcon.
+				do: [ :evt3 | "unhighlights the forms whenever the cursor leaves a component (its main RSBox)"
+					unhighlightedShape := MolShapeIcon usedServiceIcon.
 
-						c := canvas shapes at: shape componentNumber.
-						c children do: [ :child |
-							(child isKindOf: MolFormShape) ifTrue: [
-								child form: highlightedShape ] ] ].
+					(shape class = MolBoxComponent and: shape extent = (200 @ 200))
+						ifTrue: [
+							c := canvas shapes at: shape componentNumber.
+							c children do: [ :child |
+								(child isKindOf: MolFormShape) ifTrue: [
+									child form: unhighlightedShape ] ] ].
 
 					"unhighlights the forms whenever the cursor leaves an interface label linked to it "
-					evt3 shape class = RSLabel ifTrue: [
-						lines := evt3 shape connectedLines.
+					shape class = RSLabel ifTrue: [
+						lines := shape connectedLines.
 						lines do: [ :line |
-							(line to isKindOf: MolFormShape) ifTrue: [
-								highlightedShape := MolShapeIcon usedServiceIcon.
-								"line to can be used since it's associated to the MolFormShape we want to highlight"
-								c := canvas shapes at: line to componentNumber.
-								line to form: highlightedShape ] ] ].
+							molFormShape := line to.
+							(molFormShape isKindOf: MolFormShape) ifTrue: [
+								molFormShape form: unhighlightedShape ] ] ].
 
 					"unhighlights the form shapes"
-					(shape isKindOf: MolFormShape) ifTrue: [ "keeps some lines on screen after hovering on other shapes without evt"
-						highlightedShape := MolShapeIcon usedServiceIcon.
-						evt3 shape form: highlightedShape ] ] ] ]
+					(shape isKindOf: MolFormShape) ifTrue: [
+						shape form: unhighlightedShape ] ] ] ]
 ]
 
 { #category : #initialization }

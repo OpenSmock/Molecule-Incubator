@@ -9,18 +9,6 @@ Class {
 }
 
 { #category : #accessing }
-MolFormShape >> canvasIndex [
-
-	^ canvasIndex
-]
-
-{ #category : #accessing }
-MolFormShape >> canvasIndex: index [
-
-	canvasIndex := index
-]
-
-{ #category : #accessing }
 MolFormShape >> componentNumber [
 
 	^ componentNumber

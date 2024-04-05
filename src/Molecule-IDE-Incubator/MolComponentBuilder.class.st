@@ -79,15 +79,6 @@ MolComponentBuilder >> addLineFromBoxTo: interfaceShape [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> asForm [
-	"used to return a form, a static image and not a canvas which is drawn upon"
-
-	self flag: 'see RSCanvas asForm'.
-
-	^ canvas asForm
-]
-
-{ #category : #rendering }
 MolComponentBuilder >> canvas [
 	"used to get the canvas in order to add it to the global canvas of MolComponentVisualizer"
 
@@ -99,7 +90,7 @@ MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
 	"creates the fork shape used to represent the used parameter interfaces as defined by Molecule, made of a long upper line and two short ends"
 
 	| lineThickness usedServiceUpperLine usedServiceLowerLeftLine usedServiceLowerRightLine lineLength |
-	self flag: 'can t be highlighted'.
+	self flag: 'to remove'.
 	lineThickness := 1.
 	lineLength := 40.
 
@@ -153,7 +144,7 @@ MolComponentBuilder >> generateConsumedEvents [
 		          yValue: yEvent.
 
 	labels ifNotNil: [
-		self flag: 'shape'.
+		self flag: 'shape, comment'.
 		consumedEventShape := RSShapeFactory rightArrow
 			                      borderColor: Color black;
 			                      color: Color white;
@@ -336,7 +327,7 @@ MolComponentBuilder >> generateUsedServices [
 	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
 
 	| usedServiceShape labels usedServiceComposite usedServiceGroup usedServiceBitmap |
-	self flag: 'unused, comment'.
+	self flag: 'unused'.
 	labels := self
 		          showInterfaces: 'usedService'
 		          xValue: -200
@@ -393,7 +384,6 @@ MolComponentBuilder >> generateUsedServices: numberedComponent [
 		usedServiceBitmap := MolUsedServiceShape new.
 		usedServiceBitmap form: usedServiceShape.
 		usedServiceBitmap componentNumber: numberedComponent.
-		usedServiceBitmap canvasIndex: self determineCanvasIndex.
 		usedServiceBitmap translateTo: -130 @ yService.
 
 		canvas add: usedServiceBitmap.
@@ -443,7 +433,7 @@ MolComponentBuilder >> showComponent: numberedComponent [
 	self generateType.
 
 	"required part of the component"
-	self generateUsedServices.
+	"self generateUsedServices."
 	self generateConsumedEvents.
 	self generateUsedParameters.
 
