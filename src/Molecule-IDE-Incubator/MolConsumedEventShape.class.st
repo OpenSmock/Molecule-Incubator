@@ -1,7 +1,7 @@
 "
 Please comment me using the following template inspired by Class Responsibility Collaborator (CRC) design:
 
-For the Class part: I'm a subclass of MolFormShape. I'm necessary since being a subclass allows me to know that the redUsedServiceIcon needs to be displayed whenever the cursor is on me or any other shape linked to me.
+For the Class part: I'm a subclass of MolFormShape. I'm necessary since being a subclass allows me to know that the redConsumedEventIcon needs to be displayed whenever the cursor is on me or any other shape linked to me.
 
 For the Responsibility part: Three sentences about my main responsibilities - what I do, what I know.
 
@@ -21,7 +21,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #MolUsedServiceShape,
+	#name : #MolConsumedEventShape,
 	#superclass : #MolFormShape,
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }

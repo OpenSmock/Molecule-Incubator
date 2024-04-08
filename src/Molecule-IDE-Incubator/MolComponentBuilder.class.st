@@ -412,6 +412,8 @@ MolComponentBuilder >> initializeRelativeCoordinates [
 MolComponentBuilder >> showComponent: numberedComponent [
 	"method used for Visualize running Components, every main component box needs to know the index of its component in order to highlight every interface shape and label as well as the lines that connect it to other components"
 
+	"can't really put the contents of this method in an initialize one since the first added elements depends on the implementation given, parameter that can't be through initialize which takes no parameter"
+
 	shapeExtent := 30 @ 30.
 
 	canvas := RSCanvas new.
@@ -419,16 +421,14 @@ MolComponentBuilder >> showComponent: numberedComponent [
 
 	self initializeRelativeCoordinates.
 
-	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show these shapes"
-	implementation ifNotNil: [
+	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show all these shapes"
+	implementation ifNil: [ self generateMoleculeBox: nil ] ifNotNil: [
 		canvas @ RSCanvasController.
 
 		self generateMoleculeBox: numberedComponent.
 		self generateMoleculeComponentName.
-		"generateType was here if the order needs to be respected"
+		"generateType was here before if the order needs to be respected"
 		self generateName ].
-
-	implementation ifNil: [ self generateMoleculeBox: nil ].
 
 	self generateType.
 
