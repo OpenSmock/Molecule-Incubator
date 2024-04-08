@@ -86,46 +86,6 @@ MolComponentBuilder >> canvas [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> createForkShape: usedParameterX and: usedParameterY [
-	"creates the fork shape used to represent the used parameter interfaces as defined by Molecule, made of a long upper line and two short ends"
-
-	| lineThickness usedServiceUpperLine usedServiceLowerLeftLine usedServiceLowerRightLine lineLength |
-	self flag: 'to remove'.
-	lineThickness := 1.
-	lineLength := 40.
-
-	usedServiceUpperLine := RSShapeFactory fork
-		                        color: Color black;
-		                        extent: lineLength @ lineThickness;
-		                        yourself. "Fork new"
-	usedServiceUpperLine translateTo: usedParameterX @ usedParameterY.
-
-	usedServiceLowerLeftLine := RSShapeFactory fork
-		                            color: Color black;
-		                            extent: lineLength / 2 @ lineThickness;
-		                            yourself. "Fork new"
-	"puts the line vertically"
-	usedServiceLowerLeftLine rotateByDegrees: 90.
-	usedServiceLowerLeftLine translateTo:
-		usedParameterX - 30 @ usedParameterY + 10.
-
-	usedServiceLowerRightLine := RSShapeFactory fork
-		                             color: Color black;
-		                             extent: lineLength / 2 @ lineThickness;
-		                             yourself. "Fork new"
-	usedServiceLowerRightLine rotateByDegrees: 90.
-	usedServiceLowerRightLine translateTo:
-		usedParameterX + 10 @ usedParameterY + 10.
-
-	canvas add: usedServiceUpperLine.
-	canvas add: usedServiceLowerLeftLine.
-	canvas add: usedServiceLowerRightLine.
-
-	"returned since it's used by the line as the end point"
-	^ usedServiceUpperLine
-]
-
-{ #category : #rendering }
 MolComponentBuilder >> determineCanvasIndex [
 	"used to determine the index in the canvas of the last element added (so that every MolFormShape knows its index and thus can get it easily to unhighlight it whenever the cursor leaves a component"
 
@@ -322,25 +282,47 @@ MolComponentBuilder >> generateType [
 
 { #category : #rendering }
 MolComponentBuilder >> generateUsedParameters [
-	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape and the line that links the box and the shape"
+	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape (which is a Form) and the line that links the box and the shape"
 
-	| usedParameterUpperLine usedParameterY usedParameterX labels |
+	| labels usedParameterShape usedParameterBitmap |
 	labels := self
 		          showInterfaces: 'usedParameter'
 		          xValue: -60
 		          yValue: yParameter.
 
-	usedParameterX := -40.
-	usedParameterY := 115.
+	labels ifNotNil: [
+		usedParameterShape := MolShapeIcon usedParameterIcon.
+
+		usedParameterBitmap := MolUsedParameterShape new.
+		usedParameterBitmap form: usedParameterShape.
+		usedParameterBitmap translateTo: -40 @ 135.
+
+		canvas add: usedParameterBitmap.
+
+		self addLineFromBoxTo: usedParameterBitmap ]
+]
+
+{ #category : #rendering }
+MolComponentBuilder >> generateUsedParameters: numberedComponent [
+	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape (which is a Form) and the line that links the box and the shape"
+
+	| labels usedParameterShape usedParameterBitmap |
+	labels := self
+		          showInterfaces: 'usedParameter'
+		          xValue: -60
+		          yValue: yParameter.
 
 	labels ifNotNil: [
-		self flag: 'shape, comment'.
-		usedParameterUpperLine := self
-			                          createForkShape: usedParameterX
-			                          and: usedParameterY.
+		usedParameterShape := MolShapeIcon usedParameterIcon.
 
-		"usedParameterUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
-		self addLineFromBoxTo: usedParameterUpperLine ]
+		usedParameterBitmap := MolUsedParameterShape new.
+		usedParameterBitmap form: usedParameterShape.
+		usedParameterBitmap componentNumber: numberedComponent.
+		usedParameterBitmap translateTo: -40 @ 135.
+
+		canvas add: usedParameterBitmap.
+
+		self addLineFromBoxTo: usedParameterBitmap ]
 ]
 
 { #category : #rendering }
@@ -433,12 +415,10 @@ MolComponentBuilder >> showComponent: numberedComponent [
 	"required part of the component"
 	numberedComponent
 		ifNotNil: [
-			self flag: 'ifNil + autres fonctions'.
 			self generateUsedServices: numberedComponent.
-			self generateConsumedEvents: numberedComponent
-			"self generateUsedParameters: numberedComponent" ]
-		"See Component Implementation doesn't use numberedComponent"
-		ifNil: [
+			self generateConsumedEvents: numberedComponent.
+			self generateUsedParameters: numberedComponent ]
+		ifNil: [  "See Component Implementation doesn't use numberedComponent"
 			self generateConsumedEvents.
 			self generateUsedServices.
 			self generateUsedParameters ].

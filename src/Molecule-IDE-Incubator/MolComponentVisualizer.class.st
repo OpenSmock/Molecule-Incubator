@@ -353,24 +353,21 @@ MolComponentVisualizer >> highlightShapeShowsLinkAndForm [
 										lines do: [ :line | list add: line to ] ] ] ] ].
 				shape
 					when: RSMouseEnter
-					do: [ :evt2 | "highlighting an interface label connected to a form also highlights the form""(shape = MolShapeIcon icons at: #usedServiceIcon) ifTrue: [
-							highlightedShape := MolShapeIcon redUsedServiceIcon ].
-						(shape = MolShapeIcon icons at: #consumedEventIcon) ifTrue: [
-							highlightedShape := MolShapeIcon redConsumedEventIcon ].
-						lines := shape connectedLines.""highlights forms when an interface label or shape linked to it is highlighted"
+					do: [ :evt2 |
 						lines := shape connectedLines.
 
 						lines do: [ :line | "line to can be used since there's always a line linking a MolFormShape to the main MolBoxComponent (which is the tiny one displayed on screen)"
 							(line to class = RSEllipse or:
-								 (line to class = RSLabel or: line to class = RSPolygon))
-								ifFalse: [
-									highlightedShape := self highlightedShape: line to.
-									line to form: highlightedShape ] ].
+								 ((line to class = RSLabel or: line to class = RSPolygon) or:
+									  line to class = RSBox)) ifFalse: [
+								highlightedShape := self highlightedShape: line to.
+								line to form: highlightedShape ] ].
 
 						"highlights the form when the cursor is over it"
 						(shape isKindOf: MolFormShape) ifTrue: [
-							lines isEmpty ifFalse: [ highlightedShape := self highlightedShape: shape.
-								 shape form: highlightedShape ] ] ].
+							lines isEmpty ifFalse: [
+								highlightedShape := self highlightedShape: shape.
+								shape form: highlightedShape ] ] ].
 
 				shape when: RSMouseLeave do: [ :evt3 |
 					lines := shape connectedLines.
@@ -418,12 +415,12 @@ MolComponentVisualizer >> highlightShapes [
 MolComponentVisualizer >> highlightedShape: shape [
 	"returns the highlighted form of a given shape"
 
-	self flag: 'to complete'.
-
-	shape class = MolUsedServiceShape ifTrue: [
-		^ MolShapeIcon redUsedServiceIcon ].
 	shape class = MolConsumedEventShape ifTrue: [
-		^ MolShapeIcon redConsumedEventIcon ]
+		^ MolShapeIcon redConsumedEventIcon ].
+	shape class = MolUsedParameterShape ifTrue: [
+		^ MolShapeIcon redUsedParameterIcon ].
+	shape class = MolUsedServiceShape ifTrue: [
+		^ MolShapeIcon redUsedServiceIcon ]
 ]
 
 { #category : #initialization }
@@ -503,10 +500,10 @@ MolComponentVisualizer >> removeShapesForIteration [
 MolComponentVisualizer >> unhighlightedShape: shape [
 	"returns the unhighlighted form of a given shape"
 
-	self flag: 'to complete'.
-
-	shape class = MolUsedServiceShape ifTrue: [
-		^ MolShapeIcon usedServiceIcon ].
 	shape class = MolConsumedEventShape ifTrue: [
-		^ MolShapeIcon consumedEventIcon ]
+		^ MolShapeIcon consumedEventIcon ].
+	shape class = MolUsedParameterShape ifTrue: [
+		^ MolShapeIcon usedParameterIcon ].
+	shape class = MolUsedServiceShape ifTrue: [
+		^ MolShapeIcon usedServiceIcon ]
 ]

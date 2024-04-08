@@ -96,6 +96,25 @@ Q89zf+simosSzUWJ5qJEc1Gi3SEK4AGaVzF5mszzwAAAAABJRU5ErkJggg=='
 ]
 
 { #category : #accessing }
+MolShapeIcon class >> redUsedParameterIcon [
+
+	<script: 'self redUsedParameterIcon inspect'>
+	^ self icons at: #usedParameterRed ifAbsentPut: [
+		  Form fromBinaryStream:
+			  self redUsedParameterIconEncoding base64Decoded readStream ]
+]
+
+{ #category : #accessing }
+MolShapeIcon class >> redUsedParameterIconEncoding [
+
+	^ 'iVBORw0KGgoAAAANSUhEUgAAAEwAAAAmCAYAAABu+H0XAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAACbSURBVGhD7dohDsJAAEXBhSPgkdz/
+QEg8VwBESVDNPgQUMmO6ti/7U9Pd7WF82fV4Wk5jHC7n5bRN++XJJMGi1Um+TuXfvDt9NywS
+LJqe5Na/XrOe72SSHyJYJFgkWCRYJFgkWCRYJFgkWCRYJFgkWCRYJFgkWCRYJFgkWCRYJFgk
+WCRYJFi0id+dfokbFgkWCRYJFgkWCZaMcQcR+xw57fxPiAAAAABJRU5ErkJggg=='
+]
+
+{ #category : #accessing }
 MolShapeIcon class >> redUsedServiceIcon [
 
 	<script: 'self redUsedServiceIcon inspect'>
@@ -141,6 +160,27 @@ zCdgCrxUYVGC5qJodHK+ToK7uzsuXLiAoKAgTv7I2SpFM1FUEyj5LoPFrF69mmtYFBOpmiLn
 TExMKCJIusAq6bJOSXd4EL8eOP2Kon9Ib0H9/Pwk3TTwffePi4sLvxFtamoSv9IfVVnC6NGj
 OSjTVNHOovcs9PJba/oUdfXqVQ4FVD6kxTpixAhhMSx9inpbGNSjD5T3opTyDooC/gZLGL4E
 sb6NDwAAAABJRU5ErkJggg=='
+]
+
+{ #category : #accessing }
+MolShapeIcon class >> usedParameterIcon [
+
+	<script: 'self usedParameterIcon inspect'>
+	^ self icons at: #usedParameter ifAbsentPut: [
+		  Form fromBinaryStream:
+			  self usedParameterIconEncoding base64Decoded readStream ]
+]
+
+{ #category : #accessing }
+MolShapeIcon class >> usedParameterIconEncoding [
+
+	^ 'iVBORw0KGgoAAAANSUhEUgAAAEwAAAAmCAYAAABu+H0XAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAADmSURBVGhD7dqxbYNgEEBhavZgAgQd
+S9CzCBVz0DIAFTUFDVOwAiNclOhXmkQkT7Yl23qfdM1RoHu0ZPEEjuOILMuibdu0eV4GgwwG
+/Rls27ZYluWhM01TlGUZXdf9+vzec55nuo67DLbv+9eXf7ep6zpdyF0Gm+f5+yV937/FfN5S
+FEW6kPtXsGEY0ub15XluMMJgkMEgg0EGgwwGGQwyGGQwyGCQwSCDQQaDDAYZDDIYZDDIYJDB
+IINBBoMMBhkMemiwdV2jqqoYxzFtXl/TNDf9w3EZTD8ZDDIYZDDIYJDBIIMhER9QIavc3mxd
+MAAAAABJRU5ErkJggg=='
 ]
 
 { #category : #accessing }
