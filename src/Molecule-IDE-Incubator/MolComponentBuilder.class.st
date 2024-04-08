@@ -317,55 +317,8 @@ MolComponentBuilder >> generateUsedParameters [
 			                          createForkShape: usedParameterX
 			                          and: usedParameterY.
 
-		"self createInvisibleLinksBetween: labels and: usedParameterUpperLine."
 		"usedParameterUpperLine can't be a RSLine since the from: to: of RSLine isn't applicable to herself"
 		self addLineFromBoxTo: usedParameterUpperLine ]
-]
-
-{ #category : #rendering }
-MolComponentBuilder >> generateUsedServices [
-	"generates the used services part, which is composed of the used service interfaces, the half-empty circle shape and the line that links the box and the shape"
-
-	| usedServiceShape labels usedServiceComposite usedServiceGroup usedServiceBitmap |
-	self flag: 'unused'.
-	labels := self
-		          showInterfaces: 'usedService'
-		          xValue: -200
-		          yValue: yService.
-
-	labels ifNotNil: [
-		self flag: 'shape, pas de highlight'.
-		"usedServiceShape := RSShapeFactory halfEmptyRightCircle
-			                    borderColor: Color black;
-			                    color: Color white;
-			                    extent: shapeExtent;
-			                    yourself.
-		usedServiceShape cornerRadii: 10."
-		usedServiceShape := MolShapeIcon usedServiceIcon.
-		"usedServiceShape := Form fromBase64String:
-			                    MolShapeIcon usedServiceIconEncoding."
-		usedServiceBitmap := RSBitmap new.
-		usedServiceBitmap form: usedServiceShape.
-		"usedServiceShape translateTo: -130 @ yService."
-		usedServiceBitmap translateTo: -130 @ yService.
-		"usedServiceShape offset: -130 @ yService."
-		"usedServiceComposite := RSComposite new.
-		usedServiceGroup := RSGroup new."
-		"usedServiceComposite add: usedServiceShape."
-		"usedServiceComposite addBasicShape: usedServiceShape." "shapes:"
-		"usedServiceGroup add: usedServiceShape."
-		"canvas add: usedServiceShape."
-		"canvas asForm add: usedServiceShape."
-		"canvas add: usedServiceComposite"
-		"canvas addAll: usedServiceGroup."
-		"usedServiceShape displayOn: canvas"
-		"usedServiceShape displayAt: -130 @ yService"
-		canvas add: usedServiceBitmap.
-
-		"self createInvisibleLinksBetween: labels and: usedServiceShape."
-		"self addLineFromBoxTo: usedServiceShape"
-		"self addLineFromBoxTo: usedServiceComposite"
-		self addLineFromBoxTo: usedServiceBitmap ]
 ]
 
 { #category : #rendering }
@@ -418,6 +371,7 @@ MolComponentBuilder >> showComponent: numberedComponent [
 
 	canvas := RSCanvas new.
 	canvas zoomToFit.
+	canvas @ RSCanvasController.
 
 	self initializeRelativeCoordinates.
 
@@ -433,7 +387,6 @@ MolComponentBuilder >> showComponent: numberedComponent [
 	self generateType.
 
 	"required part of the component"
-	"self generateUsedServices."
 	self generateConsumedEvents.
 	self generateUsedParameters.
 

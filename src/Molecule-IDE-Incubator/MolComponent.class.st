@@ -233,15 +233,6 @@ ifTrue: [ Color green ]'.
 			   yourself)
 ]
 
-{ #category : #'as yet unclassified' }
-MolComponent >> deleteEventsServicesParameters: interface forFrame: interfaceFrame [
-	"see addEventsServicesParameters: interface forFrame: interfaceFrame to know why the checked condition is fill ifFalse: "
-	self flag: 'unused ?'.
-
-	interfaceFrame children do: [ :eventServiceParameter |
-		eventServiceParameter fill ifFalse: [ eventServiceParameter delete ] ]
-]
-
 { #category : #private }
 MolComponent >> determineRoleInterface: interface [
 	"used in order to search in the relevant parts of the contracts of the Types using an interface (for a required interface, it will search in the offered parts of a component's contract)"
@@ -521,8 +512,6 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 MolComponent >> setEmptyParameters [
 	"removes the parameters shown on screen when the checkbox is unchecked"
 
-	| children |
-	self flag: 'clean'.
 	providedParameterLabel label: ''.
 	usedParameterLabel label: ''.
 
@@ -530,12 +519,8 @@ MolComponent >> setEmptyParameters [
 
 	providedParameterChildren ifNil: [
 		providedParameterChildren := providedParameterFrame children ].
-	"self halt."
-	"deleting the child elements of providedParameterFrame also delete the ones of providedParameterFrameCopy. As such, it's necessary to copy them and add them after the deletion'"
-	"childLayouts"
-	"providedParameterFrame removeAll."
+	"deleting the child elements of providedParameterFrame also deletes the ones of providedParameterFrameCopy. As such, it's necessary to copy them and add them after the deletion"
 	providedParameterPresenter layout removeAll.
-	"self halt."
 	usedParameterFrame removeAll
 ]
 
