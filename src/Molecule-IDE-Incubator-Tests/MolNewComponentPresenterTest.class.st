@@ -1,5 +1,5 @@
 Class {
-	#name : #MolNewComponentTest,
+	#name : #MolNewComponentPresenterTest,
 	#superclass : #TestCase,
 	#instVars : [
 		'newComponent'
@@ -8,7 +8,7 @@ Class {
 }
 
 { #category : #running }
-MolNewComponentTest >> setUp [
+MolNewComponentPresenterTest >> setUp [
 
 	super setUp.
 
@@ -17,7 +17,7 @@ MolNewComponentTest >> setUp [
 ]
 
 { #category : #running }
-MolNewComponentTest >> testBrowseButtonActivated [
+MolNewComponentPresenterTest >> testBrowseButtonActivated [
 
 	| enabled |
 	newComponent packageList selectItem: 'BaselineOfAIGraphAlgorithms' asPackage.
@@ -26,7 +26,7 @@ MolNewComponentTest >> testBrowseButtonActivated [
 ]
 
 { #category : #running }
-MolNewComponentTest >> testFilterPackageList [
+MolNewComponentPresenterTest >> testFilterPackageList [
 	"10 items in packageList when filtered but only 8 are counted since classes without a supplementary hyphen are not counted"
 
 	"for example, AST-Core-Tests is counted which is not the case for AST-Core"
@@ -38,7 +38,7 @@ MolNewComponentTest >> testFilterPackageList [
 ]
 
 { #category : #running }
-MolNewComponentTest >> testFilterTagList [
+MolNewComponentPresenterTest >> testFilterTagList [
 
 	| size |
 	newComponent packageList selectItem: 'STON-Core' asPackage.
@@ -48,7 +48,7 @@ MolNewComponentTest >> testFilterTagList [
 ]
 
 { #category : #running }
-MolNewComponentTest >> testSelectedItem [
+MolNewComponentPresenterTest >> testSelectedItem [
 
 	| selectedItem package |
 	package := 'BaselineOfAIGraphAlgorithms' asPackage.
