@@ -26,9 +26,6 @@ Internal Representation and Key Implementation Points.
 Class {
 	#name : #MolTypeCmdCommand,
 	#superclass : #MolCmdCommand,
-	#instVars : [
-		'typeName'
-	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
 

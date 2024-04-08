@@ -28,8 +28,7 @@ Class {
 	#name : #MolFormShape,
 	#superclass : #RSBitmap,
 	#instVars : [
-		'componentNumber',
-		'canvasIndex'
+		'componentNumber'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }

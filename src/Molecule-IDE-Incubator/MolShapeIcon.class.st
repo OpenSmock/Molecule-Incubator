@@ -23,9 +23,6 @@ Internal Representation and Key Implementation Points.
 Class {
 	#name : #MolShapeIcon,
 	#superclass : #Object,
-	#instVars : [
-		'icons'
-	],
 	#classInstVars : [
 		'icons'
 	],
