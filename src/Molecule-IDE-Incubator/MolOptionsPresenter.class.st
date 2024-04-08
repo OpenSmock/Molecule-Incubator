@@ -27,7 +27,7 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #MolOptions,
+	#name : #MolOptionsPresenter,
 	#superclass : #SpPresenter,
 	#instVars : [
 		'implementationList',
@@ -39,25 +39,25 @@ Class {
 }
 
 { #category : #tests }
-MolOptions >> buttonBrowse [
+MolOptionsPresenter >> buttonBrowse [
 	"used for test purposes"
 
 	^ buttonBrowse
 ]
 
 { #category : #tests }
-MolOptions >> buttonBrowseAction [ 
+MolOptionsPresenter >> buttonBrowseAction [ 
 ]
 
 { #category : #tests }
-MolOptions >> implementationList [
+MolOptionsPresenter >> implementationList [
 	"used for test purposes"
 
 	^ implementationList
 ]
 
 { #category : #tests }
-MolOptions >> initializePresenters [
+MolOptionsPresenter >> initializePresenters [
 	"buttons"
 
 	buttonBrowse := self newButton
@@ -83,7 +83,7 @@ MolOptions >> initializePresenters [
 ]
 
 { #category : #tests }
-MolOptions >> listImplementations: selectedClass [
+MolOptionsPresenter >> listImplementations: selectedClass [
 	"necessary to use a Collection or one of its subclasses (Array in this case) to retrieve implementations of the selected Type Trait"
 
 	(selectedClass = '' or: selectedClass = OrderedCollection new)

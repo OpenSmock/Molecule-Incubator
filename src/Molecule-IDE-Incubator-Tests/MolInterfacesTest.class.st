@@ -13,7 +13,7 @@ MolInterfacesTest >> setUp [
 	super setUp.
 
 	"Put here a common initialization logic for tests"
-	localTimeEvents := MolInterfaces new.
+	localTimeEvents := MolInterfacesPresenter new.
 	localTimeEvents interface: MolMyLocalTimeEvents.
 ]
 

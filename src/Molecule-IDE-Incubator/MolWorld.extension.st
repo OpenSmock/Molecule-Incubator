@@ -99,7 +99,7 @@ MolWorld class >> toolsMenu120NewComponent: aBuilder [
 		parent: #MoleculeDebug;
 		order: 12.0;
 		icon: (self iconNamed: #smallUpdate);
-		action: [ MolNewComponentLibrary new open ];
+		action: [ MolNewComponentLibraryPresenter new open ];
 		label: 'New Component';
 		help:
 			'Define a new Molecule Component by selecting a package and its (optional) tag'

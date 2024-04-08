@@ -13,7 +13,7 @@ MolNewComponentTest >> setUp [
 	super setUp.
 
 	"Put here a common initialization logic for tests"
-	newComponent := MolNewComponentLibrary new
+	newComponent := MolNewComponentLibraryPresenter new
 ]
 
 { #category : #running }

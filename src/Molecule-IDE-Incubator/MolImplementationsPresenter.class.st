@@ -26,8 +26,8 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #MolImplementations,
-	#superclass : #MolOptions,
+	#name : #MolImplementationsPresenter,
+	#superclass : #MolOptionsPresenter,
 	#instVars : [
 		'selectedType',
 		'componentBuilder',
@@ -37,7 +37,7 @@ Class {
 }
 
 { #category : #initialization }
-MolImplementations >> buttonBrowseAction [
+MolImplementationsPresenter >> buttonBrowseAction [
 	"an implementation needs to be selected in order to browse it"
 
 	| item |
@@ -49,7 +49,7 @@ MolImplementations >> buttonBrowseAction [
 ]
 
 { #category : #initialization }
-MolImplementations >> connectPresenters [
+MolImplementationsPresenter >> connectPresenters [
 	"enables the Browse button if an implementation is selected, also shows a diagram of the selected component"
 
 	| shape |
@@ -75,7 +75,7 @@ MolImplementations >> connectPresenters [
 ]
 
 { #category : #initialization }
-MolImplementations >> defaultLayout [
+MolImplementationsPresenter >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 		  add: implementationList height: implementationList items size * 20;
@@ -85,7 +85,7 @@ MolImplementations >> defaultLayout [
 ]
 
 { #category : #initialization }
-MolImplementations >> initializePresenters [
+MolImplementationsPresenter >> initializePresenters [
 
 	super initializePresenters.
 
@@ -97,13 +97,13 @@ MolImplementations >> initializePresenters [
 ]
 
 { #category : #initialization }
-MolImplementations >> title [
+MolImplementationsPresenter >> title [
 
 	^ selectedType asString , ' Implementations'
 ]
 
 { #category : #initialization }
-MolImplementations >> type: aType [
+MolImplementationsPresenter >> type: aType [
 	"when the Type Trait is given, loads the list"
 
 	"only one Type can be selected in the System Browser at a time"

@@ -49,7 +49,7 @@ MolSpFilteringListDoubleClickPresenter >> doubleClickActivated [
 				size = 1
 					ifTrue: [ package browse ]
 					ifFalse: [
-						molComponent := MolNewComponentLibrary new.
+						molComponent := MolNewComponentLibraryPresenter new.
 						molComponent browseSelectedPackage: package tag: item ] ]
 			ifFalse: [ item browse ] ]
 ]

@@ -29,8 +29,8 @@ Internal Representation and Key Implementation Points.
     Implementation Points
 "
 Class {
-	#name : #MolNewComponentLibrary,
-	#superclass : #MolOptions,
+	#name : #MolNewComponentLibraryPresenter,
+	#superclass : #MolOptionsPresenter,
 	#instVars : [
 		'packageList',
 		'tagList',
@@ -43,7 +43,7 @@ Class {
 }
 
 { #category : #tests }
-MolNewComponentLibrary >> browseSelectedPackage: p tag: t [
+MolNewComponentLibraryPresenter >> browseSelectedPackage: p tag: t [
 	"browse the selected Tag, which is a part of a package (that contains classes)"
 
 	| browser |
@@ -59,14 +59,14 @@ MolNewComponentLibrary >> browseSelectedPackage: p tag: t [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> browseSelectedTag [
+MolNewComponentLibraryPresenter >> browseSelectedTag [
 	"browse the selected Tag, which is a part of a package (that contains classes)"
 
 	self browseSelectedPackage: package tag: tag
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> buttonBrowseAction [
+MolNewComponentLibraryPresenter >> buttonBrowseAction [
 	"a package or tag needs to be selected in order to browse it. The last selected one (for both lists) being the one browsed"
 
 	| size |
@@ -80,7 +80,7 @@ MolNewComponentLibrary >> buttonBrowseAction [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> connectPresenters [
+MolNewComponentLibraryPresenter >> connectPresenters [
 	"enables the Browse and OK buttons if a package is selected and updates the tag frame"
 
 	self tagClicked.
@@ -91,7 +91,7 @@ MolNewComponentLibrary >> connectPresenters [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> createComponent [
+MolNewComponentLibraryPresenter >> createComponent [
 
 	| newComponent |
 	self flag: 'to do'.
@@ -109,7 +109,7 @@ MolNewComponentLibrary >> createComponent [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> defaultLayout [
+MolNewComponentLibraryPresenter >> defaultLayout [
 
 	^ SpBoxLayout newVertical
 		  add: (SpBoxLayout newLeftToRight
@@ -128,7 +128,7 @@ MolNewComponentLibrary >> defaultLayout [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> fillTagList [
+MolNewComponentLibraryPresenter >> fillTagList [
 	"loads every tag of the selected package in tagList"
 
 	| tags |
@@ -140,7 +140,7 @@ MolNewComponentLibrary >> fillTagList [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> initializePresenters [
+MolNewComponentLibraryPresenter >> initializePresenters [
 
 	self initializePresentersMolOptions.
 
@@ -159,7 +159,7 @@ MolNewComponentLibrary >> initializePresenters [
 ]
 
 { #category : #initialization }
-MolNewComponentLibrary >> initializePresentersMolOptions [
+MolNewComponentLibraryPresenter >> initializePresentersMolOptions [
 	"done this way instead of using super initializePresenters since it's the only way to have the correct positioning for the OK button (left of the others but not by a large margin)"
 
 	buttonBrowse := self newButton
@@ -194,7 +194,7 @@ MolNewComponentLibrary >> initializePresentersMolOptions [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> packageClicked [
+MolNewComponentLibraryPresenter >> packageClicked [
 	"determines what happens once a package is selected, such as activating the Browse and OK buttons"
 
 	packageList whenSelectionChangedDo: [
@@ -209,14 +209,14 @@ MolNewComponentLibrary >> packageClicked [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> packageList [
+MolNewComponentLibraryPresenter >> packageList [
 	"used for test purposes"
 
 	^ packageList
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> tagClicked [
+MolNewComponentLibraryPresenter >> tagClicked [
 	"determines what happens once a tag is selected"
 
 	tagList whenSelectionChangedDo: [
@@ -225,14 +225,14 @@ MolNewComponentLibrary >> tagClicked [
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> tagList [
+MolNewComponentLibraryPresenter >> tagList [
 	"used for test purposes"
 
 	^ tagList
 ]
 
 { #category : #tests }
-MolNewComponentLibrary >> title [
+MolNewComponentLibraryPresenter >> title [
 
 	^ 'Molecule Component Package and Tag'
 ]

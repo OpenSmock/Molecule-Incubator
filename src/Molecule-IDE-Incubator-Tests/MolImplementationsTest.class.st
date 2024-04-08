@@ -14,10 +14,10 @@ MolImplementationsTest >> setUp [
 	super setUp.
 
 	"Put here a common initialization logic for tests"
-	clockImplementations := MolImplementations new.
+	clockImplementations := MolImplementationsPresenter new.
 	clockImplementations type: MolMyClockComponent.
 
-	geoPosImplementations := MolImplementations new.
+	geoPosImplementations := MolImplementationsPresenter new.
 	geoPosImplementations type: MolGeoPosEquipmentType.
 ]
 
