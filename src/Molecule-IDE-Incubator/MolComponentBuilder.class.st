@@ -135,25 +135,47 @@ MolComponentBuilder >> determineCanvasIndex [
 
 { #category : #rendering }
 MolComponentBuilder >> generateConsumedEvents [
-	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape and the line that links the box and the shape"
+	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape (which is a Form) and the line that links the box and the shape"
 
-	| consumedEventShape labels |
+	| labels consumedEventShape consumedEventBitmap |
 	labels := self
 		          showInterfaces: 'consumedEvent'
 		          xValue: -220
 		          yValue: yEvent.
 
 	labels ifNotNil: [
-		self flag: 'shape, comment'.
-		consumedEventShape := RSShapeFactory rightArrow
-			                      borderColor: Color black;
-			                      color: Color white;
-			                      extent: shapeExtent;
-			                      yourself.
-		consumedEventShape translateTo: -110 @ yEvent - 20.
-		canvas add: consumedEventShape.
+		consumedEventShape := MolShapeIcon consumedEventIcon.
 
-		self addLineFromBoxTo: consumedEventShape ]
+		consumedEventBitmap := MolConsumedEventShape new.
+		consumedEventBitmap form: consumedEventShape.
+		consumedEventBitmap translateTo: -110 @ yEvent - 20.
+
+		canvas add: consumedEventBitmap.
+
+		self addLineFromBoxTo: consumedEventBitmap ]
+]
+
+{ #category : #rendering }
+MolComponentBuilder >> generateConsumedEvents: numberedComponent [
+	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape (which is a Form) and the line that links the box and the shape"
+
+	| labels consumedEventShape consumedEventBitmap |
+	labels := self
+		          showInterfaces: 'consumedEvent'
+		          xValue: -220
+		          yValue: yEvent.
+
+	labels ifNotNil: [
+		consumedEventShape := MolShapeIcon consumedEventIcon.
+
+		consumedEventBitmap := MolConsumedEventShape new.
+		consumedEventBitmap form: consumedEventShape.
+		consumedEventBitmap componentNumber: numberedComponent.
+		consumedEventBitmap translateTo: -110 @ yEvent - 20.
+
+		canvas add: consumedEventBitmap.
+
+		self addLineFromBoxTo: consumedEventBitmap ]
 ]
 
 { #category : #rendering }
@@ -322,6 +344,28 @@ MolComponentBuilder >> generateUsedParameters [
 ]
 
 { #category : #rendering }
+MolComponentBuilder >> generateUsedServices [
+	"generates the used services part, which is composed of the used service interfaces labels, the half-empty circle shape (which is a Form) and the line that links the box and the shape"
+
+	| usedServiceShape labels usedServiceBitmap |
+	labels := self
+		          showInterfaces: 'usedService'
+		          xValue: -200
+		          yValue: yService.
+
+	labels ifNotNil: [
+		usedServiceShape := MolShapeIcon usedServiceIcon.
+
+		usedServiceBitmap := MolUsedServiceShape new.
+		usedServiceBitmap form: usedServiceShape.
+		usedServiceBitmap translateTo: -130 @ yService.
+
+		canvas add: usedServiceBitmap.
+
+		self addLineFromBoxTo: usedServiceBitmap ]
+]
+
+{ #category : #rendering }
 MolComponentBuilder >> generateUsedServices: numberedComponent [
 	"generates the used services part, which is composed of the used service interfaces labels, the half-empty circle shape (which is a Form) and the line that links the box and the shape"
 
@@ -387,14 +431,17 @@ MolComponentBuilder >> showComponent: numberedComponent [
 	self generateType.
 
 	"required part of the component"
-	self generateConsumedEvents.
-	self generateUsedParameters.
-
-	numberedComponent ifNotNil: [
-		self flag: 'ifNil + autres fonctions'.
-		self generateUsedServices: numberedComponent
-		"self generateConsumedEvents: numberedComponent.
-		self generateUsedParameters: numberedComponent" ].
+	numberedComponent
+		ifNotNil: [
+			self flag: 'ifNil + autres fonctions'.
+			self generateUsedServices: numberedComponent.
+			self generateConsumedEvents: numberedComponent
+			"self generateUsedParameters: numberedComponent" ]
+		"See Component Implementation doesn't use numberedComponent"
+		ifNil: [
+			self generateConsumedEvents.
+			self generateUsedServices.
+			self generateUsedParameters ].
 
 	"offered part of the component"
 	self generateProvidedParameters.

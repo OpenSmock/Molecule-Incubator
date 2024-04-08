@@ -33,11 +33,66 @@ Class {
 }
 
 { #category : #accessing }
+MolShapeIcon class >> consumedEventIcon [
+
+	<script: 'self consumedEventIcon inspect'>
+	^ self icons at: #consumedEvent ifAbsentPut: [
+		  Form fromBinaryStream:
+			  self consumedEventIconEncoding base64Decoded readStream ]
+]
+
+{ #category : #accessing }
+MolShapeIcon class >> consumedEventIconEncoding [
+
+	^ 'iVBORw0KGgoAAAANSUhEUgAAACUAAABHCAYAAACAoo5SAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAHqSURBVGhD7dkxqsJAEMbxgOIJvIRe
+w4MYLW3s9AYqeIlcwFKwsLSxVCvTWOohlJUvbB7hFS8zOzPLK/YPAR3Z8HMLw2Lm/mEJRS2h
+qJFQj8fDv4oTCbVcLt1ms/Hv7COjsixzi8XCT2wjoWazWYXCFWPHWDsVC8ZCbbdb1+/3zWEs
+1OFwcNfr1RzGRiFrWBAKWcKCUagJW6/XfipPhEIWMDEKacNUUEgTpoZCWjBVFNKAqaOQFMZC
+cX6PbrdbMIyEOh6PrtfruW6363a7nZ+2FwojodB+vxfDVquVn/4dGYViwVgoFAPGRiFrWBAK
+WcKCUcgKJkIhC5gYhbRhKihUwzqdjghWlqUeCuExhJtjx+73u5+2hycG1uGaTqd6qMvl8vON
+Oc/I1+vlhsNhtW48HrvT6aSD0gK93+9qLkZpg5AIZQFCwSgrEApCWYIQG2UNQixUDBAioySg
+wWBQrcvzvBWESKjm6cQahEio+jQzn8/9pL1QEGKhqOc+CQipo6QgpIrSACE1lBYIqaCez6ca
+CIlR2iAkQjVBk8lEBYSCUb9Bn8/HfyIvCGUJQmyUNQixUEVRmIMQC1VfliBEQjX/77MGIdZO
+jUYjcxAio2LsUB0JdT6fo4EQCRW7hKKWUNQSilpCUUsoWs59AZqbJdnYcIWKAAAAAElFTkSu
+QmCC'
+]
+
+{ #category : #accessing }
 MolShapeIcon class >> icons [
 
 	<script: 'self icons inspect'>
 	icons ifNil: [ icons := Dictionary new ].
 	^ icons
+]
+
+{ #category : #accessing }
+MolShapeIcon class >> redConsumedEventIcon [
+
+	<script: 'self redConsumedEventIcon inspect'>
+	^ self icons at: #consumedEventRed ifAbsentPut: [
+		  Form fromBinaryStream:
+			  self redConsumedEventIconEncoding base64Decoded readStream ]
+]
+
+{ #category : #accessing }
+MolShapeIcon class >> redConsumedEventIconEncoding [
+
+	^ 'iVBORw0KGgoAAAANSUhEUgAAACUAAABHCAYAAACAoo5SAAAAAXNSR0IArs4c6QAAAARnQU1B
+AACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAK0SURBVGhD7dq7qxpBFMDhExU7O7uk
+TKPg/xAfjUllsPcBabVc7cV3mcLCIo2NIKk0IKJF0kgC8YHYWgULU9klyt49c8dwucg6u3Nm
+MbA/EMe7OHx3d3Fc9YVuBHeWh9/fVS5KtP8Xtdvt+MiZhFCdTgcajQZ/pD7hw1cqlUDTNP5I
+bUKo4/HI7pvNpiN7TAgVCAT46HGPqYYJHz6s1WpBMBhUDrOEikQiMJ1OlcMsobCXb98rh1lG
+YaphtlDYc1i9Xudb5LONwp7CyuUyGUwKhamASaMwahgJCqOEkaEwKhgpCqOAWUItFgs+Mg9h
+s9nMPgyvZm41mUx0v9+v+3w+fTAY6L9fvRa6rddr3YDh1ZJeq9X4bLcTQmHD4VAaVq1W+Wzm
+CaMwp2CWUJgTMMsoTDXMFgpTCbONwlTBpFCYCpg0CqOGkX0UNBqNIJVKwfl8hn6/D2+KYteI
+v758hmg0CofDAQwYpNNpIP18Ct8W47tQY4/BZrOBYPwd32Lez08dSCQSbJzP5+kW5NVqBe12
+m40rlYow6O+Pb1AoFNg4k8kwFMk5tVwu/50bxuJ79fy5dtvv93o4HGbPM0D66XRi80mjqEGY
+FEoFCLONUgXCbKFUgjDLKNUgzBLKCRAmjJIBhUIh9rxsNnsThAmhjBdGx0CY0Ct6r9dja1Ox
+WIQPH7v8r+bhKzWuadvtFgwQdLtd8Hq9fKt5lpaZZDLJR+bJgDDyi1FZEEaKogBhZCgqEEaC
++vP9KxkIk0YhKBaLkYEwKdRTUC6XIwFhtlGqQJgt1DWQx0NyerIsz6QahFmazVjLlINYfA00
+TdM0tqhebgZIN67v+Fb6hP7Ny/d9mNI9xBOa+fJ9XzweVw7ChGfHPTQej5WDWPwwmjafz5We
+Q89zf+simosSzUWJ5qJEc1Gi3SEK4AGaVzF5mszzwAAAAABJRU5ErkJggg=='
 ]
 
 { #category : #accessing }
