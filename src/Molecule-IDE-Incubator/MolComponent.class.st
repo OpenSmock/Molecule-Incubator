@@ -453,8 +453,6 @@ MolComponent >> listTypesUsingInterface: interface forFrame: interfaceFrame role
 	| typesInPackage browsableType typesUsingInterface implementationTable typeUsingInterface spacingNumber browsableTypeLabel |
 	self flag: 'évolution Molecule implem a interfaces (changer texte)'.
 	self flag: 'cherche uniquement dans même package'.
-	self flag:
-		'voir issue Molecule pour changer comment récupérer services'.
 	typesInPackage := self listTypesInPackage.
 	typesUsingInterface := OrderedCollection new.
 
