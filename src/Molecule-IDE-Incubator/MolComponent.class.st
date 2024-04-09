@@ -280,6 +280,7 @@ MolComponent >> initializePresenters [
 		yourself."
 	"contents: pour StringMorph,backgroundColor:"
 
+	"e is missing since -ed or -ing are suffixed depending on the context"
 	roleRequiredInterface := 'requir'.
 	roleOfferedInterface := 'offer'.
 
