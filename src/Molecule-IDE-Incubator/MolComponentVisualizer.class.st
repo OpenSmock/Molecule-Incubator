@@ -29,7 +29,12 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'canvas',
-		'runningComponents'
+		'runningComponents',
+		'xValue',
+		'yValue',
+		'numberedComponent',
+		'activatedAnnouncer',
+		'removedAnnouncer'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -51,7 +56,7 @@ MolComponentVisualizer >> addLineFrom: interfaceLabelOrShape to: otherInterfaceL
 ]
 
 { #category : #initialization }
-MolComponentVisualizer >> buildComponent: aComponent numberedComponent: numberedComponent [
+MolComponentVisualizer >> buildComponent: aComponent [
 	"builds a component visualization, similar to how the build method of ClyComponentBuilder works but for multiple components to be shown on the same canvas. numberedComponents is used to stock the number of the component (its index in the canvas) in its main box"
 
 	| componentBuilder |
@@ -64,29 +69,17 @@ MolComponentVisualizer >> buildComponent: aComponent numberedComponent: numbered
 
 { #category : #initialization }
 MolComponentVisualizer >> buildComponents [
-	"builds every component visualization, the x value being used to position the components"
+	"builds every component visualization"
 
-	| xValue yValue canvasShape numberedComponent |
+	| canvasShape |
 	self flag:
 		'faire en sort que composant relié à autre soit placé à gauche?'.
-	xValue := -400.
-	yValue := -200.
-	numberedComponent := 0.
 
 	runningComponents keysDo: [ :component | "each component is its own shape of type RSComposite"
 		numberedComponent := numberedComponent + 1.
-		canvasShape := (self
-			                buildComponent: component
-			                numberedComponent: numberedComponent) canvas
-			               asShape.
+		canvasShape := (self buildComponent: component) canvas asShape.
 
-		"having RSComposite shapes makes it possible to move every element of a component at the same time"
-		canvasShape translateTo: xValue @ yValue.
-		canvasShape @ RSDraggable.
-		canvas add: canvasShape.
-
-		xValue := xValue + 600.
-		yValue := yValue + 200 ]
+		self moveAndAddComponent: canvasShape ]
 ]
 
 { #category : #initialization }
@@ -175,6 +168,25 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 ]
 
 { #category : #initialization }
+MolComponentVisualizer >> createLinksAndHighlights [
+	"regroups every function used to highlight and create links between components"
+
+	"removes every link first"
+	canvas shapes do: [ :shape |
+		shape class = RSLine ifTrue: [ canvas removeShape: shape ] ].
+
+	self createLinksBetweenInterfaces.
+	self createInvisibleLinksBetweenInterfaces.
+	"links need to be created first in order to know what to highlight next"
+	self highlightShapes.
+
+	self highlightShapeShowsLinkAndForm.
+	self highlightComponent.
+
+	self clickingComponentShowsInspector
+]
+
+{ #category : #initialization }
 MolComponentVisualizer >> createLinksBetweenInterfaces [
 	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
 
@@ -245,6 +257,17 @@ MolComponentVisualizer >> determineComponentShape: componentIndex canvasIndex: c
 	^ labelShape
 ]
 
+{ #category : #'as yet unclassified' }
+MolComponentVisualizer >> findComponentInCanvas: componentClass [
+	"returns the RSComposite shape that has a label with the text equals to the component class given"
+
+	canvas shapes do: [ :composite |
+		composite class = RSLine ifFalse: [
+			composite children do: [ :shape |
+				shape class = MolCenterLabel ifTrue: [
+					shape text = componentClass name ifTrue: [ ^ composite ] ] ] ] ]
+]
+
 { #category : #initialization }
 MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 	"used for test purposes, keeps only labels of the interfaces (which are not empty) + name of the component and its Type"
@@ -258,6 +281,19 @@ MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 			child text = '' ifFalse: [ componentLabels add: child ] ] ].
 
 	^ componentLabels
+]
+
+{ #category : #'as yet unclassified' }
+MolComponentVisualizer >> hasTwoComponentsOrMore [
+	"used to know if the canvas has two or more RSComposite shapes, to create links or not"
+
+	| i |
+	i := 0.
+
+	canvas shapes do: [ :shape |
+		shape class = RSComposite ifTrue: [ i := i + 1 ] ].
+	
+	i >= 2 ifTrue: [ ^ true ] ifFalse: [ ^ false ]
 ]
 
 { #category : #initialization }
@@ -427,6 +463,14 @@ MolComponentVisualizer >> highlightedShape: shape [
 MolComponentVisualizer >> initialize [
 	"gets the running Components as a dictionary and then builds the components"
 
+	"values used to position the components so that they don't overlap"
+
+	xValue := -400.
+	yValue := -200.
+
+	"used so that every component main box knows which is the index of the RSComposite shape it pertains to in the canvas"
+	numberedComponent := 0.
+
 	super initialize.
 	canvas := RSCanvas new.
 	"The canvas can be zoomed in / out using I and O keys and can also be navigated using scrollbars"
@@ -436,15 +480,69 @@ MolComponentVisualizer >> initialize [
 
 	self buildComponents.
 
-	self createLinksBetweenInterfaces.
-	self createInvisibleLinksBetweenInterfaces.
-	"links need to be created first in order to know what to highlight next"
-	self highlightShapes.
-	
-	self highlightShapeShowsLinkAndForm.
-	self highlightComponent.
+	self createLinksAndHighlights.
 
-	self clickingComponentShowsInspector
+	self realTimeVisualization
+]
+
+{ #category : #'as yet unclassified' }
+MolComponentVisualizer >> moveAndAddComponent: canvasShape [
+	"moves a RSComposite shape and adds it to the canvas"
+
+	canvasShape translateTo: xValue @ yValue.
+	canvasShape @ RSDraggable.
+	canvas add: canvasShape.
+				canvas zoomToFit.
+
+	xValue := xValue + 600.
+	yValue := yValue + 200
+]
+
+{ #category : #'as yet unclassified' }
+MolComponentVisualizer >> realTimeVisualization [
+	"when a component is started, adds it to the visualization"
+
+	"when it's removed, removes it from the visualization"
+
+	"functions through announcers"
+
+	| canvasShape componentClass index |
+	"adds the components (with the name of their instance if they have one)"
+	SystemAnnouncer uniqueInstance
+		when: MolComponentActivated
+		do: [ :announcement |
+			componentClass := announcement component class.
+
+			canvasShape := (self buildComponent: componentClass) canvas asShape.
+
+			self moveAndAddComponent: canvasShape.
+
+			"need to (re)create every link between components if there's more than one on the screen"
+			self flag: 'liens restent sur ecran'.
+			self hasTwoComponentsOrMore ifTrue: [
+				self createLinksAndHighlights ] ].
+
+	"removes the components"
+	SystemAnnouncer uniqueInstance
+		when: MolComponentRemoved
+		do: [ :announcement |
+			componentClass := announcement component class.
+
+			canvasShape := self findComponentInCanvas: componentClass.
+			index := canvas shapes indexOf: canvasShape.
+			canvas removeShape: canvasShape.
+
+			"removes every link"
+			canvas shapes do: [ :shape |
+				shape class = RSLine ifTrue: [ canvas removeShape: shape ] ].
+			canvas zoomToFit ].
+
+	activatedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
+		                      subscriptionsHandling:
+		                      MolComponentActivated asAnnouncement.
+	removedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
+		                    subscriptionsHandling:
+		                    MolComponentRemoved asAnnouncement
 ]
 
 { #category : #initialization }
@@ -506,4 +604,25 @@ MolComponentVisualizer >> unhighlightedShape: shape [
 		^ MolShapeIcon usedParameterIcon ].
 	shape class = MolUsedServiceShape ifTrue: [
 		^ MolShapeIcon usedServiceIcon ]
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> windowIsClosing [
+	"need to remove the instantiated Announcers since they are kept in SystemAnnouncer otherwise"
+
+	self flag:
+		'n enleve rien, tester visualization en enlevant tous les composants'.
+	self halt.
+
+	activatedAnnouncer do: [ :e |
+		e subscriber class = MolComponentVisualizer ifTrue: [
+			SystemAnnouncer uniqueInstance subscriptions remove: e ] ].
+
+	removedAnnouncer do: [ :e |
+		e subscriber class = MolComponentVisualizer ifTrue: [
+			SystemAnnouncer uniqueInstance subscriptions remove: e ] ]
+
+	"SystemAnnouncer uniqueInstance subscriptions do: [ :s |
+		s kind = AnnouncementSubscription ifTrue: [
+			SystemAnnouncer uniqueInstance subscriptions remove: s ] ]"
 ]
