@@ -34,7 +34,8 @@ Class {
 		'yValue',
 		'numberedComponent',
 		'activatedAnnouncer',
-		'removedAnnouncer'
+		'removedAnnouncer',
+		'window'
 	],
 	#category : #'Molecule-IDE-Incubator-ComponentIDE'
 }
@@ -172,6 +173,7 @@ MolComponentVisualizer >> createLinksAndHighlights [
 	"regroups every function used to highlight and create links between components"
 
 	"removes every link first"
+
 	canvas shapes do: [ :shape |
 		shape class = RSLine ifTrue: [ canvas removeShape: shape ] ].
 
@@ -233,6 +235,22 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 		canvasIndex := 0 ].
 
 	self removeDuplicateLines: lineArray
+]
+
+{ #category : #'as yet unclassified' }
+MolComponentVisualizer >> deleteAndRecreateLinksIfTwoComponentsOrMore [
+	"deletes every link before recreating theù if there are linked components on the screen"
+
+	"deletes every link"
+
+	canvas shapes do: [ :shape |
+		shape class = RSLine ifTrue: [ canvas removeShape: shape ] ].
+
+	canvas zoomToFit.
+
+	self flag: 'liens freeze sur ecran'.
+	"recreates links"
+	self hasTwoComponentsOrMore ifTrue: [ self createLinksAndHighlights ]
 ]
 
 { #category : #initialization }
@@ -324,7 +342,14 @@ MolComponentVisualizer >> highlightComponent [
 					list := OrderedCollection new.
 					group := RSGroup new.
 
-					c := canvas shapes at: box componentNumber.
+					"also need to know if a component has been stopped and was the last one to decrement its index by one"
+					box componentNumber > canvas shapes size
+						ifTrue: [ c := canvas shapes at: canvas shapes size ]
+						ifFalse: [ c := canvas shapes at: box componentNumber ].
+					"since lines are added BEFORE this code is executed, condition can be applied"
+					c class = RSLine ifTrue: [
+						c := canvas shapes at: box componentNumber - 1 ].
+					
 					c children do: [ :shape | "adds the shapes that need to be highlighted"
 						(shape class = RSLine or:
 							 (shape class = RSCircle or: shape class = MolCenterLabel))
@@ -482,7 +507,14 @@ MolComponentVisualizer >> initialize [
 
 	self createLinksAndHighlights.
 
-	self realTimeVisualization
+	self realTimeVisualization.
+	
+	activatedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
+		                      subscriptionsHandling:
+		                      MolComponentActivated asAnnouncement.
+	removedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
+		                    subscriptionsHandling:
+		                    MolComponentRemoved asAnnouncement
 ]
 
 { #category : #'as yet unclassified' }
@@ -506,7 +538,7 @@ MolComponentVisualizer >> realTimeVisualization [
 
 	"functions through announcers"
 
-	| canvasShape componentClass index |
+	| canvasShape componentClass |
 	"adds the components (with the name of their instance if they have one)"
 	SystemAnnouncer uniqueInstance
 		when: MolComponentActivated
@@ -517,32 +549,30 @@ MolComponentVisualizer >> realTimeVisualization [
 
 			self moveAndAddComponent: canvasShape.
 
-			"need to (re)create every link between components if there's more than one on the screen"
-			self flag: 'liens restent sur ecran'.
-			self hasTwoComponentsOrMore ifTrue: [
-				self createLinksAndHighlights ] ].
+			self deleteAndRecreateLinksIfTwoComponentsOrMore ].
 
 	"removes the components"
 	SystemAnnouncer uniqueInstance
 		when: MolComponentRemoved
-		do: [ :announcement |
+		do: [ :announcement | "self halt."
 			componentClass := announcement component class.
 
 			canvasShape := self findComponentInCanvas: componentClass.
-			index := canvas shapes indexOf: canvasShape.
+			"index := canvas shapes indexOf: canvasShape."
 			canvas removeShape: canvasShape.
 
-			"removes every link"
-			canvas shapes do: [ :shape |
-				shape class = RSLine ifTrue: [ canvas removeShape: shape ] ].
-			canvas zoomToFit ].
+			self deleteAndRecreateLinksIfTwoComponentsOrMore ].
+]
 
-	activatedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
-		                      subscriptionsHandling:
-		                      MolComponentActivated asAnnouncement.
-	removedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
-		                    subscriptionsHandling:
-		                    MolComponentRemoved asAnnouncement
+{ #category : #initialization }
+MolComponentVisualizer >> release [
+	"need to remove the instantiated Announcers since they are kept in SystemAnnouncer otherwise"
+
+	activatedAnnouncer do: [ :e | "e subscriber class = MolComponentVisualizer ifTrue: ["
+		SystemAnnouncer uniqueInstance subscriptions remove: e "]" ].
+
+	removedAnnouncer do: [ :e | "e subscriber class = MolComponentVisualizer ifTrue: ["
+		SystemAnnouncer uniqueInstance subscriptions remove: e "]" ]
 ]
 
 { #category : #initialization }
@@ -606,23 +636,10 @@ MolComponentVisualizer >> unhighlightedShape: shape [
 		^ MolShapeIcon usedServiceIcon ]
 ]
 
-{ #category : #initialization }
-MolComponentVisualizer >> windowIsClosing [
-	"need to remove the instantiated Announcers since they are kept in SystemAnnouncer otherwise"
+{ #category : #'as yet unclassified' }
+MolComponentVisualizer >> window: aWindow [
+	"after the window which containing the canvas is open, saves it in order to delete the announcers when it's closed"
 
-	self flag:
-		'n enleve rien, tester visualization en enlevant tous les composants'.
-	self halt.
-
-	activatedAnnouncer do: [ :e |
-		e subscriber class = MolComponentVisualizer ifTrue: [
-			SystemAnnouncer uniqueInstance subscriptions remove: e ] ].
-
-	removedAnnouncer do: [ :e |
-		e subscriber class = MolComponentVisualizer ifTrue: [
-			SystemAnnouncer uniqueInstance subscriptions remove: e ] ]
-
-	"SystemAnnouncer uniqueInstance subscriptions do: [ :s |
-		s kind = AnnouncementSubscription ifTrue: [
-			SystemAnnouncer uniqueInstance subscriptions remove: s ] ]"
+	window := aWindow.
+	window announcer when: WindowClosed do: [ self release ]
 ]

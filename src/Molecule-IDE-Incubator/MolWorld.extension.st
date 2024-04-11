@@ -13,7 +13,7 @@ MolWorld class >> menu15VisualizeRunningComponents: aBuilder [
 				ifTrue: [ "Visualize running components"
 					componentVisualizer := MolComponentVisualizer new.
 					canvas := componentVisualizer canvas.
-					canvas open ]
+					componentVisualizer window: canvas open ]
 				ifFalse: [ "No components are running"
 					self inform: 'No components are running' ] ];
 		icon: MolIcon moleculeIcon;
