@@ -94,7 +94,7 @@ MolNewComponentLibraryPresenter >> connectPresenters [
 MolNewComponentLibraryPresenter >> createComponent [
 
 	| newComponent |
-	self flag: 'to do'.
+	self flag: 'will not be done'.
 
 	"creates component in package"
 
@@ -105,7 +105,7 @@ MolNewComponentLibraryPresenter >> createComponent [
 	newComponent open.
 
 	"closes the window"
-	self delete.
+	self delete
 ]
 
 { #category : #tests }

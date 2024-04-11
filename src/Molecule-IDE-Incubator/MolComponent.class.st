@@ -153,6 +153,17 @@ MolComponent >> componentRepresentationTab [
 MolComponent >> componentTypeTab [
 	"used to define the first tab of the window, which shows the interfaces of the component (events, parameters and services)"
 
+	self flag: 'couleurs displayColor: [ :aClass |
+(aClass name endsWith: ''Test'')
+ifTrue: [ Color green ]'.
+	self flag: 'editable selector'.
+	self flag: 'typeNameField a champ trop grand'.
+	self flag: 'taille encadrés'.
+	self flag: 'parameterLayout pas utile'.
+	self flag: 'yourself ne changent rien'.
+	self flag:
+		'regarder comment spec examples est codé pour liste à gauche sppresenter collect'.
+
 	"first line, only column"
 
 	^ SpBoxLayout newTopToBottom
@@ -194,8 +205,8 @@ MolComponent >> componentTypeTab [
 					    add: usedParameterLabel expand: false;
 					    add: usedParameterFrame expand: false;
 					    add: providedParameterLabel expand: false;
-					"providedParameterFrame"
-					    add: providedParameterPresenter expand: false;
+					    "providedParameterFrame"add: providedParameterPresenter
+					    expand: false;
 					    yourself)
 			   expand: true;
 			   yourself);
@@ -211,21 +222,6 @@ MolComponent >> connectPresenters [
 { #category : #private }
 MolComponent >> defaultLayout [
 	"only defines the tabs, with each of them executing their code"
-
-	self flag: 'couleurs displayColor: [ :aClass |
-(aClass name endsWith: ''Test'')
-ifTrue: [ Color green ]'.
-	self flag: 'editable selector'.
-	self flag: 'typeNameField a champ trop grand'.
-	self flag: 'taille encadrés'.
-	self flag: 'voir molexamplecomponent moleculegui-tests'.
-	self flag:
-		'possible de rendre tables non scrollables? withoutScrollBars ne fonctionne pas'.
-	self flag: 'parametersLayout pas utile'.
-	self flag: 'yourself ne changent rien'.
-	self flag: 'plus possible d enlever et remettre paramètres'.
-	self flag:
-		'regarder comment spec examples est codé pour liste à gauche sppresenter collect'.
 
 	^ SpBoxLayout newTopToBottom add: (SpTabLayout new
 			   add: componentTypeText label: 'Component Type';
@@ -267,18 +263,9 @@ MolComponent >> initializeParameters [
 { #category : #private }
 MolComponent >> initializePresenters [
 
-	self flag: 'to clean'.
-
 	typeNameField := self newTextInput
 		                 editable: false;
 		                 yourself.
-
-	"eventText := Morph new.
-	eventText
-		name: 'Events';
-		color: Color lightCyan;
-		yourself."
-	"contents: pour StringMorph,backgroundColor:"
 
 	"e is missing since -ed or -ing are suffixed depending on the context"
 	roleRequiredInterface := 'requir'.
