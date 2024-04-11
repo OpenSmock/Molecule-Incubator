@@ -171,13 +171,12 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 { #category : #initialization }
 MolComponentVisualizer >> createLinksAndHighlights [
 	"regroups every function used to highlight and create links between components"
-
 	self flag: 'highlightShapes réexécuté fait bugger?'.
 
-		"links need to be created first in order to know what to highlight next"
+	"links need to be created first in order to know what to highlight next"
 	self createLinksBetweenInterfaces.
 	self createInvisibleLinksBetweenInterfaces.
-	
+
 	self highlightShapes.
 	self highlightShapeShowsLinkAndForm.
 	self highlightComponent.

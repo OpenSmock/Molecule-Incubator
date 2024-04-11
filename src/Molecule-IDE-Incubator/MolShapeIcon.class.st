@@ -40,6 +40,15 @@ MolShapeIcon class >> consumedEventIcon [
 
 { #category : #accessing }
 MolShapeIcon class >> consumedEventIconEncoding [
+	"to import a Form inside Pharo (and get this type of String), follow this procedure
+	- import your PNG inside your Pharo image folder (first layer, not inside pharo-local)
+	- execute in a Playground
+	ImageReadWriter formFromFileNamed: 'test.png' 
+	to visualize your PNG
+	- execute in a Playground
+	(Base64MimeConverter mimeEncode: 'test.png' asFileReference binaryReadStream) contents
+	to get the representation of the PNG as a String
+	The methods that are not suffixed Encoding have to code to use this representation in Pharo"
 
 	^ 'iVBORw0KGgoAAAANSUhEUgAAACUAAABHCAYAAACAoo5SAAAAAXNSR0IArs4c6QAAAARnQU1B
 AACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAAAHqSURBVGhD7dkxqsJAEMbxgOIJvIRe
