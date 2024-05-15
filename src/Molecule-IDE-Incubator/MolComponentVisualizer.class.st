@@ -171,6 +171,7 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 { #category : #initialization }
 MolComponentVisualizer >> createLinksAndHighlights [
 	"regroups every function used to highlight and create links between components"
+
 	self flag: 'highlightShapes réexécuté fait bugger?'.
 
 	"links need to be created first in order to know what to highlight next"
@@ -235,17 +236,14 @@ MolComponentVisualizer >> createLinksBetweenInterfaces [
 
 { #category : #'as yet unclassified' }
 MolComponentVisualizer >> deleteAndRecreateLinksIfTwoComponentsOrMore [
-	"deletes every link before recreating theù if there are linked components on the screen"
+	"deletes every link before recreating them if there are linked components on the screen"
 
 	| emptyHighlightable |
 	emptyHighlightable := RSHighlightable new.
 
-	canvas shapes do: [ :shape | "]"
-		shape class = RSLine
-			ifTrue: [ "deletes every link" canvas removeShape: shape ]
-			ifFalse: [ "and RSHighlightable associated to interface shapes or labels"
-				shape children do: [ :s | s @ emptyHighlightable
-				 ] ] ].
+	canvas shapes do: [ :shape |
+		shape class = RSLine ifTrue: [ "deletes every link" "ifFalse: [" "and RSHighlightable associated to interface shapes or labels" "shape children do: [ :s | s @ emptyHighlightable ] ]"
+			canvas removeShape: shape ] ].
 
 	canvas zoomToFit.
 
@@ -336,7 +334,7 @@ MolComponentVisualizer >> hasTwoComponentsOrMore [
 MolComponentVisualizer >> highlightComponent [
 	"hovering over a component (its main RSBox) highlights every interface shape and label it has as well as showing every line that connects it to another component's interface shapes and labels"
 
-	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c list group lines highlightedShape |
+	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c group lines highlightedShape |
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
 
@@ -356,7 +354,6 @@ MolComponentVisualizer >> highlightComponent [
 		component children do: [ :child |
 			child class = MolBoxComponent ifTrue: [
 				highlightableLabel highlightShapes: [ :box |
-					list := OrderedCollection new.
 					group := RSGroup new.
 
 					c := self findComponentThroughShape: box.
@@ -368,19 +365,21 @@ MolComponentVisualizer >> highlightComponent [
 
 								"only highlights the shapes connected to other components as well as the main box"
 								lines isEmpty ifFalse: [
-									list add: shape.
-									list add: box ].
+									group add: shape.
+									group add: box ].
 
-								list addAll: lines.
+								"highlights the lines going to other interface shapes"
+								group addAll: lines.
 
 								"highlights the shapes and labels from other components connected to the component"
 								lines do: [ :line |
+									group add: line to.
+
+									"puts the shapes in red by changing the graphic"
 									highlightedShape := self highlightedShape: line to.
 									(line to isKindOf: MolFormShape) ifTrue: [
-										line to form: highlightedShape ].
-									list add: line to ] ] ].
+										line to form: highlightedShape ] ] ] ].
 
-					group addAll: list.
 					group ].
 
 				child @ highlightableLabel ] ] ]
@@ -462,8 +461,7 @@ MolComponentVisualizer >> highlightShapes [
 
 	"hovering over an interface shape also creates a red line to its associated interface(s) labels as well as the associated interface(s) labels of another component, useful there's multiple interface labels for one part of a component's contract"
 
-	| highlightableLine highlightableShape canvasCompositeShapes |
-	"canvasIndex := 0."
+	| highlightableLine highlightableShape canvasCompositeShapes lines highlightedShape group highlightable |
 	highlightableLine := RSHighlightable new.
 	highlightableLine highlightColor: Color red.
 	"property used to highlight the lines that connect the interface shape to another"
@@ -478,11 +476,48 @@ MolComponentVisualizer >> highlightShapes [
 
 	canvasCompositeShapes := self removeLinesForIteration.
 
+	self flag:
+		'unhighlight bug suppression temps réel, highlight pas tout (group vide ?)'.
+	highlightable := RSHighlightable new.
+	highlightable highlightColor: Color red.
+
 	canvasCompositeShapes do: [ :component |
 		component children do: [ :child |
 			child class = RSLine ifFalse: [
-				child connectedLines isEmpty ifFalse: [ "if the component is connected through another by its hovered on interface shape"
-					child @ highlightableLine.
+				lines := child connectedLines.
+				lines isEmpty ifFalse: [ "if the component is connected through another by its hovered on interface shape"
+					"highlightable highlightShapes: [ :shape |" "highlightable highlightShapes: [ :shape |
+						list := OrderedCollection new.
+						group := RSGroup new.""lines := shape connectedLines.""highlights the current shape""list add: shape.""as well as the shapes and labels from other components connected to the component""lines do: [ :line |
+							highlightedShape := self highlightedShape: line to.
+							(line to isKindOf: MolFormShape) ifTrue: [
+								line to form: highlightedShape ].
+							list add: line to ].
+
+						group addAll: list.
+						group ].
+
+					child @ highlightable "
+						"group := RSGroup new."
+
+						"highlights the hovered on interface shape"
+						"group add: child."
+
+						"highlights the lines going to other interface shapes"
+						"group addAll: lines."
+
+						"highlights the shapes and labels from other components connected to the component"
+						"lines do: [ :line |
+							group add: line to."
+
+							"puts the shapes in red by changing the graphic"
+							"highlightedShape := self highlightedShape: line to.
+							(line to isKindOf: MolFormShape) ifTrue: [
+								line to form: highlightedShape ] ]."
+
+						"group"
+
+						child @ highlightableLine.
 					child @ highlightableShape ] ] ] ]
 ]
 
@@ -652,7 +687,7 @@ MolComponentVisualizer >> unhighlightedShape: shape [
 
 { #category : #'as yet unclassified' }
 MolComponentVisualizer >> window: aWindow [
-	"after the window which containing the canvas is open, saves it in order to delete the announcers when it's closed"
+	"after the window (which contains the canvas) is open, saves it in order to delete the announcers at the moment of it's closure"
 
 	window := aWindow.
 	window announcer when: WindowClosed do: [ self release ]
