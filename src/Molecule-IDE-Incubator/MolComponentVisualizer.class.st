@@ -94,17 +94,21 @@ MolComponentVisualizer >> canvas [
 MolComponentVisualizer >> clickingComponentShowsInspector [
 	"double-clicking a component shows its detail in the Pharo Inspector"
 
-	| canvasCompositeShapes lines |
+	| canvasCompositeShapes lines shapeSubscriptions |
 	canvasCompositeShapes := self removeLinesForIteration.
 	lines := OrderedCollection new.
 
 	canvasCompositeShapes do: [ :composite |
-		composite children do: [ :shape | "shape class = RSBox ifTrue:""("
-			shape
-				when: RSMouseDoubleClick
-				do: [ :evt | "2nd shape of a RSComposite is always a RSLabel with the name of the component"
-					(MolComponentManager default homeServices deployedComponents at:
-						 (composite children at: 2) text asClass) inspect ] ] ]
+		composite children do: [ :shape |
+			shapeSubscriptions := shape subscriptions.
+			shapeSubscriptions ifNotNil: [ "without this line, every time a Component is added/deleted, opens one more inspector while double-clicking a component"
+				(shapeSubscriptions handleEventClass: RSMouseDoubleClick)
+					ifFalse: [
+						shape
+							when: RSMouseDoubleClick
+							do: [ :evt | "2nd shape of a RSComposite is always a RSLabel with the name of the component"
+								(MolComponentManager default homeServices deployedComponents
+									 at: (composite children at: 2) text asClass) inspect ] ] ] ] ]
 ]
 
 { #category : #initialization }
@@ -244,7 +248,8 @@ MolComponentVisualizer >> deleteAndRecreateLinksIfTwoComponentsOrMore [
 
 	canvas shapes do: [ :shape |
 		shape class = RSLine ifTrue: [ "deletes every link" "ifFalse: [" "and RSHighlightable associated to interface shapes or labels" "shape children do: [ :s | s @ emptyHighlightable ]" "shape @ emptyHighlightable ]"
-			canvas removeShape: shape ] ].
+			canvas removeShape: shape ].
+		"shape class = RSLabel ifTrue: [ shape color: Color white ]" ].
 
 	canvas zoomToFit.
 
@@ -337,7 +342,8 @@ MolComponentVisualizer >> hasTwoComponentsOrMore [
 MolComponentVisualizer >> highlightComponent [
 	"hovering over a component (its main RSBox) highlights every interface shape and label it has as well as showing every line that connects it to another component's interface shapes and labels"
 
-	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine c group lines highlightedShape highlightable |
+	| highlightableLabel canvasCompositeShapes highlightableShape highlightableLine highlightable |
+	self flag: 'bug?'.
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
 
@@ -358,42 +364,53 @@ MolComponentVisualizer >> highlightComponent [
 	highlightable := RSHighlightable new.
 	"highlightable highlightColor: Color red."
 	"highlightable unhighlightRecordedShapes: canvas."
+
 	highlightable resetHighlightedShapes: canvas.
 
 	canvasCompositeShapes do: [ :component |
 		component children do: [ :child |
 			child class = MolBoxComponent ifTrue: [
-				"child @ highlightable."
+				child @ highlightable.
+
 				highlightableLabel highlightShapes: [ :box |
-					group := RSGroup new.
-
-					c := self findComponentThroughShape: box.
-					c children do: [ :shape | "adds the shapes that need to be highlighted"
-						(shape class = RSLine or:
-							 (shape class = RSCircle or: shape class = MolCenterLabel))
-							ifFalse: [ "adds the lines connecting the components"
-								lines := shape connectedLines.
-
-								"only highlights the shapes connected to other components as well as the main box"
-								lines isEmpty ifFalse: [
-									group add: shape.
-									group add: box ].
-
-								"highlights the lines going to other interface shapes"
-								group addAll: lines.
-
-								"highlights the shapes and labels from other components connected to the component"
-								lines do: [ :line |
-									group add: line to.
-
-									"puts the shapes in red by changing their graphic"
-									highlightedShape := self highlightedShape: line to.
-									(line to isKindOf: MolFormShape) ifTrue: [
-										line to form: highlightedShape ] ] ] ].
-
-					group ].
+					self highlightInterfaceShapeAndLine: box ].
 
 				child @ highlightableLabel ] ] ]
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> highlightInterfaceShapeAndLine: box [
+	"executed in highlightComponent, highlights every interface shape and label a Component has as well as showing every line that connects it to another component's interface shapes and labels"
+
+	| group c lines highlightedShape |
+	self flag: 'trop de shapes quand composant ajouté/supprimé'.
+	group := RSGroup new.
+
+	c := self findComponentThroughShape: box.
+	c children do: [ :shape | "adds the shapes that need to be highlighted"
+		(shape class = RSLine or:
+			 (shape class = RSCircle or: shape class = MolCenterLabel))
+			ifFalse: [ "adds the lines connecting the components"
+				lines := shape connectedLines.
+
+				"only highlights the shapes connected to other components as well as the main box"
+				lines isEmpty ifFalse: [
+					group add: shape.
+					group add: box ].
+
+				"highlights the lines going to other interface shapes"
+				group addAll: lines.
+
+				"highlights the shapes and labels from other components connected to the component"
+				lines do: [ :line |
+					group add: line to.
+
+					"puts the shapes in red by changing their graphic"
+					highlightedShape := self highlightedShape: line to.
+					(line to isKindOf: MolFormShape) ifTrue: [
+						line to form: highlightedShape ] ] ] ].
+
+	^ group
 ]
 
 { #category : #initialization }
@@ -454,8 +471,8 @@ MolComponentVisualizer >> highlightShapeShowsLinkAndForm [
 
 					lines do: [ :line |
 						line strokeColor: Color transparent.
-						line to class = RSLabel
-							ifFalse: [ line to color: Color white ] ].
+						"unhighlights the labels"
+						line to class = RSLabel ifFalse: [ line to color: Color white ] ].
 
 					"unhighlights the forms whenever the cursor leaves a component (its main RSBox), interface label or an interface shape"
 					canvas shapes do: [ :component |
@@ -588,6 +605,7 @@ MolComponentVisualizer >> realTimeVisualization [
 	"functions through announcers"
 
 	| canvasShape componentClass |
+		self flag: 'doesn t fully work'.
 	"adds the components (with the name of their instance if they have one)"
 	SystemAnnouncer uniqueInstance
 		when: MolComponentActivated
