@@ -91,24 +91,26 @@ MolComponentVisualizer >> canvas [
 ]
 
 { #category : #initialization }
-MolComponentVisualizer >> clickingComponentShowsInspector [
+MolComponentVisualizer >> clickingComponentShowsInspector: componentShape [
 	"double-clicking a component shows its detail in the Pharo Inspector"
 
-	| canvasCompositeShapes lines shapeSubscriptions |
-	canvasCompositeShapes := self removeLinesForIteration.
-	lines := OrderedCollection new.
+	componentShape children do: [ :shape |
+		shape
+			when: RSMouseDoubleClick
+			do: [ :evt | "2nd shape of a RSComposite is always a RSLabel with the name of the component"
+				(MolComponentManager default homeServices deployedComponents at:
+					 (componentShape children at: 2) text asClass) inspect ] ]
+]
 
-	canvasCompositeShapes do: [ :composite |
-		composite children do: [ :shape |
-			shapeSubscriptions := shape subscriptions.
-			shapeSubscriptions ifNotNil: [ "without this next line, every time a Component is added/deleted, opens one more inspector while double-clicking a component"
-				(shapeSubscriptions handleEventClass: RSMouseDoubleClick)
-					ifFalse: [
-						shape
-							when: RSMouseDoubleClick
-							do: [ :evt | "2nd shape of a RSComposite is always a RSLabel with the name of the component"
-								(MolComponentManager default homeServices deployedComponents
-									 at: (composite children at: 2) text asClass) inspect ] ] ] ] ]
+{ #category : #initialization }
+MolComponentVisualizer >> clickingComponentsShowInspector [
+	"double-clicking a component shows its detail in the Pharo Inspector"
+
+	| canvasCompositeShapes |
+	canvasCompositeShapes := self removeLinesForIteration.
+
+	canvasCompositeShapes do: [ :component |
+		self clickingComponentShowsInspector: component ]
 ]
 
 { #category : #initialization }
@@ -176,27 +178,24 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 MolComponentVisualizer >> createLinksAndHighlights [
 	"regroups every function used to highlight and create links between components"
 
-	self flag: 'highlightShapes: réexécuté fait bugger'.
-
 	"links need to be created first in order to know what to highlight next"
+
 	self createLinksBetweenInterfaces.
 	self createInvisibleLinksBetweenInterfaces.
 
 	self highlightShapes.
-	self highlightShapesShowsLinkAndForm.
+	self highlightShapesShowLinkAndForm.
 	self highlightComponents.
 
-	self clickingComponentShowsInspector
+	self clickingComponentsShowInspector
 ]
 
 { #category : #initialization }
 MolComponentVisualizer >> createLinksAndHighlightsRealTimeVisualization: componentShape [
-	"this method exists so that when a Component is added to the visualization, its interface shapes, labels and main box can be highlighted without interfering with the other Components."
-
-	self flag:
-		'revoir autres méthodes, clickingComponentShowsInspector paramètre'.
+	"this method exists so that when a Component is added to the visualization, its interface shapes, labels and main box can be highlighted without interfering with the other Components"
 
 	"links need to be created first in order to know what to highlight next"
+
 	self createLinksBetweenInterfaces.
 	self createInvisibleLinksBetweenInterfaces.
 
@@ -204,7 +203,7 @@ MolComponentVisualizer >> createLinksAndHighlightsRealTimeVisualization: compone
 	self highlightShapeShowsLinkAndForm: componentShape.
 	self highlightComponent: componentShape.
 
-	self clickingComponentShowsInspector
+	self clickingComponentShowsInspector: componentShape
 ]
 
 { #category : #initialization }
@@ -333,54 +332,20 @@ MolComponentVisualizer >> getLabelsForIteration: componentIndex [
 	^ componentLabels
 ]
 
-{ #category : #'as yet unclassified' }
-MolComponentVisualizer >> hasTwoComponentsOrMore [
-	"used to know if the canvas has two or more RSComposite shapes, to create links or not"
-
-	| i |
-	i := 0.
-	self flag: 'pas utile?'.
-
-	canvas shapes do: [ :shape |
-		shape class = RSComposite ifTrue: [ i := i + 1 ] ].
-
-	i >= 2
-		ifTrue: [ ^ true ]
-		ifFalse: [ ^ false ]
-]
-
 { #category : #initialization }
 MolComponentVisualizer >> highlightComponent: componentShape [
 	"hovering over a component (its main RSBox) highlights every interface shape and label it has as well as showing every line that connects it to another component's interface shapes and labels"
 
-	| highlightableLabel highlightableShape highlightableLine highlightable |
+	| highlightableLabel |
 	highlightableLabel := RSHighlightable new.
 	highlightableLabel highlightColor: Color red.
 
-	"highlightableShape := RSHighlightable new.
-	highlightableShape highlightColor: Color red."
-	"property used to highlight the other interface shape that the one hovered on is linked to"
-	"highlightableShape withConnectedShapes."
-
-	"highlightableLine := RSHighlightable new."
-	"property used to highlight the lines that connect the interface shape to another"
-	"highlightableLine withLines."
-
-	"part for real-time visualization (doesn't unhighlight lines after adding/deleting components otherwise)"
-	self flag: 'à tenter d enelver'.
-	highlightable := RSHighlightable new.
-	"highlightable highlightColor: Color red."
-	highlightable unhighlightRecordedShapes: canvas.
-
-	"highlightable resetHighlightedShapes: canvas."
-
 	componentShape children do: [ :child |
-		child class = MolBoxComponent ifTrue: [ "child @ highlightable."
+		child class = MolBoxComponent ifTrue: [
 			highlightableLabel highlightShapes: [ :box |
 				self highlightInterfaceShapesAndLines: box ].
 
-			child @ highlightableLabel.
-			child @ highlightable ] ]
+			child @ highlightableLabel ] ]
 ]
 
 { #category : #initialization }
@@ -399,7 +364,6 @@ MolComponentVisualizer >> highlightInterfaceShapesAndLines: box [
 	"executed in highlightComponent, highlights every interface shape and label a Component has as well as showing every line that connects it to another component's interface shapes and labels"
 
 	| group c lines highlightedShape |
-	self flag: 'trop de shapes quand composant ajouté/supprimé, bug ICI'.
 	group := RSGroup new.
 
 	c := self findComponentThroughShape: box.
@@ -518,55 +482,27 @@ MolComponentVisualizer >> highlightShapes: componentShape [
 
 	"hovering over an interface shape also creates a red line to its associated interface(s) labels as well as the associated interface(s) labels of another component, useful there's multiple interface labels for one part of a component's contract"
 
-	| highlightableLine highlightableShape lines highlightedShape group highlightable |
+	| highlightableLine highlightableShape lines |
 	highlightableLine := RSHighlightable new.
 	highlightableLine highlightColor: Color red.
 	"property used to highlight the lines that connect the interface shape to another"
 	highlightableLine withEdges.
-	"highlightableLine withOutgoingLines."
-	"highlightable highlightBorder: (RSBorder new
-			 width: 30;
-			 color: Color black)."
+
 	highlightableShape := RSHighlightable new.
 	highlightableShape highlightColor: Color red.
 	"property used to highlight the other interface shape that the one hovered on is linked to"
-	"highlightableShape resetHighlightedShapes: canvas."
 	highlightableShape withConnectedShapes.
-	"highlightableShape withOutgoingShapes."
-
-	highlightable := RSHighlightable new.
-	highlightable unhighlightRecordedShapes: canvas.
-	"highlightable resetHighlightedShapes: canvas."
-
-	self flag:
-		'à modifier'.
-	"highlightable highlightColor: Color red."
 
 	componentShape children do: [ :child |
-		child class = RSLine ifFalse: [ "child @ highlightable."
+		child class = RSLine ifFalse: [
 			lines := child connectedLines.
-			lines isEmpty ifFalse: [ "if the component is connected through another by its hovered on interface shape""highlightable highlightShapes: [ :shape |""highlightable highlightShapes: [ :shape |
-						list := OrderedCollection new.
-						group := RSGroup new.""lines := shape connectedLines.""highlights the current shape""list add: shape.""as well as the shapes and labels from other components connected to the component""lines do: [ :line |
-							highlightedShape := self highlightedShape: line to.
-							(line to isKindOf: MolFormShape) ifTrue: [
-								line to form: highlightedShape ].
-							list add: line to ].
-
-						group addAll: list.
-						group ].
-
-					child @ highlightable ""group := RSGroup new.""highlights the hovered on interface shape""group add: child.""highlights the lines going to other interface shapes""group addAll: lines.""highlights the shapes and labels from other components connected to the component""lines do: [ :line |
-							group add: line to.""puts the shapes in red by changing the graphic""highlightedShape := self highlightedShape: line to.
-							(line to isKindOf: MolFormShape) ifTrue: [
-								line to form: highlightedShape ] ].""group"
+			lines isEmpty ifFalse: [
 				child @ highlightableLine.
-				child @ highlightableShape
-				"child @ highlightable" ] ] ]
+				child @ highlightableShape ] ] ]
 ]
 
 { #category : #initialization }
-MolComponentVisualizer >> highlightShapesShowsLinkAndForm [
+MolComponentVisualizer >> highlightShapesShowLinkAndForm [
 	"hovering over an interface shape shows a line that connects it to another component's interface shape. It also highlights the Forms (shapes used for the required part of the interfaces which are not polygons"
 
 	| canvasCompositeShapes |
@@ -667,7 +603,6 @@ MolComponentVisualizer >> realTimeVisualization [
 
 			canvas removeShape: componentShape.
 
-			self flag: 'utile à quel point ?'.
 			self deleteAndRecreateLinks: componentShape ]
 ]
 
