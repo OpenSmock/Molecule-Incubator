@@ -120,13 +120,10 @@ MolComponentVisualizer >> createForceLayout [
 	"creates a force layout, which is a type of layout that can move dynamically the components (not just drag them)"
 
 	| forceLayout lineArray |
-	"lineArray := OrderedCollection new."
-	"canvas shapes do: [ :component |
-		component lines do: [ :line | lineArray add: line ] ]."
-	"canvas shapes do: [ :line |
+	"lineArray := OrderedCollection new.""canvas shapes do: [ :component |
+		component lines do: [ :line | lineArray add: line ] ].""canvas shapes do: [ :line |
 		line class = RSLine ifTrue: [ lineArray add: line ] ]."
-
-	self flag: ''.
+	self flag: 'terminé ?'.
 	forceLayout := RSForceBasedLayout new
 		               nodes: canvas shapes;
 		               "edges: lineArray;
@@ -156,41 +153,6 @@ MolComponentVisualizer >> createLinksAndHighlights [
 	self clickingComponentsShowInspector
 
 	"self unhighlightInterfacePreviouslyLinked"
-]
-
-{ #category : #initialization }
-MolComponentVisualizer >> createLinksAndHighlightsRealTimeVisualization: componentShape [
-	"this method exists so that when a Component is added to the visualization, its interface shapes, labels and main box can be highlighted without interfering with the other Components"
-
-	"links need to be created first in order to know what to highlight next"
-
-	self flag: 'logiquement pas utilisé'.
-
-	self createTransparentLinksBetweenInterfaces.
-
-	self highlightShapes: componentShape.
-	self highlightShapeShowsLinkAndForm: componentShape.
-	self highlightComponent: componentShape.
-
-	self clickingComponentShowsInspector: componentShape
-]
-
-{ #category : #initialization }
-MolComponentVisualizer >> createLinksAndHighlightsTest [
-	"regroups every function used to highlight and create links between components"
-
-	self flag: 'à enlever'.
-
-	"links need to be created first in order to know what to highlight next"
-	self createTransparentLinksBetweenInterfaces.
-
-	self highlightShapes.
-	self highlightShapesShowLinkAndForm.
-	self highlightComponents.
-
-	self clickingComponentsShowInspector.
-
-	self unhighlightInterfacePreviouslyLinked
 ]
 
 { #category : #initialization }
@@ -267,13 +229,14 @@ MolComponentVisualizer >> deleteAndRecreateLinks: componentShape [
 		shape class = RSLine
 			ifTrue: [ "deletes every link" canvas removeShape: shape ]
 			ifFalse: [ "resets every interaction (@) associated to shapes (double-click for inspect...), places them back through the different methods contained in createLinksAndHighlights, necessary since otherwise highlighting a shape after adding/deleting a component will not unhighlight it properly when the cursor leaves it"
-				shape children do: [ :child | child subscriptions ifNotNil: [ 
-					child subscriptions reset ] ] ] ].
-
-	canvas zoomToFit.
+				shape children do: [ :child |
+					child subscriptions ifNotNil: [ child subscriptions reset ].
+					child class = RSLine ifFalse: [ "need to remove lines of interface shapes/labels so that they aren't highlightable anymore when a component is deleted and they were linked to a part of it"
+						child connectedLines ifNotEmpty: [
+							child connectedLines removeAll ] ] ] ] ].
 
 	"recreates links"
-	self createLinksAndHighlightsTest "RealTimeVisualization: componentShape"
+	self createLinksAndHighlights "RealTimeVisualization: componentShape"
 ]
 
 { #category : #initialization }
@@ -553,7 +516,7 @@ MolComponentVisualizer >> initialize [
 
 	self buildComponents.
 
-	self createForceLayout.
+	"self createForceLayout."
 
 	self createLinksAndHighlights.
 
@@ -565,6 +528,24 @@ MolComponentVisualizer >> initialize [
 	removedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
 		                    subscriptionsHandling:
 		                    MolComponentRemoved asAnnouncement
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> interfaceShapes: shape [
+	"returns the different interface shapes present in a shape"
+
+	| interfaceShapes class |
+	interfaceShapes := OrderedCollection new.
+
+	shape connectedLines do: [ :line |
+		class := line to class.
+		"required then offered interface shapes"
+		(class = RSShapeFactory diamond class or: (class = RSBox or:
+				  (class = RSEllipse or:
+					   (class = MolShapeIcon consumedEventIcon class or: (class = MolShapeIcon usedParameterIcon or: class = MolShapeIcon usedServiceIcon))))) ifTrue: [
+			interfaceShapes add: line to ] ].
+
+	^ interfaceShapes
 ]
 
 { #category : #'as yet unclassified' }
