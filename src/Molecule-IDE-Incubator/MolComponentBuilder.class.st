@@ -94,28 +94,6 @@ MolComponentBuilder >> determineCanvasIndex [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> generateConsumedEvents [
-	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape (which is a Form) and the line that links the box and the shape"
-
-	| labels consumedEventShape consumedEventBitmap |
-	labels := self
-		          showInterfaces: 'consumedEvent'
-		          xValue: -220
-		          yValue: yEvent.
-
-	labels ifNotNil: [
-		consumedEventShape := MolShapeIcon consumedEventIcon.
-
-		consumedEventBitmap := MolConsumedEventShape new.
-		consumedEventBitmap form: consumedEventShape.
-		consumedEventBitmap translateTo: -110 @ yEvent - 20.
-
-		canvas add: consumedEventBitmap.
-
-		self addLineFromBoxTo: consumedEventBitmap ]
-]
-
-{ #category : #rendering }
 MolComponentBuilder >> generateConsumedEvents: numberedComponent [
 	"generates the consumed Events part, which is composed of the consumed event interfaces, the right arrow shape (which is a Form) and the line that links the box and the shape"
 
@@ -281,28 +259,6 @@ MolComponentBuilder >> generateType [
 ]
 
 { #category : #rendering }
-MolComponentBuilder >> generateUsedParameters [
-	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape (which is a Form) and the line that links the box and the shape"
-
-	| labels usedParameterShape usedParameterBitmap |
-	labels := self
-		          showInterfaces: 'usedParameter'
-		          xValue: -60
-		          yValue: yParameter.
-
-	labels ifNotNil: [
-		usedParameterShape := MolShapeIcon usedParameterIcon.
-
-		usedParameterBitmap := MolUsedParameterShape new.
-		usedParameterBitmap form: usedParameterShape.
-		usedParameterBitmap translateTo: -40 @ 135.
-
-		canvas add: usedParameterBitmap.
-
-		self addLineFromBoxTo: usedParameterBitmap ]
-]
-
-{ #category : #rendering }
 MolComponentBuilder >> generateUsedParameters: numberedComponent [
 	"generates the used parameters part, which is composed of the used parameter interfaces, the fork shape (which is a Form) and the line that links the box and the shape"
 
@@ -323,28 +279,6 @@ MolComponentBuilder >> generateUsedParameters: numberedComponent [
 		canvas add: usedParameterBitmap.
 
 		self addLineFromBoxTo: usedParameterBitmap ]
-]
-
-{ #category : #rendering }
-MolComponentBuilder >> generateUsedServices [
-	"generates the used services part, which is composed of the used service interfaces labels, the half-empty circle shape (which is a Form) and the line that links the box and the shape"
-
-	| usedServiceShape labels usedServiceBitmap |
-	labels := self
-		          showInterfaces: 'usedService'
-		          xValue: -200
-		          yValue: yService.
-
-	labels ifNotNil: [
-		usedServiceShape := MolShapeIcon usedServiceIcon.
-
-		usedServiceBitmap := MolUsedServiceShape new.
-		usedServiceBitmap form: usedServiceShape.
-		usedServiceBitmap translateTo: -130 @ yService.
-
-		canvas add: usedServiceBitmap.
-
-		self addLineFromBoxTo: usedServiceBitmap ]
 ]
 
 { #category : #rendering }
@@ -412,16 +346,10 @@ MolComponentBuilder >> showComponent: numberedComponent [
 
 	self generateType.
 
-	"required part of the component"
-	numberedComponent
-		ifNotNil: [
-			self generateUsedServices: numberedComponent.
-			self generateConsumedEvents: numberedComponent.
-			self generateUsedParameters: numberedComponent ]
-		ifNil: [  "See Component Implementation doesn't use numberedComponent"
-			self generateConsumedEvents.
-			self generateUsedServices.
-			self generateUsedParameters ].
+	"required part of the component (numberedComponent part used for visualization, not used anywhere else"
+	self generateUsedServices: numberedComponent.
+	self generateConsumedEvents: numberedComponent.
+	self generateUsedParameters: numberedComponent.
 
 	"offered part of the component"
 	self generateProvidedParameters.

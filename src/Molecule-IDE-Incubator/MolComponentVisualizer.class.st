@@ -80,7 +80,9 @@ MolComponentVisualizer >> buildComponents [
 		numberedComponent := numberedComponent + 1.
 		canvasShape := (self buildComponent: component) canvas asShape.
 
-		self moveAndAddComponent: canvasShape ]
+		self moveAndAddComponent: canvasShape ].
+
+
 ]
 
 { #category : #initialization }
@@ -114,8 +116,86 @@ MolComponentVisualizer >> clickingComponentsShowInspector [
 ]
 
 { #category : #initialization }
-MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
-	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes and the interface labels"
+MolComponentVisualizer >> createForceLayout [
+	"creates a force layout, which is a type of layout that can move dynamically the components (not just drag them)"
+
+	| forceLayout lineArray |
+	"lineArray := OrderedCollection new."
+	"canvas shapes do: [ :component |
+		component lines do: [ :line | lineArray add: line ] ]."
+	"canvas shapes do: [ :line |
+		line class = RSLine ifTrue: [ lineArray add: line ] ]."
+
+	self flag: ''.
+	forceLayout := RSForceBasedLayout new
+		               nodes: canvas shapes;
+		               "edges: lineArray;
+		               length: 50;"
+		               charge: -30;
+		               friction: 0.2;
+		               strength: -500;
+		               theta: 0.5;
+		               gravity: 0.01;
+		               start;
+		               yourself.
+	canvas newAnimation repeat onStepDo: [ :t | forceLayout step ].
+	canvas shapes @ (RSDraggableForceInteraction new layout: forceLayout)
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> createLinksAndHighlights [
+	"regroups every function used to highlight and create links between components"
+
+	"links need to be created first in order to know what to highlight next"
+	self createTransparentLinksBetweenInterfaces.
+
+	self highlightShapes.
+	self highlightShapesShowLinkAndForm.
+	self highlightComponents.
+
+	self clickingComponentsShowInspector
+
+	"self unhighlightInterfacePreviouslyLinked"
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> createLinksAndHighlightsRealTimeVisualization: componentShape [
+	"this method exists so that when a Component is added to the visualization, its interface shapes, labels and main box can be highlighted without interfering with the other Components"
+
+	"links need to be created first in order to know what to highlight next"
+
+	self flag: 'logiquement pas utilisé'.
+
+	self createTransparentLinksBetweenInterfaces.
+
+	self highlightShapes: componentShape.
+	self highlightShapeShowsLinkAndForm: componentShape.
+	self highlightComponent: componentShape.
+
+	self clickingComponentShowsInspector: componentShape
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> createLinksAndHighlightsTest [
+	"regroups every function used to highlight and create links between components"
+
+	self flag: 'à enlever'.
+
+	"links need to be created first in order to know what to highlight next"
+	self createTransparentLinksBetweenInterfaces.
+
+	self highlightShapes.
+	self highlightShapesShowLinkAndForm.
+	self highlightComponents.
+
+	self clickingComponentsShowInspector.
+
+	self unhighlightInterfacePreviouslyLinked
+]
+
+{ #category : #initialization }
+MolComponentVisualizer >> createTransparentLinksBetweenInterfaces [
+	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces as well as links between interface shapes and labels"
 
 	| lineArray canvasCopy componentIndex componentCopyIndex canvasIndex requiredShape canvasCopyIndex offeredShape |
 	lineArray := OrderedCollection new.
@@ -166,90 +246,14 @@ MolComponentVisualizer >> createInvisibleLinksBetweenInterfaces [
 
 													(child class = RSLabel and: child text = child2 text)
 														ifTrue: [
-														lineArray add: (self addLineFrom: child to: child2) ] ] ] ] ] ] ].
+															lineArray add: (self addLineFrom: child to: child2).
+
+															"used so that two shapes representing the same part of a component's contract from different components cannot be linked"
+															requiredShape class = offeredShape class ifFalse: [
+																lineArray add:
+																	(self addLineFrom: requiredShape to: offeredShape) ] ] ] ] ] ] ] ].
 							canvasCopyIndex := 0 ] ] ].
 				componentCopyIndex := 0 ] ].
-		canvasIndex := 0 ].
-
-	self removeDuplicateLines: lineArray
-]
-
-{ #category : #initialization }
-MolComponentVisualizer >> createLinksAndHighlights [
-	"regroups every function used to highlight and create links between components"
-
-	"links need to be created first in order to know what to highlight next"
-
-	self createLinksBetweenInterfaces.
-	self createInvisibleLinksBetweenInterfaces.
-
-	self highlightShapes.
-	self highlightShapesShowLinkAndForm.
-	self highlightComponents.
-
-	self clickingComponentsShowInspector
-]
-
-{ #category : #initialization }
-MolComponentVisualizer >> createLinksAndHighlightsRealTimeVisualization: componentShape [
-	"this method exists so that when a Component is added to the visualization, its interface shapes, labels and main box can be highlighted without interfering with the other Components"
-
-	"links need to be created first in order to know what to highlight next"
-
-	self createLinksBetweenInterfaces.
-	self createInvisibleLinksBetweenInterfaces.
-
-	self highlightShapes: componentShape.
-	self highlightShapeShowsLinkAndForm: componentShape.
-	self highlightComponent: componentShape.
-
-	self clickingComponentShowsInspector: componentShape
-]
-
-{ #category : #initialization }
-MolComponentVisualizer >> createLinksBetweenInterfaces [
-	"if an interface declared in the offered contract part of component A is also used in the required part of component B of the same type (Event, Parameter or Service), creates a link between the shapes symbolizing the interfaces"
-
-	| offeredShape requiredShape lineArray canvasCopy canvasIndex canvasCopyIndex componentIndex componentCopyIndex |
-	lineArray := OrderedCollection new.
-	canvasCopy := canvas.
-
-	"component indexes are used to know which component is being selected"
-	componentIndex := 0.
-	componentCopyIndex := 0.
-
-	"canvas indexes are used to know the position of labels in components shape list"
-	canvasIndex := 0.
-	canvasCopyIndex := 0.
-
-	"iterates on two components at the same time in order to not make comparisons between elements of a same component (incoherent with Molecule architecture)"
-	canvas shapes do: [ :component | "adds the line after in order to not update the canvas while it's being iterated on"
-		componentIndex := componentIndex + 1.
-		component children do: [ :child |
-			canvasIndex := canvasIndex + 1.
-			canvasCopy shapes do: [ :component2 |
-				componentCopyIndex := componentCopyIndex + 1.
-				"safety measure to make sure that the two compared elements aren't from the same component"
-				componentIndex = componentCopyIndex ifFalse: [
-					component2 children do: [ :child2 |
-						(child class = RSLabel and: child2 class = RSLabel) ifTrue: [ "verify that Roassal elements of type RSLabel aren't the same element"
-							child == child2 ifFalse: [ "but have the same text"
-								child text = child2 text ifTrue: [ "that isn't an empty string"
-									child text = '' ifFalse: [
-										requiredShape := self
-											                 determineComponentShape: componentIndex
-											                 canvasIndex: canvasIndex.
-										offeredShape := self
-											                determineComponentShape: componentCopyIndex
-											                canvasIndex: canvasCopyIndex.
-
-										"used so that two shapes representing the same part of a component's contract from different components cannot be linked"
-										requiredShape class = offeredShape class ifFalse: [
-											lineArray add:
-												(self addLineFrom: requiredShape to: offeredShape) ] ] ] ] ].
-						canvasCopyIndex := canvasCopyIndex + 1 ].
-					canvasCopyIndex := 0 ] ].
-			componentCopyIndex := 0 ].
 		canvasIndex := 0 ].
 
 	self removeDuplicateLines: lineArray
@@ -260,13 +264,16 @@ MolComponentVisualizer >> deleteAndRecreateLinks: componentShape [
 	"deletes every link before recreating them if there are linked components on the screen"
 
 	canvas shapes do: [ :shape |
-		shape class = RSLine ifTrue: [ "deletes every link"
-			canvas removeShape: shape ] ].
+		shape class = RSLine
+			ifTrue: [ "deletes every link" canvas removeShape: shape ]
+			ifFalse: [ "resets every interaction (@) associated to shapes (double-click for inspect...), places them back through the different methods contained in createLinksAndHighlights, necessary since otherwise highlighting a shape after adding/deleting a component will not unhighlight it properly when the cursor leaves it"
+				shape children do: [ :child | child subscriptions ifNotNil: [ 
+					child subscriptions reset ] ] ] ].
 
 	canvas zoomToFit.
 
 	"recreates links"
-	self createLinksAndHighlightsRealTimeVisualization: componentShape
+	self createLinksAndHighlightsTest "RealTimeVisualization: componentShape"
 ]
 
 { #category : #initialization }
@@ -514,7 +521,7 @@ MolComponentVisualizer >> highlightShapesShowLinkAndForm [
 
 { #category : #'as yet unclassified' }
 MolComponentVisualizer >> highlightedShape: shape [
-	"returns the highlighted form of a given shape"
+	"returns the highlighted Form of a given shape"
 
 	shape class = MolConsumedEventShape ifTrue: [
 		^ MolShapeIcon redConsumedEventIcon ].
@@ -540,10 +547,13 @@ MolComponentVisualizer >> initialize [
 	canvas := RSCanvas new.
 	"The canvas can be zoomed in / out using I and O keys and can also be navigated using scrollbars"
 	canvas @ RSCanvasController.
+
 	runningComponents := MolComponentManager default homeServices
 		                     deployedComponents.
 
 	self buildComponents.
+
+	self createForceLayout.
 
 	self createLinksAndHighlights.
 
@@ -668,7 +678,7 @@ MolComponentVisualizer >> removeShapesForIteration [
 
 { #category : #'as yet unclassified' }
 MolComponentVisualizer >> unhighlightedShape: shape [
-	"returns the unhighlighted form of a given shape"
+	"returns the unhighlighted Form of a given shape"
 
 	shape class = MolConsumedEventShape ifTrue: [
 		^ MolShapeIcon consumedEventIcon ].
