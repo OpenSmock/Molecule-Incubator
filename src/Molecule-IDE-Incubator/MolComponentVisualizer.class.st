@@ -132,9 +132,9 @@ MolComponentVisualizer >> createForceLayout [
 		               friction: 0.2;
 		               strength: -500;
 		               theta: 0.5;
-		               gravity: 0.01;
-		               start;
+		               "gravity: 0.01;"start;
 		               yourself.
+		
 	canvas newAnimation repeat onStepDo: [ :t | forceLayout step ].
 	canvas shapes @ (RSDraggableForceInteraction new layout: forceLayout)
 ]
@@ -151,8 +151,6 @@ MolComponentVisualizer >> createLinksAndHighlights [
 	self highlightComponents.
 
 	self clickingComponentsShowInspector
-
-	"self unhighlightInterfacePreviouslyLinked"
 ]
 
 { #category : #initialization }
@@ -223,7 +221,7 @@ MolComponentVisualizer >> createTransparentLinksBetweenInterfaces [
 
 { #category : #'as yet unclassified' }
 MolComponentVisualizer >> deleteAndRecreateLinks: componentShape [
-	"deletes every link before recreating them if there are linked components on the screen"
+	"deletes every link before recreating them"
 
 	canvas shapes do: [ :shape |
 		shape class = RSLine
@@ -231,12 +229,12 @@ MolComponentVisualizer >> deleteAndRecreateLinks: componentShape [
 			ifFalse: [ "resets every interaction (@) associated to shapes (double-click for inspect...), places them back through the different methods contained in createLinksAndHighlights, necessary since otherwise highlighting a shape after adding/deleting a component will not unhighlight it properly when the cursor leaves it"
 				shape children do: [ :child |
 					child subscriptions ifNotNil: [ child subscriptions reset ].
-					child class = RSLine ifFalse: [ "need to remove lines of interface shapes/labels so that they aren't highlightable anymore when a component is deleted and they were linked to a part of it"
+					child class = RSLine ifFalse: [ "need to remove lines of interface shapes/labels so that they aren't highlightable anymore (relevant wwhen a component is deleted and they were linked to a part of it)"
 						child connectedLines ifNotEmpty: [
 							child connectedLines removeAll ] ] ] ] ].
 
 	"recreates links"
-	self createLinksAndHighlights "RealTimeVisualization: componentShape"
+	self createLinksAndHighlights
 ]
 
 { #category : #initialization }
@@ -516,7 +514,7 @@ MolComponentVisualizer >> initialize [
 
 	self buildComponents.
 
-	"self createForceLayout."
+	self createForceLayout.
 
 	self createLinksAndHighlights.
 
@@ -528,24 +526,6 @@ MolComponentVisualizer >> initialize [
 	removedAnnouncer := SystemAnnouncer uniqueInstance subscriptions
 		                    subscriptionsHandling:
 		                    MolComponentRemoved asAnnouncement
-]
-
-{ #category : #initialization }
-MolComponentVisualizer >> interfaceShapes: shape [
-	"returns the different interface shapes present in a shape"
-
-	| interfaceShapes class |
-	interfaceShapes := OrderedCollection new.
-
-	shape connectedLines do: [ :line |
-		class := line to class.
-		"required then offered interface shapes"
-		(class = RSShapeFactory diamond class or: (class = RSBox or:
-				  (class = RSEllipse or:
-					   (class = MolShapeIcon consumedEventIcon class or: (class = MolShapeIcon usedParameterIcon or: class = MolShapeIcon usedServiceIcon))))) ifTrue: [
-			interfaceShapes add: line to ] ].
-
-	^ interfaceShapes
 ]
 
 { #category : #'as yet unclassified' }
@@ -570,7 +550,6 @@ MolComponentVisualizer >> realTimeVisualization [
 	"functions through announcers"
 
 	| componentShape componentClass |
-	self flag: 'doesn t fully work'.
 	"adds the components (with the name of their instance if they have one)"
 	SystemAnnouncer uniqueInstance
 		when: MolComponentActivated
