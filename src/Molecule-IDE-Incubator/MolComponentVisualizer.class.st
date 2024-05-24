@@ -119,22 +119,33 @@ MolComponentVisualizer >> clickingComponentsShowInspector [
 MolComponentVisualizer >> createForceLayout [
 	"creates a force layout, which is a type of layout that can move dynamically the components (not just drag them)"
 
-	| forceLayout lineArray |
-	"lineArray := OrderedCollection new.""canvas shapes do: [ :component |
-		component lines do: [ :line | lineArray add: line ] ].""canvas shapes do: [ :line |
-		line class = RSLine ifTrue: [ lineArray add: line ] ]."
-	self flag: 'terminé ?'.
+	| forceLayout lineArray componentIndex finalComponentIndex line |
+	lineArray := OrderedCollection new.
+	componentIndex := 1.
+	finalComponentIndex := 2.
+
+	"create lines between the components, 1 less for each index: if there's 4 components, links are 1-2, 1-3, 1-4, 2-3, 2-4, 3-4"
+	canvas shapes do: [ :component |
+		[ finalComponentIndex <= canvas shapes size ] whileTrue: [
+			line := self
+				        addLineFrom: component
+				        to: (canvas shapes at: finalComponentIndex).
+			lineArray add: line.
+			componentIndex := componentIndex + 1.
+			finalComponentIndex := componentIndex + 1 ] ].
+
 	forceLayout := RSForceBasedLayout new
 		               nodes: canvas shapes;
-		               "edges: lineArray;
-		               length: 50;"
+		               edges: lineArray;
+		               length: 500;
 		               charge: -30;
 		               friction: 0.2;
-		               strength: -500;
+		               strength: 2;
 		               theta: 0.5;
-		               "gravity: 0.01;"start;
+		               gravity: -0.02;
+		               start;
 		               yourself.
-		
+
 	canvas newAnimation repeat onStepDo: [ :t | forceLayout step ].
 	canvas shapes @ (RSDraggableForceInteraction new layout: forceLayout)
 ]
@@ -533,9 +544,9 @@ MolComponentVisualizer >> moveAndAddComponent: canvasShape [
 	"moves a RSComposite shape and adds it to the canvas"
 
 	canvasShape translateTo: xValue @ yValue.
-	canvasShape @ RSDraggable.
+	"canvasShape @ RSDraggable."
 	canvas add: canvasShape.
-				canvas zoomToFit.
+	canvas zoomToFit.
 
 	xValue := xValue + 600.
 	yValue := yValue + 200

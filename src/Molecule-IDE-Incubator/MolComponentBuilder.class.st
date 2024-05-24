@@ -337,8 +337,6 @@ MolComponentBuilder >> showComponent: numberedComponent [
 
 	"Molecule Type (Component Representation tab in the Edit Component Type option) doesn't need to show all these shapes"
 	implementation ifNil: [ self generateMoleculeBox: nil ] ifNotNil: [
-		canvas @ RSCanvasController.
-
 		self generateMoleculeBox: numberedComponent.
 		self generateMoleculeComponentName.
 		"generateType was here before if the order needs to be respected"
