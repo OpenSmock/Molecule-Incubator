@@ -27,7 +27,6 @@ BaselineOfMoleculeIncubator >> baseline: spec [
 			spec postLoadDoIt: #'postload:package:'.
 			
 			"Load dependencies"
-			self loadMolecule: spec.
 			self loadPyramid: spec.
 						
 			"Packages"
