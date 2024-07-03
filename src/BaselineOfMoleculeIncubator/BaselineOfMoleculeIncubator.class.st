@@ -25,9 +25,6 @@ BaselineOfMoleculeIncubator >> baseline: spec [
 			"Pre and post load scripts"
 			spec preLoadDoIt: #'preload:package:'.
 			spec postLoadDoIt: #'postload:package:'.
-			
-			"Load dependencies"
-			self loadPyramid: spec.
 						
 			"Packages"
 			spec
